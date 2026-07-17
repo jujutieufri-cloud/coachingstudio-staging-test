@@ -598,11 +598,13 @@ const CoachLink = {
       famRef.get().then(famSnap => {
         if (!famSnap.exists) { notifCoach("Famille introuvable."); return; }
         const current = famSnap.data().authorizedCoaches || [];
+        const currentUids = famSnap.data().authorizedCoachUids || [];
         if (current.some(c => c.uid === this.user.uid)) {
           notifCoach("Vous êtes déjà autorisé pour cette famille.");
         } else {
           famRef.update({
-            authorizedCoaches: current.concat([{ uid: this.user.uid, email: this.user.email, addedAt: new Date().toISOString() }])
+            authorizedCoaches: current.concat([{ uid: this.user.uid, email: this.user.email, addedAt: new Date().toISOString() }]),
+            authorizedCoachUids: currentUids.concat([this.user.uid])
           }).then(() => {
             db.collection("coachLinks").doc(code).delete().catch(()=>{});
             if (!this.linkedFamilies.includes(familyCode)) {
