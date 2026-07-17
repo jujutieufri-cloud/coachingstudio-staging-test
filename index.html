@@ -595,28 +595,20 @@ const CoachLink = {
       if (!snap.exists) { notifCoach("Code invalide ou déjà utilisé."); return; }
       const familyCode = snap.data().familyCode;
       const famRef = db.collection("familles").doc(familyCode);
-      famRef.get().then(famSnap => {
-        if (!famSnap.exists) { notifCoach("Famille introuvable."); return; }
-        const current = famSnap.data().authorizedCoaches || [];
-        const currentUids = famSnap.data().authorizedCoachUids || [];
-        if (current.some(c => c.uid === this.user.uid)) {
-          notifCoach("Vous êtes déjà autorisé pour cette famille.");
-        } else {
-          famRef.update({
-            authorizedCoaches: current.concat([{ uid: this.user.uid, email: this.user.email, addedAt: new Date().toISOString() }]),
-            authorizedCoachUids: currentUids.concat([this.user.uid])
-          }).then(() => {
-            db.collection("coachLinks").doc(code).delete().catch(()=>{});
-            if (!this.linkedFamilies.includes(familyCode)) {
-              this.linkedFamilies.push(familyCode);
-              localStorage.setItem("cs4-linkedFamilies", JSON.stringify(this.linkedFamilies));
-            }
-            this.listen(familyCode);
-            notifCoach("✅ Famille liée avec succès.");
-            cb && cb();
-          }).catch(e => notifCoach("Erreur : " + e.message));
+      const coachEntry = { uid: this.user.uid, email: this.user.email, addedAt: new Date().toISOString() };
+      famRef.update({
+        authorizedCoaches: firebase.firestore.FieldValue.arrayUnion(coachEntry),
+        authorizedCoachUids: firebase.firestore.FieldValue.arrayUnion(this.user.uid)
+      }).then(() => {
+        db.collection("coachLinks").doc(code).delete().catch(()=>{});
+        if (!this.linkedFamilies.includes(familyCode)) {
+          this.linkedFamilies.push(familyCode);
+          localStorage.setItem("cs4-linkedFamilies", JSON.stringify(this.linkedFamilies));
         }
-      });
+        this.listen(familyCode);
+        notifCoach("✅ Famille liée avec succès.");
+        cb && cb();
+      }).catch(e => notifCoach("Erreur : " + e.message));
     }).catch(e => notifCoach("Erreur : " + e.message));
   },
 
