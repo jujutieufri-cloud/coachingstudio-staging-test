@@ -649,6 +649,87 @@ function notifCoach(msg) {
 
 CoachLink.init();
 
+const MOOD_EMOJI = {joie:'😊',calme:'😌',fatigue:'😴',stress:'😰',colere:'😠',triste:'😢'};
+
+function computeMemberInsights(data, pid) {
+  const journee = data.journee || {};
+  const entries = Object.keys(journee)
+    .filter(k => journee[k] && journee[k].pid === pid)
+    .map(k => journee[k])
+    .filter(e => e.date)
+    .sort((a,b) => a.date.localeCompare(b.date))
+    .slice(-14);
+
+  const routinesBySlot = (data.personRoutines && data.personRoutines[pid]) || {};
+  const tasksDone = data.tasksDone || {};
+  const incomplete = [];
+  Object.keys(routinesBySlot).forEach(slot => {
+    (routinesBySlot[slot] || []).forEach(r => {
+      if (r.steps && r.steps.length) {
+        r.steps.forEach(s => {
+          const k = pid + '_' + slot + '_' + r.id + '_' + s.id;
+          if (!tasksDone[k]) incomplete.push({slot, label: r.name + ' — ' + s.name});
+        });
+      } else {
+        const k = pid + '_' + slot + '_' + r.id;
+        if (!tasksDone[k]) incomplete.push({slot, label: r.name});
+      }
+    });
+  });
+
+  return { entries, incomplete };
+}
+
+function svgEnergyCurve(entries) {
+  if (!entries.length) return h("div",{style:"font-size:11px;color:#4a6a52;padding:6px 0"},"Pas encore de données d'énergie enregistrées.");
+  const w = 240, hgt = 46, pad = 4;
+  const step = entries.length > 1 ? (w - pad*2) / (entries.length - 1) : 0;
+  const pts = entries.map((e,i) => {
+    const val = typeof e.energie === 'number' ? e.energie : 0;
+    const x = pad + i*step;
+    const y = hgt - pad - (val/10)*(hgt - pad*2);
+    return x.toFixed(1)+","+y.toFixed(1);
+  }).join(" ");
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", w); svg.setAttribute("height", hgt); svg.setAttribute("viewBox", `0 0 ${w} ${hgt}`);
+  const poly = document.createElementNS(svgNS, "polyline");
+  poly.setAttribute("points", pts);
+  poly.setAttribute("fill","none"); poly.setAttribute("stroke","#4a9e6a"); poly.setAttribute("stroke-width","2");
+  svg.appendChild(poly);
+  return svg;
+}
+
+function renderMemberInsights(data, m) {
+  const { entries, incomplete } = computeMemberInsights(data, m.id);
+  const box = h("div",{style:"margin-top:8px;padding-top:8px;border-top:1px solid #2a3c2e"});
+
+  box.appendChild(h("div",{style:"font-size:10.5px;color:#7a9a80;margin-bottom:4px"},"Énergie (14 derniers jours, /10)"));
+  box.appendChild(svgEnergyCurve(entries));
+
+  if (entries.length) {
+    const moodRow = h("div",{style:"display:flex;gap:4px;margin-top:6px;flex-wrap:wrap"});
+    entries.forEach(e => {
+      moodRow.appendChild(h("span",{style:"font-size:14px",title:e.date+" — "+(e.humeur||'')}, MOOD_EMOJI[e.humeur] || '·'));
+    });
+    box.appendChild(moodRow);
+  }
+
+  if (incomplete.length) {
+    const list = h("div",{style:"margin-top:8px;font-size:11px;color:#d0a070"});
+    list.appendChild(h("div",{style:"font-weight:600;margin-bottom:3px"}, "⚠️ Non complété actuellement (" + incomplete.length + ")"));
+    incomplete.slice(0,5).forEach(item => {
+      list.appendChild(h("div",{style:"color:#9a9a85;padding:1px 0"}, "· " + item.label));
+    });
+    if (incomplete.length > 5) list.appendChild(h("div",{style:"color:#6a7a6a;font-style:italic"}, "+ " + (incomplete.length-5) + " autres"));
+    box.appendChild(list);
+  } else if (Object.keys((data.personRoutines||{})[m.id] || {}).length) {
+    box.appendChild(h("div",{style:"margin-top:8px;font-size:11px;color:#4a9e6a"}, "✅ Toutes les routines définies sont à jour"));
+  }
+
+  return box;
+}
+
 function renderClairiereTab() {
   const wrap = h("div",{});
   if (!CoachLink.user) {
@@ -688,17 +769,20 @@ function renderClairiereTab() {
       card.appendChild(h("p",{style:"color:#7a9a80;font-size:12.5px"},"Chargement des données…"));
     } else {
       const fam = data.fam || [];
-      const grid = h("div",{style:"display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px"});
       fam.forEach(m => {
         const xp = (data.gXP && data.gXP[m.id]) || 0;
         const journalCount = (data.journal||[]).filter(j=>j.pid===m.id).length;
-        grid.appendChild(h("div",{style:"background:#1a2c1e;border-radius:10px;padding:12px;text-align:center"},
+        const memberBox = h("div",{style:"background:#1a2c1e;border-radius:10px;padding:12px;margin-bottom:10px"});
+        memberBox.appendChild(h("div",{style:"display:flex;align-items:center;gap:10px"},
           h("div",{style:"font-size:22px"}, m.emoji||"👤"),
-          h("div",{style:"font-size:13px;font-weight:600;color:#ede8d8;margin-top:4px"}, m.prenom),
-          h("div",{style:"font-size:11px;color:#7a9a80;margin-top:2px"}, xp + " XP · " + journalCount + " entrées journal")
+          h("div",{},
+            h("div",{style:"font-size:13px;font-weight:600;color:#ede8d8"}, m.prenom),
+            h("div",{style:"font-size:11px;color:#7a9a80;margin-top:2px"}, xp + " XP · " + journalCount + " entrées journal")
+          )
         ));
+        memberBox.appendChild(renderMemberInsights(data, m));
+        card.appendChild(memberBox);
       });
-      card.appendChild(grid);
       const lastUpdate = data.lastUpdate ? ("Dernière activité : " + data.lastUpdate) : "";
       if (lastUpdate) card.appendChild(h("div",{style:"font-size:11px;color:#7a9a80;margin-top:10px"}, lastUpdate));
     }
