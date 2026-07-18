@@ -808,6 +808,80 @@ function renderCoachLogin() {
   return box;
 }
 
+// ══════════════════════════════════════════
+//  DEMANDES DE RDV (depuis le site vitrine)
+// ══════════════════════════════════════════
+const RdvRequests = {
+  items: [],
+  unsub: null,
+  listen() {
+    if (this.unsub || !CoachLink.user) return;
+    this.unsub = firebase.firestore().collection("rdvRequests")
+      .orderBy("createdAt", "desc")
+      .onSnapshot(snap => {
+        this.items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (state.tab === "rdv") render();
+      }, e => console.error("listen rdvRequests:", e));
+  },
+  setStatus(id, status) {
+    firebase.firestore().collection("rdvRequests").doc(id).update({ status })
+      .catch(e => notifCoach("Erreur : " + e.message));
+  }
+};
+
+function renderRdvTab() {
+  const wrap = h("div",{});
+  if (!CoachLink.user) { wrap.appendChild(renderCoachLogin()); return wrap; }
+  RdvRequests.listen();
+
+  const nouveaux = RdvRequests.items.filter(r => r.status === "nouveau");
+  const traites = RdvRequests.items.filter(r => r.status !== "nouveau");
+
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:14px"},
+    "📅 Nouvelles demandes (" + nouveaux.length + ")"));
+
+  if (!nouveaux.length) {
+    wrap.appendChild(h("p",{style:"color:#7a9a80;font-size:13px;padding:10px 0"},"Aucune nouvelle demande pour l'instant."));
+  }
+
+  nouveaux.forEach(r => {
+    const card = h("div",{class:"card",style:"padding:16px;margin-bottom:12px;border-color:#c8a04233"});
+    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:start"},
+      h("div",{},
+        h("div",{style:"font-size:14px;font-weight:700;color:#ede8d8"}, r.prenom + " " + r.nom),
+        h("div",{style:"font-size:12px;color:#c8a042;margin-top:2px"}, r.motif),
+        h("div",{style:"font-size:11.5px;color:#7a9a80;margin-top:6px"}, "📧 " + r.email + (r.tel ? " · 📞 " + r.tel : "")),
+        h("div",{style:"font-size:11.5px;color:#7a9a80;margin-top:2px"},
+          (r.date ? "Souhaité : " + r.date + (r.heure ? " à " + r.heure : "") : "Aucune date précisée")),
+        r.message ? h("div",{style:"font-size:12px;color:#9a9a85;margin-top:8px;font-style:italic"}, "\"" + r.message + "\"") : null
+      )
+    ));
+    const actions = h("div",{style:"display:flex;gap:8px;margin-top:12px"});
+    const confirmBtn = h("button",{class:"btn-sm",style:"border-color:#4a9e6a44;color:#4a9e6a"},"✓ Confirmer");
+    const rejectBtn = h("button",{class:"btn-sm",style:"border-color:#d0707044;color:#d07070"},"✕ Rejeter");
+    confirmBtn.addEventListener("click", () => RdvRequests.setStatus(r.id, "confirme"));
+    rejectBtn.addEventListener("click", () => RdvRequests.setStatus(r.id, "rejete"));
+    actions.appendChild(confirmBtn); actions.appendChild(rejectBtn);
+    card.appendChild(actions);
+    wrap.appendChild(card);
+  });
+
+  if (traites.length) {
+    wrap.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#7a9a80;margin:18px 0 10px"}, "Traitées"));
+    traites.slice(0,10).forEach(r => {
+      const col = r.status === "confirme" ? "#4a9e6a" : "#d07070";
+      wrap.appendChild(h("div",{style:"display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #2a3c2e;font-size:12.5px"},
+        h("div",{style:"color:#ede8d8"}, r.prenom + " " + r.nom + " — " + r.motif),
+        h("span",{style:"color:"+col}, r.status === "confirme" ? "Confirmé" : "Rejeté")
+      ));
+    });
+  }
+
+  return wrap;
+}
+
+
+
 
 // ══════════════════════════════════════════
 //  HELPERS
@@ -902,6 +976,7 @@ function field(labelText, inputElement) {
 const TABS = [
   {id:"dashboard",    icon:"⬡", label:"Tableau de bord"},
   {id:"clients",      icon:"◉", label:"Mes clients"},
+  {id:"rdv",          icon:"📅", label:"Demandes RDV"},
   {id:"clairiere",    icon:"🧭", label:"La Clairière"},
   {id:"bibliotheque", icon:"▣", label:"Bibliothèque coach"},
   {id:"ressources",   icon:"◇", label:"Mes ressources"},
@@ -1692,6 +1767,7 @@ function render() {
   if (state.tab==="dashboard")    content = renderDashboard();
   else if (state.tab==="clients") content = renderClients();
   else if (state.tab==="clairiere") content = renderClairiereTab();
+  else if (state.tab==="rdv") content = renderRdvTab();
   else if (state.tab==="bibliotheque") content = renderBibliotheque();
   else if (state.tab==="ressources")   content = renderRessources();
   else if (state.tab==="notes")        content = renderNotes();
