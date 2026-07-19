@@ -576,7 +576,8 @@ const CoachLink = {
     firebase.auth().onAuthStateChanged(u => {
       this.user = u;
       if (u) this.linkedFamilies.forEach(code => this.listen(code));
-      if (state.tab === "clairiere") render();
+      if (u && !CoachSettings.data) CoachSettings.listen();
+      if (["clairiere","rdv","reglages"].includes(state.tab)) render();
     });
   },
 
@@ -809,6 +810,111 @@ function renderCoachLogin() {
 }
 
 // ══════════════════════════════════════════
+//  RÉGLAGES COACH (horaires, tarifs, message d'info)
+// ══════════════════════════════════════════
+const DEFAULT_SETTINGS = {
+  horaires: {
+    lundi:    {ouvert:true,  debut:"09:00", fin:"18:00"},
+    mardi:    {ouvert:true,  debut:"09:00", fin:"18:00"},
+    mercredi: {ouvert:true,  debut:"09:00", fin:"18:00"},
+    jeudi:    {ouvert:true,  debut:"09:00", fin:"18:00"},
+    vendredi: {ouvert:true,  debut:"09:00", fin:"18:00"},
+    samedi:   {ouvert:false, debut:"09:00", fin:"12:00"},
+    dimanche: {ouvert:false, debut:"09:00", fin:"12:00"},
+  },
+  tarifs: { decouverte:0, unite:70, declic:190, codeChaine:520, famille:340, club:20 },
+  messageInfo: { actif:false, texte:"" }
+};
+
+const CoachSettings = {
+  data: null,
+  unsub: null,
+  listen(cb) {
+    if (this.unsub) return;
+    this.unsub = firebase.firestore().collection("settings").doc("coach").onSnapshot(snap => {
+      this.data = snap.exists ? { ...DEFAULT_SETTINGS, ...snap.data() } : { ...DEFAULT_SETTINGS };
+      if (cb) cb();
+      if (state.tab === "reglages") render();
+    }, e => { console.error("listen settings:", e); this.data = { ...DEFAULT_SETTINGS }; if (cb) cb(); });
+  },
+  save(patch) {
+    firebase.firestore().collection("settings").doc("coach").set(patch, { merge: true })
+      .then(() => notifCoach("✅ Réglages enregistrés"))
+      .catch(e => notifCoach("Erreur : " + e.message));
+  }
+};
+
+const JOURS = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
+const TARIF_LABELS = {
+  decouverte:"Séance Découverte", unite:"Séance à l'unité", declic:"Forfait Déclic",
+  codeChaine:"Code Chaîne", famille:"Famille Hérisson", club:"Club des Hérissons (mensuel)"
+};
+
+function renderReglagesTab() {
+  const wrap = h("div",{});
+  if (!CoachLink.user) { wrap.appendChild(renderCoachLogin()); return wrap; }
+  if (!CoachSettings.data) { CoachSettings.listen(); wrap.appendChild(h("p",{style:"color:#7a9a80"},"Chargement…")); return wrap; }
+
+  const s = CoachSettings.data;
+
+  // --- Horaires ---
+  const horBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
+  horBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"🕐 Horaires de disponibilité"));
+  const newHoraires = JSON.parse(JSON.stringify(s.horaires));
+  JOURS.forEach(j => {
+    const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #2a3c2e"});
+    const checkbox = h("input",{type:"checkbox"});
+    checkbox.checked = newHoraires[j].ouvert;
+    checkbox.addEventListener("change", () => newHoraires[j].ouvert = checkbox.checked);
+    const label = h("label",{style:"width:90px;font-size:13px;color:#ede8d8;text-transform:capitalize"}, checkbox, " " + j);
+    const debut = h("input",{type:"time",style:"width:110px"}); debut.value = newHoraires[j].debut;
+    debut.addEventListener("change", () => newHoraires[j].debut = debut.value);
+    const fin = h("input",{type:"time",style:"width:110px"}); fin.value = newHoraires[j].fin;
+    fin.addEventListener("change", () => newHoraires[j].fin = fin.value);
+    row.appendChild(label); row.appendChild(debut); row.appendChild(h("span",{style:"color:#7a9a80;font-size:12px"},"à")); row.appendChild(fin);
+    horBox.appendChild(row);
+  });
+  const saveHorBtn = h("button",{class:"btn",style:"margin-top:14px;padding:9px 18px;font-size:13px"},"Enregistrer les horaires");
+  saveHorBtn.addEventListener("click", () => CoachSettings.save({ horaires: newHoraires }));
+  horBox.appendChild(saveHorBtn);
+  wrap.appendChild(horBox);
+
+  // --- Tarifs ---
+  const tarBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
+  tarBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"€ Tarifs affichés sur le site"));
+  const newTarifs = { ...s.tarifs };
+  Object.keys(TARIF_LABELS).forEach(k => {
+    const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:6px 0"});
+    const inp = h("input",{type:"number",min:"0",max:"9999",style:"width:100px"}); inp.value = newTarifs[k];
+    inp.addEventListener("change", () => newTarifs[k] = clampNum(inp.value, 0, 9999, newTarifs[k]));
+    row.appendChild(h("label",{style:"flex:1;font-size:13px;color:#ede8d8"}, TARIF_LABELS[k]));
+    row.appendChild(inp); row.appendChild(h("span",{style:"color:#7a9a80;font-size:12px"},"€"));
+    tarBox.appendChild(row);
+  });
+  const saveTarBtn = h("button",{class:"btn",style:"margin-top:14px;padding:9px 18px;font-size:13px"},"Enregistrer les tarifs");
+  saveTarBtn.addEventListener("click", () => CoachSettings.save({ tarifs: newTarifs }));
+  tarBox.appendChild(saveTarBtn);
+  wrap.appendChild(tarBox);
+
+  // --- Message d'info (fermeture estivale, etc.) ---
+  const msgBox = h("div",{class:"card",style:"padding:18px"});
+  msgBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"📢 Message d'information sur le site"));
+  const actifRow = h("label",{style:"display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:#ede8d8"});
+  const actifCb = h("input",{type:"checkbox"}); actifCb.checked = s.messageInfo.actif;
+  actifRow.appendChild(actifCb); actifRow.appendChild(document.createTextNode("Afficher un message sur le site (ex: fermeture estivale)"));
+  msgBox.appendChild(actifRow);
+  const texteArea = h("textarea",{style:"width:100%;min-height:70px;font-size:14px"});
+  texteArea.value = s.messageInfo.texte;
+  msgBox.appendChild(texteArea);
+  const saveMsgBtn = h("button",{class:"btn",style:"margin-top:12px;padding:9px 18px;font-size:13px"},"Enregistrer le message");
+  saveMsgBtn.addEventListener("click", () => CoachSettings.save({ messageInfo: { actif: actifCb.checked, texte: texteArea.value } }));
+  msgBox.appendChild(saveMsgBtn);
+  wrap.appendChild(msgBox);
+
+  return wrap;
+}
+
+// ══════════════════════════════════════════
 //  DEMANDES DE RDV (depuis le site vitrine)
 // ══════════════════════════════════════════
 const RdvRequests = {
@@ -886,6 +992,12 @@ function renderRdvTab() {
 // ══════════════════════════════════════════
 //  HELPERS
 // ══════════════════════════════════════════
+function clampNum(val, min, max, fallback) {
+  var n = parseInt(val, 10);
+  if (isNaN(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
 function h(tag, attrs, ...children) {
   const el = document.createElement(tag);
   if (attrs) Object.entries(attrs).forEach(([k,v]) => {
@@ -978,6 +1090,7 @@ const TABS = [
   {id:"clients",      icon:"◉", label:"Mes clients"},
   {id:"rdv",          icon:"📅", label:"Demandes RDV"},
   {id:"clairiere",    icon:"🧭", label:"La Clairière"},
+  {id:"reglages",     icon:"⚙️", label:"Réglages"},
   {id:"bibliotheque", icon:"▣", label:"Bibliothèque coach"},
   {id:"ressources",   icon:"◇", label:"Mes ressources"},
   {id:"notes",        icon:"◻", label:"Journal de bord"},
@@ -1768,6 +1881,7 @@ function render() {
   else if (state.tab==="clients") content = renderClients();
   else if (state.tab==="clairiere") content = renderClairiereTab();
   else if (state.tab==="rdv") content = renderRdvTab();
+  else if (state.tab==="reglages") content = renderReglagesTab();
   else if (state.tab==="bibliotheque") content = renderBibliotheque();
   else if (state.tab==="ressources")   content = renderRessources();
   else if (state.tab==="notes")        content = renderNotes();
