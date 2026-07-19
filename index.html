@@ -930,7 +930,16 @@ const RdvRequests = {
       }, e => console.error("listen rdvRequests:", e));
   },
   setStatus(id, status) {
-    firebase.firestore().collection("rdvRequests").doc(id).update({ status })
+    const db = firebase.firestore();
+    const req = this.items.find(r => r.id === id);
+    db.collection("rdvRequests").doc(id).update({ status })
+      .then(() => {
+        if (status === "confirme" && req && req.date && req.heure) {
+          const slotId = req.date + "_" + req.heure;
+          db.collection("bookedSlots").doc(slotId).set({ date: req.date, heure: req.heure })
+            .catch(e => console.error("bookedSlots:", e));
+        }
+      })
       .catch(e => notifCoach("Erreur : " + e.message));
   }
 };
