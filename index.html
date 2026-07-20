@@ -990,6 +990,82 @@ const RdvRequests = {
   }
 };
 
+const MOIS_NOMS_FR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+
+function renderFinancesTab() {
+  const wrap = h("div",{});
+
+  // Agrégation de tous les paiements de tous les clients, groupés par mois
+  const parMois = {}; // "2026-07" -> {reel:0, prevu:0, seances:0}
+  state.clients.forEach(c => {
+    (c.paiements || []).forEach(p => {
+      if (!p.date) return;
+      const mk = p.date.slice(0,7); // YYYY-MM
+      if (!parMois[mk]) parMois[mk] = {reel:0, prevu:0, seances:0};
+      const montant = Number(p.montant || 0);
+      parMois[mk].prevu += montant;
+      parMois[mk].seances += 1;
+      if (p.statut === "payé") parMois[mk].reel += montant;
+    });
+  });
+
+  const moisTries = Object.keys(parMois).sort().reverse();
+  const totalReel = moisTries.reduce((s,mk) => s + parMois[mk].reel, 0);
+  const totalPrevu = moisTries.reduce((s,mk) => s + parMois[mk].prevu, 0);
+  const totalSeances = moisTries.reduce((s,mk) => s + parMois[mk].seances, 0);
+
+  // --- Résumé global ---
+  const summary = h("div",{style:"display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"});
+  summary.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
+    h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"CHIFFRE D'AFFAIRES RÉEL"),
+    h("div",{style:"font-size:24px;font-weight:800;color:#4a9e6a"}, totalReel.toFixed(0)+" €")
+  ));
+  summary.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
+    h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"MONTANT PROGRAMMÉ (total)"),
+    h("div",{style:"font-size:24px;font-weight:800;color:#c8a042"}, totalPrevu.toFixed(0)+" €")
+  ));
+  summary.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
+    h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"SÉANCES ENREGISTRÉES"),
+    h("div",{style:"font-size:24px;font-weight:800;color:#ede8d8"}, String(totalSeances))
+  ));
+  wrap.appendChild(summary);
+
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"📅 Détail par mois"));
+
+  if (!moisTries.length) {
+    wrap.appendChild(h("p",{style:"color:#7a9a80;font-size:13px;padding:20px 0;text-align:center"},
+      "Aucun paiement enregistré pour l'instant. Ajoute des paiements depuis la fiche de chaque client (onglet € Paiements)."));
+    return wrap;
+  }
+
+  moisTries.forEach(mk => {
+    const [y,m] = mk.split("-");
+    const label = MOIS_NOMS_FR[parseInt(m,10)-1] + " " + y;
+    const data = parMois[mk];
+    const card = h("div",{class:"card",style:"padding:16px 20px;margin-bottom:10px"});
+    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center"},
+      h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;text-transform:capitalize"}, label),
+      h("div",{style:"font-size:12px;color:#7a9a80"}, data.seances + " séance" + (data.seances>1?"s":""))
+    ));
+    const bar = h("div",{style:"display:flex;gap:20px;margin-top:8px"});
+    bar.appendChild(h("div",{},
+      h("div",{style:"font-size:10px;color:#7a9a80"},"ENCAISSÉ"),
+      h("div",{style:"font-size:16px;font-weight:700;color:#4a9e6a"}, data.reel.toFixed(0)+" €")
+    ));
+    bar.appendChild(h("div",{},
+      h("div",{style:"font-size:10px;color:#7a9a80"},"PROGRAMMÉ (total)"),
+      h("div",{style:"font-size:16px;font-weight:700;color:#c8a042"}, data.prevu.toFixed(0)+" €")
+    ));
+    card.appendChild(bar);
+    wrap.appendChild(card);
+  });
+
+  wrap.appendChild(h("p",{style:"font-size:11.5px;color:#4a6a52;margin-top:16px"},
+    "« Encaissé » = paiements marqués « payé » sur les fiches clients. « Programmé » = tous les paiements enregistrés, quel que soit leur statut."));
+
+  return wrap;
+}
+
 function renderRdvTab() {
   const wrap = h("div",{});
   if (!CoachLink.user) { wrap.appendChild(renderCoachLogin()); return wrap; }
@@ -1143,6 +1219,7 @@ function field(labelText, inputElement) {
 const TABS = [
   {id:"dashboard",    icon:"⬡", label:"Tableau de bord"},
   {id:"clients",      icon:"◉", label:"Mes clients"},
+  {id:"finances",     icon:"💰", label:"Finances"},
   {id:"rdv",          icon:"📅", label:"Demandes RDV"},
   {id:"clairiere",    icon:"🧭", label:"La Clairière"},
   {id:"reglages",     icon:"⚙️", label:"Réglages"},
@@ -1934,6 +2011,7 @@ function render() {
   let content;
   if (state.tab==="dashboard")    content = renderDashboard();
   else if (state.tab==="clients") content = renderClients();
+  else if (state.tab==="finances") content = renderFinancesTab();
   else if (state.tab==="clairiere") content = renderClairiereTab();
   else if (state.tab==="rdv") content = renderRdvTab();
   else if (state.tab==="reglages") content = renderReglagesTab();
