@@ -823,7 +823,8 @@ const DEFAULT_SETTINGS = {
     dimanche: {ouvert:false, debut:"09:00", fin:"12:00"},
   },
   tarifs: { decouverte:0, unite:70, declic:190, codeChaine:520, famille:340, club:20 },
-  messageInfo: { actif:false, texte:"" }
+  messageInfo: { actif:false, texte:"" },
+  conges: []
 };
 
 const CoachSettings = {
@@ -910,6 +911,51 @@ function renderReglagesTab() {
   saveMsgBtn.addEventListener("click", () => CoachSettings.save({ messageInfo: { actif: actifCb.checked, texte: texteArea.value } }));
   msgBox.appendChild(saveMsgBtn);
   wrap.appendChild(msgBox);
+
+  // --- Congés / fermetures exceptionnelles ---
+  const congesBox = h("div",{class:"card",style:"padding:18px;margin-top:16px"});
+  congesBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"🏖️ Congés / fermetures exceptionnelles"));
+  congesBox.appendChild(h("div",{style:"font-size:12px;color:#7a9a80;margin-bottom:12px"},"Ces périodes bloquent la réservation sur le site, en plus des horaires hebdomadaires."));
+
+  const conges = (s.conges || []).slice();
+  const listBox = h("div",{id:"congesList"});
+  congesBox.appendChild(listBox);
+
+  function renderCongesList() {
+    listBox.innerHTML = "";
+    if (!conges.length) {
+      listBox.appendChild(h("p",{style:"font-size:12.5px;color:#7a9a80;padding:8px 0"},"Aucune période de fermeture enregistrée."));
+    }
+    conges.forEach((c, idx) => {
+      const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #2a3c2e"});
+      row.appendChild(h("div",{style:"flex:1;font-size:13px;color:#ede8d8"}, (c.label || "Fermeture") + " — du " + c.debut + " au " + c.fin));
+      const delBtn = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:18px"},"×");
+      delBtn.addEventListener("click", () => { conges.splice(idx,1); renderCongesList(); });
+      row.appendChild(delBtn);
+      listBox.appendChild(row);
+    });
+  }
+  renderCongesList();
+
+  const addRow = h("div",{style:"display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"});
+  const labelInp = h("input",{type:"text",placeholder:"Ex: Vacances d'été",style:"flex:1;min-width:140px"});
+  const debutInp = h("input",{type:"date",style:"width:140px"});
+  const finInp = h("input",{type:"date",style:"width:140px"});
+  const addBtn = h("button",{class:"btn-sm"},"+ Ajouter");
+  addBtn.addEventListener("click", () => {
+    if (!debutInp.value || !finInp.value) { notifCoach("Dates de début et fin requises"); return; }
+    if (finInp.value < debutInp.value) { notifCoach("La date de fin doit être après le début"); return; }
+    conges.push({ label: labelInp.value.trim() || "Fermeture", debut: debutInp.value, fin: finInp.value });
+    labelInp.value = ""; debutInp.value = ""; finInp.value = "";
+    renderCongesList();
+  });
+  addRow.appendChild(labelInp); addRow.appendChild(debutInp); addRow.appendChild(finInp); addRow.appendChild(addBtn);
+  congesBox.appendChild(addRow);
+
+  const saveCongesBtn = h("button",{class:"btn",style:"margin-top:14px;padding:9px 18px;font-size:13px"},"Enregistrer les congés");
+  saveCongesBtn.addEventListener("click", () => CoachSettings.save({ conges: conges }));
+  congesBox.appendChild(saveCongesBtn);
+  wrap.appendChild(congesBox);
 
   return wrap;
 }
