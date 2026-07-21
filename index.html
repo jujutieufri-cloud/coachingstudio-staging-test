@@ -846,6 +846,11 @@ const CoachSettings = {
         messageInfo: { ...DEFAULT_SETTINGS.messageInfo, ...(raw.messageInfo||{}) },
         conges: raw.conges || []
       };
+      if (!raw.horaires) {
+        // Le document n'a jamais reçu d'horaires : on les initialise
+        // pour que le site public ne se retrouve jamais sans données.
+        this.save({ horaires: DEFAULT_SETTINGS.horaires });
+      }
       if (cb) cb();
       if (state.tab === "reglages") render();
     }, e => { console.error("listen settings:", e); this.data = { ...DEFAULT_SETTINGS }; if (cb) cb(); });
