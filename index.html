@@ -833,7 +833,19 @@ const CoachSettings = {
   listen(cb) {
     if (this.unsub) return;
     this.unsub = firebase.firestore().collection("settings").doc("coach").onSnapshot(snap => {
-      this.data = snap.exists ? { ...DEFAULT_SETTINGS, ...snap.data() } : { ...DEFAULT_SETTINGS };
+      const raw = snap.exists ? (snap.data() || {}) : {};
+      const mergedHoraires = {};
+      JOURS.forEach(j => {
+        mergedHoraires[j] = { ...DEFAULT_SETTINGS.horaires[j], ...((raw.horaires||{})[j] || {}) };
+      });
+      this.data = {
+        ...DEFAULT_SETTINGS,
+        ...raw,
+        horaires: mergedHoraires,
+        tarifs: { ...DEFAULT_SETTINGS.tarifs, ...(raw.tarifs||{}) },
+        messageInfo: { ...DEFAULT_SETTINGS.messageInfo, ...(raw.messageInfo||{}) },
+        conges: raw.conges || []
+      };
       if (cb) cb();
       if (state.tab === "reglages") render();
     }, e => { console.error("listen settings:", e); this.data = { ...DEFAULT_SETTINGS }; if (cb) cb(); });
@@ -980,15 +992,90 @@ const RdvRequests = {
     const req = this.items.find(r => r.id === id);
     db.collection("rdvRequests").doc(id).update({ status })
       .then(() => {
-        if (status === "confirme" && req && req.date && req.heure) {
-          const slotId = req.date + "_" + req.heure;
-          db.collection("bookedSlots").doc(slotId).set({ date: req.date, heure: req.heure })
-            .catch(e => console.error("bookedSlots:", e));
+        if (status === "confirme" && req) {
+          if (req.date && req.heure) {
+            const slotId = req.date + "_" + req.heure;
+            db.collection("bookedSlots").doc(slotId).set({ date: req.date, heure: req.heure })
+              .catch(e => console.error("bookedSlots:", e));
+          }
+          creerOuMajClientDepuisRdv(req);
         }
       })
       .catch(e => notifCoach("Erreur : " + e.message));
   }
 };
+
+const FORFAIT_SEANCES = {
+  "Forfait Déclic": 3,
+  "Programme Sérénité": 8,
+  "Forfait Famille Hérisson": 4
+};
+const MOTIF_TARIF_KEY = {
+  "Séance Découverte (gratuite)": "decouverte",
+  "Forfait Déclic": "declic",
+  "Programme Sérénité": "codeChaine",
+  "Forfait Famille Hérisson": "famille"
+};
+
+function montantPourMotif(motif) {
+  const key = MOTIF_TARIF_KEY[motif];
+  if (key && CoachSettings.data && CoachSettings.data.tarifs && CoachSettings.data.tarifs[key] != null) {
+    return Number(CoachSettings.data.tarifs[key]);
+  }
+  return 0;
+}
+
+function appliquerForfait(client, motif) {
+  const total = FORFAIT_SEANCES[motif];
+  if (!total) return; // séance à l'unité / découverte / autre : pas de suivi de forfait
+  if (client.forfaitNom !== motif || !client.forfaitTotal) {
+    client.forfaitNom = motif;
+    client.forfaitTotal = total;
+    client.forfaitUtilisees = 1;
+  } else {
+    client.forfaitUtilisees = Math.min(total, (client.forfaitUtilisees||0) + 1);
+  }
+}
+
+function creerOuMajClientDepuisRdv(req) {
+  const emailNorm = (req.email || "").trim().toLowerCase();
+  let client = emailNorm ? state.clients.find(c => (c.email||"").trim().toLowerCase() === emailNorm) : null;
+  const montant = montantPourMotif(req.motif);
+
+  if (client) {
+    client.sessions = (client.sessions || 0) + 1;
+    client.nextSession = req.date || client.nextSession || "";
+    client.sessionHistory = client.sessionHistory || [];
+    client.sessionHistory.push("Séance " + client.sessionHistory.length + 1 + " — " + (req.motif || "RDV") + (req.date ? " (" + req.date + ")" : ""));
+    appliquerForfait(client, req.motif);
+    client.paiements = client.paiements || [];
+    client.paiements.push({ id: Date.now()+"", date: req.date || new Date().toISOString().slice(0,10), montant, statut: "en attente" });
+    save();
+    notifCoach("✅ Séance ajoutée à la fiche de " + client.name);
+  } else {
+    const nom = ((req.prenom||"") + " " + (req.nom||"")).trim() || "Nouveau client";
+    const nouveauClient = {
+      id: "c" + Date.now(),
+      name: nom,
+      email: req.email || "",
+      tel: req.tel || "",
+      profile: "À définir",
+      age: null,
+      objective: req.motif || "",
+      sessions: 1,
+      nextSession: req.date || "",
+      status: "actif",
+      notes: req.message || "",
+      sessionHistory: ["Séance 1 — " + (req.motif || "RDV") + (req.date ? " (" + req.date + ")" : "")],
+      objectifs: [],
+      paiements: [{ id: Date.now()+"", date: req.date || new Date().toISOString().slice(0,10), montant, statut: "en attente" }]
+    };
+    appliquerForfait(nouveauClient, req.motif);
+    state.clients.push(nouveauClient);
+    save();
+    notifCoach("✅ Nouvelle fiche client créée : " + nom);
+  }
+}
 
 const MOIS_NOMS_FR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
 
@@ -1014,8 +1101,13 @@ function renderFinancesTab() {
   const totalPrevu = moisTries.reduce((s,mk) => s + parMois[mk].prevu, 0);
   const totalSeances = moisTries.reduce((s,mk) => s + parMois[mk].seances, 0);
 
+  const maintenant = new Date();
+  const moisProchain = new Date(maintenant.getFullYear(), maintenant.getMonth()+1, 1);
+  const cleMoisProchain = moisProchain.getFullYear() + "-" + String(moisProchain.getMonth()+1).padStart(2,"0");
+  const dataMoisProchain = parMois[cleMoisProchain] || {reel:0, prevu:0, seances:0};
+
   // --- Résumé global ---
-  const summary = h("div",{style:"display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px"});
+  const summary = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px"});
   summary.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
     h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"CHIFFRE D'AFFAIRES RÉEL"),
     h("div",{style:"font-size:24px;font-weight:800;color:#4a9e6a"}, totalReel.toFixed(0)+" €")
@@ -1024,11 +1116,18 @@ function renderFinancesTab() {
     h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"MONTANT PROGRAMMÉ (total)"),
     h("div",{style:"font-size:24px;font-weight:800;color:#c8a042"}, totalPrevu.toFixed(0)+" €")
   ));
-  summary.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
-    h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"SÉANCES ENREGISTRÉES"),
+  wrap.appendChild(summary);
+  const summary2 = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px"});
+  summary2.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center;border-color:#5aaec844"},
+    h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"PRÉVISIONNEL MOIS PROCHAIN"),
+    h("div",{style:"font-size:22px;font-weight:800;color:#5aaec8"}, dataMoisProchain.prevu.toFixed(0)+" €"),
+    h("div",{style:"font-size:10.5px;color:#7a9a80;margin-top:2px"}, dataMoisProchain.seances + " séance(s) déjà programmée(s)")
+  ));
+  summary2.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
+    h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"SÉANCES ENREGISTRÉES (total)"),
     h("div",{style:"font-size:24px;font-weight:800;color:#ede8d8"}, String(totalSeances))
   ));
-  wrap.appendChild(summary);
+  wrap.appendChild(summary2);
 
   wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"📅 Détail par mois"));
 
@@ -1510,6 +1609,19 @@ function buildFiche(c) {
       h("div",{style:"color:#c8a042;font-size:14px;font-weight:600"},c.nextSession)
     ));
     wrap.appendChild(g);
+    if (c.forfaitNom && c.forfaitTotal) {
+      const pct = Math.min(100, Math.round((c.forfaitUtilisees||0) / c.forfaitTotal * 100));
+      const forfaitBox = h("div",{style:"margin-top:18px;background:#0d1c10;padding:14px 16px;border-radius:8px;border:1px solid #1e3322"});
+      forfaitBox.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:8px"},
+        h("div",{style:"color:#4a6a52;font-size:11px;letter-spacing:.08em"},"FORFAIT EN COURS"),
+        h("div",{style:"color:#c8a042;font-size:12px;font-weight:700"}, (c.forfaitUtilisees||0) + " / " + c.forfaitTotal + " séances")
+      ));
+      forfaitBox.appendChild(h("div",{style:"font-size:14px;color:#ede8d8;margin-bottom:8px"}, c.forfaitNom));
+      const barBg = h("div",{style:"background:#1e3322;border-radius:6px;height:8px;overflow:hidden"});
+      barBg.appendChild(h("div",{style:"background:#4a9e6a;height:100%;width:"+pct+"%"}));
+      forfaitBox.appendChild(barBg);
+      wrap.appendChild(forfaitBox);
+    }
     if (c.notes) {
       wrap.appendChild(h("div",{style:"margin-top:18px"},
         h("div",{style:"color:#4a6a52;font-size:11px;letter-spacing:.08em;margin-bottom:5px"},"NOTES"),
@@ -2003,7 +2115,17 @@ function renderNotes() {
 // ══════════════════════════════════════════
 //  RENDER PRINCIPAL
 // ══════════════════════════════════════════
+let _renderScheduled = false;
 function render() {
+  if (_renderScheduled) return;
+  _renderScheduled = true;
+  Promise.resolve().then(() => {
+    _renderScheduled = false;
+    renderNow();
+  });
+}
+
+function renderNow() {
   renderNav();
   const main = document.getElementById("main");
   main.innerHTML = "";
