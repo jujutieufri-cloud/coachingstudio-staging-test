@@ -1604,6 +1604,12 @@ function buildFiche(c) {
 
   function showView() {
     wrap.innerHTML="";
+    if (c.email || c.tel) {
+      const contactBox = h("div",{style:"display:flex;gap:20px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #2a3c2e;flex-wrap:wrap"});
+      if (c.email) contactBox.appendChild(h("div",{style:"font-size:13px;color:#7a9a80"}, "📧 ", h("span",{style:"color:#ede8d8"}, c.email)));
+      if (c.tel) contactBox.appendChild(h("div",{style:"font-size:13px;color:#7a9a80"}, "📞 ", h("span",{style:"color:#ede8d8"}, c.tel)));
+      wrap.appendChild(contactBox);
+    }
     const g = h("div",{class:"grid2"});
     if (c.objective) g.appendChild(h("div",{},
       h("div",{style:"color:#4a6a52;font-size:11px;letter-spacing:.08em;margin-bottom:5px"},"OBJECTIF"),
@@ -1654,6 +1660,8 @@ function buildFiche(c) {
     const a = inputEl({type:"number",value:c.age||"", onInput:v=>ed.age=v}); g.appendChild(field("ÂGE",a));
     const p = selectEl({options:PROFILES,value:c.profile,onChange:v=>ed.profile=v}); g.appendChild(field("PROFIL",p));
     const s = selectEl({options:["actif","pause","terminé"],value:c.status,onChange:v=>ed.status=v}); g.appendChild(field("STATUT",s));
+    const em = inputEl({type:"email",value:c.email||"",onInput:v=>ed.email=v}); g.appendChild(field("EMAIL",em));
+    const tl = inputEl({type:"tel",value:c.tel||"",onInput:v=>ed.tel=v}); g.appendChild(field("TÉLÉPHONE",tl));
     const ob = h("div",{class:"span2"}); const oi = inputEl({value:c.objective||"",onInput:v=>ed.objective=v}); ob.appendChild(field("OBJECTIF",oi)); g.appendChild(ob);
     const db = h("div",{}); const di = inputEl({type:"date",value:c.nextSession||"",onChange:v=>ed.nextSession=v}); db.appendChild(field("PROCHAINE SÉANCE",di)); g.appendChild(db);
     wrap.appendChild(g);
