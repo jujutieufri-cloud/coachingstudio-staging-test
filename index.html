@@ -472,6 +472,7 @@ let state = {
   clients: JSON.parse(localStorage.getItem("cs4-clients") || "null") || SAMPLE,
   ressources: JSON.parse(localStorage.getItem("cs4-ressources") || "[]"),
   notes: localStorage.getItem("cs4-notes") || "",
+  appointments: JSON.parse(localStorage.getItem("cs4-appointments") || "[]"),
   selClientId: null,
   subTab: "fiche",
   bibCat: "Tous",
@@ -484,6 +485,7 @@ function save() {
   localStorage.setItem("cs4-clients", JSON.stringify(state.clients));
   localStorage.setItem("cs4-ressources", JSON.stringify(state.ressources));
   localStorage.setItem("cs4-notes", state.notes);
+  localStorage.setItem("cs4-appointments", JSON.stringify(state.appointments));
 }
 
 let notesTimer = null;
@@ -502,7 +504,8 @@ function exportBackup() {
     exportedAt: new Date().toISOString(),
     clients: state.clients,
     ressources: state.ressources,
-    notes: state.notes
+    notes: state.notes,
+    appointments: state.appointments
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
@@ -534,6 +537,7 @@ function importBackup(file) {
     state.clients = data.clients;
     state.ressources = data.ressources || [];
     state.notes = data.notes || "";
+    state.appointments = data.appointments || [];
     save();
     setState({tab:"dashboard", selClientId:null});
     alert("Sauvegarde restaurée avec succès.");
@@ -1050,6 +1054,20 @@ function normalizePhone(raw) {
   return d;
 }
 
+function ajouterRdvAgenda({ clientId, clientName, date, heure, motif, notes, source }) {
+  state.appointments.push({
+    id: "a" + Date.now() + Math.random().toString(36).slice(2,6),
+    clientId: clientId || null,
+    clientName: clientName || "Client",
+    date: date || "",
+    heure: heure || "",
+    motif: motif || "",
+    notes: notes || "",
+    source: source || "manuel"
+  });
+  save();
+}
+
 function creerOuMajClientDepuisRdv(req) {
   const emailNorm = (req.email || "").trim().toLowerCase();
   const telNorm = normalizePhone(req.tel);
@@ -1069,6 +1087,7 @@ function creerOuMajClientDepuisRdv(req) {
     client.paiements = client.paiements || [];
     client.paiements.push({ id: Date.now()+"", date: req.date || new Date().toISOString().slice(0,10), montant, statut: "en attente" });
     save();
+    ajouterRdvAgenda({ clientId: client.id, clientName: client.name, date: req.date, heure: req.heure, motif: req.motif, notes: req.message, source: "site" });
     notifCoach("✅ Séance ajoutée à la fiche de " + client.name);
   } else {
     const nom = ((req.prenom||"") + " " + (req.nom||"")).trim() || "Nouveau client";
@@ -1091,11 +1110,127 @@ function creerOuMajClientDepuisRdv(req) {
     appliquerForfait(nouveauClient, req.motif);
     state.clients.push(nouveauClient);
     save();
+    ajouterRdvAgenda({ clientId: nouveauClient.id, clientName: nom, date: req.date, heure: req.heure, motif: req.motif, notes: req.message, source: "site" });
     notifCoach("✅ Nouvelle fiche client créée : " + nom);
   }
 }
 
 const MOIS_NOMS_FR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+
+// ══════════════════════════════════════════
+//  AGENDA (tous les rendez-vous, site + manuels)
+// ══════════════════════════════════════════
+function renderAgendaTab() {
+  const wrap = h("div",{class:"fade"});
+  const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"},
+    h("div",{},
+      h("h1",{style:"font-size:30px;color:#ede8d8;font-weight:600;font-style:italic"},"Agenda"),
+      h("p",{style:"color:#7a9a80;font-size:13px;margin-top:4px"},"Tous les rendez-vous, issus du site ou ajoutés manuellement")
+    )
+  );
+  let showForm = false;
+  const addBtn = h("button",{class:"btn"},"+ Nouveau rendez-vous");
+  let formEl3 = null;
+  addBtn.addEventListener("click", () => {
+    showForm = !showForm;
+    addBtn.textContent = showForm ? "✕ Fermer" : "+ Nouveau rendez-vous";
+    if (showForm && !formEl3) {
+      formEl3 = buildAgendaForm();
+      hdr.after(formEl3);
+    } else if (!showForm && formEl3) {
+      formEl3.remove(); formEl3 = null;
+    }
+  });
+  hdr.appendChild(addBtn);
+  wrap.appendChild(hdr);
+
+  const todayStr = new Date().toISOString().slice(0,10);
+  const items = [...state.appointments].sort((a,b) => (a.date+((a.heure||"00:00"))).localeCompare(b.date+(b.heure||"00:00")));
+  const upcoming = items.filter(a => !a.date || a.date >= todayStr);
+  const past = items.filter(a => a.date && a.date < todayStr).reverse();
+
+  function rowFor(a) {
+    const isPast = a.date && a.date < todayStr;
+    const row = h("div",{class:"card",style:"padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px"+(isPast?";opacity:0.55":"")});
+    const dateBox = h("div",{style:"min-width:78px;text-align:center"},
+      h("div",{style:"font-size:13px;font-weight:700;color:#c8a042"}, a.date || "—"),
+      h("div",{style:"font-size:11px;color:#7a9a80;margin-top:2px"}, a.heure || "")
+    );
+    const info = h("div",{style:"flex:1;min-width:0"},
+      h("div",{style:"color:#ede8d8;font-size:14px;font-weight:600"}, a.clientName),
+      h("div",{style:"color:#7a9a80;font-size:12px;margin-top:2px"}, a.motif || "Rendez-vous")
+    );
+    const srcBadge = h("span",{style:`font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${a.source==="site"?"#5aaec822":"#9880d022"};color:${a.source==="site"?"#5aaec8":"#9880d0"}`}, a.source==="site" ? "site" : "manuel");
+    const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#4a6a52;font-size:18px;padding:0 4px"},"×");
+    delBtn.addEventListener("click", () => {
+      if (!confirm("Supprimer ce rendez-vous ?")) return;
+      state.appointments = state.appointments.filter(x => x.id !== a.id);
+      save(); setState({tab:"agenda"});
+    });
+    row.appendChild(dateBox); row.appendChild(info); row.appendChild(srcBadge); row.appendChild(delBtn);
+    return row;
+  }
+
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:10px"}, "À venir (" + upcoming.length + ")"));
+  if (!upcoming.length) wrap.appendChild(h("p",{style:"color:#7a9a80;font-size:13px;padding:10px 0"},"Aucun rendez-vous à venir."));
+  upcoming.forEach(a => wrap.appendChild(rowFor(a)));
+
+  if (past.length) {
+    wrap.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#7a9a80;margin:22px 0 10px"}, "Passés"));
+    past.slice(0,15).forEach(a => wrap.appendChild(rowFor(a)));
+  }
+
+  return wrap;
+}
+
+function buildAgendaForm() {
+  const fd = { clientId:"", clientName:"", date:"", heure:"", motif:"", notes:"" };
+  const form = h("div",{class:"qform",style:"margin-bottom:20px"});
+  form.appendChild(h("h3",{style:"color:#c8a042;font-size:21px;margin-bottom:18px;font-style:italic"},"Nouveau rendez-vous"));
+
+  const g = h("div",{class:"grid2",style:"margin-bottom:12px"});
+
+  const clientOptions = ["— Nouveau / hors liste —", ...state.clients.map(c => c.name)];
+  const clientSel = selectEl({ options: clientOptions, value: clientOptions[0], onChange: v => {
+    fd.clientName = v === clientOptions[0] ? "" : v;
+    const found = state.clients.find(c => c.name === v);
+    fd.clientId = found ? found.id : "";
+    if (found) { freeNameInp.style.display = "none"; } else { freeNameInp.style.display = "block"; }
+  }});
+  g.appendChild(field("CLIENT EXISTANT", clientSel));
+
+  const dateInp = inputEl({ type:"date", onChange: v => fd.date = v });
+  g.appendChild(field("DATE", dateInp));
+  form.appendChild(g);
+
+  const g2 = h("div",{class:"grid2",style:"margin-bottom:12px"});
+  const heureInp = inputEl({ type:"time", onChange: v => fd.heure = v });
+  g2.appendChild(field("HEURE", heureInp));
+  const motifInp = inputEl({ placeholder:"Ex: Séance de suivi", onInput: v => fd.motif = v });
+  g2.appendChild(field("MOTIF", motifInp));
+  form.appendChild(g2);
+
+  const freeNameInp = inputEl({ placeholder:"Nom (si nouveau ou hors liste)", onInput: v => fd.clientName = v });
+  form.appendChild(h("div",{style:"margin-bottom:12px"}, field("NOM (si pas dans la liste)", freeNameInp)));
+
+  const notesInp = textareaEl({ placeholder:"Notes...", height:"64px", onInput: v => fd.notes = v });
+  form.appendChild(h("div",{style:"margin-bottom:18px"}, field("NOTES", notesInp)));
+
+  const row = h("div",{style:"display:flex;gap:10px"});
+  const saveBtn = h("button",{class:"btn"},"Ajouter au calendrier");
+  saveBtn.addEventListener("click", () => {
+    const nom = (fd.clientName || "").trim();
+    if (!nom) { notifCoach("Merci d'indiquer un client ou un nom."); return; }
+    if (!fd.date) { notifCoach("Merci d'indiquer une date."); return; }
+    ajouterRdvAgenda({ clientId: fd.clientId, clientName: nom, date: fd.date, heure: fd.heure, motif: fd.motif, notes: fd.notes, source: "manuel" });
+    setState({ tab: "agenda" });
+  });
+  const cancelBtn = h("button",{class:"btn-g"},"Annuler");
+  cancelBtn.addEventListener("click", () => setState({ tab: "agenda" }));
+  row.appendChild(saveBtn); row.appendChild(cancelBtn);
+  form.appendChild(row);
+  return form;
+}
 
 function renderFinancesTab() {
   const wrap = h("div",{});
@@ -1336,6 +1471,7 @@ function field(labelText, inputElement) {
 const TABS = [
   {id:"dashboard",    icon:"⬡", label:"Tableau de bord"},
   {id:"clients",      icon:"◉", label:"Mes clients"},
+  {id:"agenda",       icon:"🗓️", label:"Agenda"},
   {id:"finances",     icon:"💰", label:"Finances"},
   {id:"rdv",          icon:"📅", label:"Demandes RDV"},
   {id:"clairiere",    icon:"🧭", label:"La Clairière"},
@@ -2159,6 +2295,7 @@ function renderNow() {
   let content;
   if (state.tab==="dashboard")    content = renderDashboard();
   else if (state.tab==="clients") content = renderClients();
+  else if (state.tab==="agenda") content = renderAgendaTab();
   else if (state.tab==="finances") content = renderFinancesTab();
   else if (state.tab==="clairiere") content = renderClairiereTab();
   else if (state.tab==="rdv") content = renderRdvTab();
