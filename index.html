@@ -1185,6 +1185,20 @@ function appointmentsForDate(dateStr) {
   return state.appointments.filter(a => a.date === dateStr).sort((a,b) => (a.heure||"").localeCompare(b.heure||""));
 }
 
+function resynchroniserCreneaux() {
+  const avecCreneau = state.appointments.filter(a => a.date && a.heure);
+  if (!avecCreneau.length) { notifCoach("Aucun rendez-vous avec créneau à synchroniser."); return; }
+  const db = firebase.firestore();
+  let fait = 0;
+  const total = avecCreneau.length;
+  avecCreneau.forEach(a => {
+    const slotId = a.date + "_" + a.heure;
+    db.collection("bookedSlots").doc(slotId).set({ date: a.date, heure: a.heure })
+      .then(() => { fait++; if (fait === total) notifCoach("✅ " + total + " créneau(x) resynchronisé(s)."); })
+      .catch(e => console.error("resync bookedSlots:", e));
+  });
+}
+
 function renderAgendaTab() {
   const wrap = h("div",{class:"fade"});
   const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px"},
@@ -1207,6 +1221,9 @@ function renderAgendaTab() {
     }
   });
   hdr.appendChild(addBtn);
+  const syncBtn = h("button",{class:"btn-g"},"↻ Resynchroniser les créneaux");
+  syncBtn.addEventListener("click", () => resynchroniserCreneaux());
+  hdr.appendChild(syncBtn);
   wrap.appendChild(hdr);
 
   // --- Sélecteur de vue ---
