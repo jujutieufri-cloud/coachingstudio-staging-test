@@ -1103,6 +1103,22 @@ function ajouterRdvAgenda({ clientId, clientName, date, heure, motif, notes, sou
     source: source || "manuel"
   });
   save();
+  if (date && heure) {
+    const slotId = date + "_" + heure;
+    firebase.firestore().collection("bookedSlots").doc(slotId).set({ date, heure })
+      .catch(e => console.error("bookedSlots (agenda manuel):", e));
+  }
+}
+
+function supprimerRdvAgenda(id) {
+  const item = state.appointments.find(a => a.id === id);
+  state.appointments = state.appointments.filter(a => a.id !== id);
+  save();
+  if (item && item.date && item.heure) {
+    const slotId = item.date + "_" + item.heure;
+    firebase.firestore().collection("bookedSlots").doc(slotId).delete()
+      .catch(e => console.error("bookedSlots delete:", e));
+  }
 }
 
 function creerOuMajClientDepuisRdv(req) {
@@ -1226,8 +1242,8 @@ function appointmentRow(a) {
   const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#4a6a52;font-size:18px;padding:0 4px"},"×");
   delBtn.addEventListener("click", () => {
     if (!confirm("Supprimer ce rendez-vous ?")) return;
-    state.appointments = state.appointments.filter(x => x.id !== a.id);
-    save(); render();
+    supprimerRdvAgenda(a.id);
+    render();
   });
   row.appendChild(dateBox); row.appendChild(info); row.appendChild(srcBadge); row.appendChild(delBtn);
   return row;
@@ -1284,7 +1300,7 @@ function renderAgendaSemaine() {
         row.appendChild(h("div",{style:"min-width:44px;color:#c8a042;font-size:12.5px;font-weight:600"}, a.heure||"—"));
         row.appendChild(h("div",{style:"flex:1;color:#ede8d8;font-size:13px"}, a.clientName + (a.motif ? " — "+a.motif : "")));
         const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#4a6a52;font-size:16px"},"×");
-        delBtn.addEventListener("click", () => { if(confirm("Supprimer ce rendez-vous ?")){ state.appointments = state.appointments.filter(x=>x.id!==a.id); save(); render(); } });
+        delBtn.addEventListener("click", () => { if(confirm("Supprimer ce rendez-vous ?")){ supprimerRdvAgenda(a.id); render(); } });
         row.appendChild(delBtn);
         dayCard.appendChild(row);
       });
