@@ -821,13 +821,13 @@ function renderCoachLogin() {
 // ══════════════════════════════════════════
 const DEFAULT_SETTINGS = {
   horaires: {
-    lundi:    {ouvert:true,  debut:"09:00", fin:"18:00"},
-    mardi:    {ouvert:true,  debut:"09:00", fin:"18:00"},
-    mercredi: {ouvert:true,  debut:"09:00", fin:"18:00"},
-    jeudi:    {ouvert:true,  debut:"09:00", fin:"18:00"},
-    vendredi: {ouvert:true,  debut:"09:00", fin:"18:00"},
-    samedi:   {ouvert:false, debut:"09:00", fin:"12:00"},
-    dimanche: {ouvert:false, debut:"09:00", fin:"12:00"},
+    lundi:    { plages: [ {ouvert:true,  debut:"09:00", fin:"12:00"}, {ouvert:true,  debut:"14:00", fin:"18:00"} ] },
+    mardi:    { plages: [ {ouvert:true,  debut:"09:00", fin:"12:00"}, {ouvert:true,  debut:"14:00", fin:"18:00"} ] },
+    mercredi: { plages: [ {ouvert:true,  debut:"09:00", fin:"12:00"}, {ouvert:true,  debut:"14:00", fin:"18:00"} ] },
+    jeudi:    { plages: [ {ouvert:true,  debut:"09:00", fin:"12:00"}, {ouvert:true,  debut:"14:00", fin:"18:00"} ] },
+    vendredi: { plages: [ {ouvert:true,  debut:"09:00", fin:"12:00"}, {ouvert:true,  debut:"14:00", fin:"18:00"} ] },
+    samedi:   { plages: [ {ouvert:false, debut:"09:00", fin:"12:00"}, {ouvert:false, debut:"14:00", fin:"18:00"} ] },
+    dimanche: { plages: [ {ouvert:false, debut:"09:00", fin:"12:00"}, {ouvert:false, debut:"14:00", fin:"18:00"} ] },
   },
   dureeRdv: 60,
   tarifs: { decouverte:0, unite:70, declic:190, codeChaine:520, famille:340, club:20 },
@@ -844,7 +844,20 @@ const CoachSettings = {
       const raw = snap.exists ? (snap.data() || {}) : {};
       const mergedHoraires = {};
       JOURS.forEach(j => {
-        mergedHoraires[j] = { ...DEFAULT_SETTINGS.horaires[j], ...((raw.horaires||{})[j] || {}) };
+        const rawDay = (raw.horaires||{})[j];
+        let plages;
+        if (rawDay && Array.isArray(rawDay.plages)) {
+          plages = [0,1].map(i => ({ ...DEFAULT_SETTINGS.horaires[j].plages[i], ...(rawDay.plages[i]||{}) }));
+        } else if (rawDay && rawDay.debut) {
+          // ancien format (une seule plage débi/fin) : migration en douceur
+          plages = [
+            { ouvert: !!rawDay.ouvert, debut: rawDay.debut, fin: rawDay.fin },
+            { ...DEFAULT_SETTINGS.horaires[j].plages[1] }
+          ];
+        } else {
+          plages = DEFAULT_SETTINGS.horaires[j].plages.map(p => ({...p}));
+        }
+        mergedHoraires[j] = { plages };
       });
       this.data = {
         ...DEFAULT_SETTINGS,
@@ -888,18 +901,24 @@ function renderReglagesTab() {
   const horBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
   horBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"🕐 Horaires de disponibilité"));
   const newHoraires = JSON.parse(JSON.stringify(s.horaires));
+  const PLAGE_LABELS = ["Matin","Après-midi"];
   JOURS.forEach(j => {
-    const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #2a3c2e"});
-    const checkbox = h("input",{type:"checkbox"});
-    checkbox.checked = newHoraires[j].ouvert;
-    checkbox.addEventListener("change", () => newHoraires[j].ouvert = checkbox.checked);
-    const label = h("label",{style:"width:90px;font-size:13px;color:#ede8d8;text-transform:capitalize"}, checkbox, " " + j);
-    const debut = h("input",{type:"time",style:"width:110px"}); debut.value = newHoraires[j].debut;
-    debut.addEventListener("change", () => newHoraires[j].debut = debut.value);
-    const fin = h("input",{type:"time",style:"width:110px"}); fin.value = newHoraires[j].fin;
-    fin.addEventListener("change", () => newHoraires[j].fin = fin.value);
-    row.appendChild(label); row.appendChild(debut); row.appendChild(h("span",{style:"color:#7a9a80;font-size:12px"},"à")); row.appendChild(fin);
-    horBox.appendChild(row);
+    const jourBox = h("div",{style:"padding:10px 0;border-bottom:1px solid #2a3c2e"});
+    jourBox.appendChild(h("div",{style:"font-size:13px;color:#ede8d8;text-transform:capitalize;font-weight:700;margin-bottom:6px"}, j));
+    newHoraires[j].plages.forEach((plage, pIdx) => {
+      const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:4px 0 4px 12px"});
+      const checkbox = h("input",{type:"checkbox"});
+      checkbox.checked = plage.ouvert;
+      checkbox.addEventListener("change", () => newHoraires[j].plages[pIdx].ouvert = checkbox.checked);
+      const label = h("label",{style:"width:90px;font-size:12.5px;color:#7a9a80"}, checkbox, " " + PLAGE_LABELS[pIdx]);
+      const debut = h("input",{type:"time",style:"width:110px"}); debut.value = plage.debut;
+      debut.addEventListener("change", () => newHoraires[j].plages[pIdx].debut = debut.value);
+      const fin = h("input",{type:"time",style:"width:110px"}); fin.value = plage.fin;
+      fin.addEventListener("change", () => newHoraires[j].plages[pIdx].fin = fin.value);
+      row.appendChild(label); row.appendChild(debut); row.appendChild(h("span",{style:"color:#7a9a80;font-size:12px"},"à")); row.appendChild(fin);
+      jourBox.appendChild(row);
+    });
+    horBox.appendChild(jourBox);
   });
   const saveHorBtn = h("button",{class:"btn",style:"margin-top:14px;padding:9px 18px;font-size:13px"},"Enregistrer les horaires");
   let newDureeRdv = s.dureeRdv || 60;
