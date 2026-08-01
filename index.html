@@ -829,6 +829,7 @@ const DEFAULT_SETTINGS = {
     samedi:   {ouvert:false, debut:"09:00", fin:"12:00"},
     dimanche: {ouvert:false, debut:"09:00", fin:"12:00"},
   },
+  dureeRdv: 60,
   tarifs: { decouverte:0, unite:70, declic:190, codeChaine:520, famille:340, club:20 },
   messageInfo: { actif:false, texte:"" },
   conges: []
@@ -849,6 +850,7 @@ const CoachSettings = {
         ...DEFAULT_SETTINGS,
         ...raw,
         horaires: mergedHoraires,
+        dureeRdv: raw.dureeRdv || DEFAULT_SETTINGS.dureeRdv,
         tarifs: { ...DEFAULT_SETTINGS.tarifs, ...(raw.tarifs||{}) },
         messageInfo: { ...DEFAULT_SETTINGS.messageInfo, ...(raw.messageInfo||{}) },
         conges: raw.conges || []
@@ -900,7 +902,20 @@ function renderReglagesTab() {
     horBox.appendChild(row);
   });
   const saveHorBtn = h("button",{class:"btn",style:"margin-top:14px;padding:9px 18px;font-size:13px"},"Enregistrer les horaires");
-  saveHorBtn.addEventListener("click", () => CoachSettings.save({ horaires: newHoraires }));
+  let newDureeRdv = s.dureeRdv || 60;
+  saveHorBtn.addEventListener("click", () => CoachSettings.save({ horaires: newHoraires, dureeRdv: newDureeRdv }));
+
+  const dureeRow = h("div",{style:"display:flex;align-items:center;gap:10px;padding:10px 0;margin-top:6px;border-top:1px solid #2a3c2e"});
+  dureeRow.appendChild(h("label",{style:"font-size:13px;color:#ede8d8"},"⏱️ Durée entre les rendez-vous"));
+  const dureeSel = h("select",{style:"width:140px"});
+  [15,20,30,45,60,90,120].forEach(min => {
+    const opt = h("option",{value:String(min)}, min + " min");
+    if (min === newDureeRdv) opt.selected = true;
+    dureeSel.appendChild(opt);
+  });
+  dureeSel.addEventListener("change", () => newDureeRdv = Number(dureeSel.value));
+  dureeRow.appendChild(dureeSel);
+  horBox.appendChild(dureeRow);
   horBox.appendChild(saveHorBtn);
   wrap.appendChild(horBox);
 
