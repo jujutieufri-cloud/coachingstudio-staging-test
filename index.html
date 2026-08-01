@@ -1042,9 +1042,22 @@ function appliquerForfait(client, motif) {
   }
 }
 
+function normalizePhone(raw) {
+  if (!raw) return "";
+  let d = String(raw).replace(/[^\d+]/g, "");
+  if (d.startsWith("+33")) d = "0" + d.slice(3);
+  else if (d.startsWith("0033")) d = "0" + d.slice(4);
+  return d;
+}
+
 function creerOuMajClientDepuisRdv(req) {
   const emailNorm = (req.email || "").trim().toLowerCase();
-  let client = emailNorm ? state.clients.find(c => (c.email||"").trim().toLowerCase() === emailNorm) : null;
+  const telNorm = normalizePhone(req.tel);
+  let client = state.clients.find(c => {
+    const sameEmail = emailNorm && (c.email||"").trim().toLowerCase() === emailNorm;
+    const samePhone = telNorm && normalizePhone(c.tel) === telNorm;
+    return sameEmail || samePhone;
+  });
   const montant = montantPourMotif(req.motif);
 
   if (client) {
