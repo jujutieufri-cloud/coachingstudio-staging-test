@@ -473,6 +473,9 @@ let state = {
   ressources: JSON.parse(localStorage.getItem("cs4-ressources") || "[]"),
   notes: localStorage.getItem("cs4-notes") || "",
   appointments: JSON.parse(localStorage.getItem("cs4-appointments") || "[]"),
+  agendaView: "liste",
+  agendaRef: (() => { const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); })(),
+  agendaSelectedDay: null,
   selClientId: null,
   subTab: "fiche",
   bibCat: "Tous",
@@ -1120,9 +1123,21 @@ const MOIS_NOMS_FR = ["janvier","février","mars","avril","mai","juin","juillet"
 // ══════════════════════════════════════════
 //  AGENDA (tous les rendez-vous, site + manuels)
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+//  AGENDA (tous les rendez-vous, site + manuels)
+// ══════════════════════════════════════════
+function isoDate(d) { return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function parseISO(s) { return new Date(s + "T00:00:00"); }
+function startOfWeekMonday(d) { const day = d.getDay(); const diff = (day===0?-6:1-day); const r = new Date(d); r.setDate(d.getDate()+diff); return r; }
+const JOURS_COURT = ["lun","mar","mer","jeu","ven","sam","dim"];
+
+function appointmentsForDate(dateStr) {
+  return state.appointments.filter(a => a.date === dateStr).sort((a,b) => (a.heure||"").localeCompare(b.heure||""));
+}
+
 function renderAgendaTab() {
   const wrap = h("div",{class:"fade"});
-  const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"},
+  const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px"},
     h("div",{},
       h("h1",{style:"font-size:30px;color:#ede8d8;font-weight:600;font-style:italic"},"Agenda"),
       h("p",{style:"color:#7a9a80;font-size:13px;margin-top:4px"},"Tous les rendez-vous, issus du site ou ajoutés manuellement")
@@ -1144,40 +1159,154 @@ function renderAgendaTab() {
   hdr.appendChild(addBtn);
   wrap.appendChild(hdr);
 
-  const todayStr = new Date().toISOString().slice(0,10);
+  // --- Sélecteur de vue ---
+  const viewRow = h("div",{style:"display:flex;gap:8px;margin-bottom:18px"});
+  [["liste","☰ Liste"],["semaine","▦ Semaine"],["mois","▤ Mois"]].forEach(([id,label]) => {
+    const b = h("button",{class:"btn-sm"}, label);
+    if (state.agendaView === id) { b.style.background="#c8a04222"; b.style.color="#c8a042"; b.style.borderColor="#c8a04255"; }
+    b.addEventListener("click", () => { state.agendaView = id; state.agendaSelectedDay = null; render(); });
+    viewRow.appendChild(b);
+  });
+  wrap.appendChild(viewRow);
+
+  if (state.agendaView === "semaine") wrap.appendChild(renderAgendaSemaine());
+  else if (state.agendaView === "mois") wrap.appendChild(renderAgendaMois());
+  else wrap.appendChild(renderAgendaListe());
+
+  return wrap;
+}
+
+function appointmentRow(a) {
+  const todayStr = isoDate(new Date());
+  const isPast = a.date && a.date < todayStr;
+  const row = h("div",{class:"card",style:"padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px"+(isPast?";opacity:0.55":"")});
+  const dateBox = h("div",{style:"min-width:78px;text-align:center"},
+    h("div",{style:"font-size:13px;font-weight:700;color:#c8a042"}, a.date || "—"),
+    h("div",{style:"font-size:11px;color:#7a9a80;margin-top:2px"}, a.heure || "")
+  );
+  const info = h("div",{style:"flex:1;min-width:0"},
+    h("div",{style:"color:#ede8d8;font-size:14px;font-weight:600"}, a.clientName),
+    h("div",{style:"color:#7a9a80;font-size:12px;margin-top:2px"}, a.motif || "Rendez-vous")
+  );
+  const srcBadge = h("span",{style:`font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${a.source==="site"?"#5aaec822":"#9880d022"};color:${a.source==="site"?"#5aaec8":"#9880d0"}`}, a.source==="site" ? "site" : "manuel");
+  const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#4a6a52;font-size:18px;padding:0 4px"},"×");
+  delBtn.addEventListener("click", () => {
+    if (!confirm("Supprimer ce rendez-vous ?")) return;
+    state.appointments = state.appointments.filter(x => x.id !== a.id);
+    save(); render();
+  });
+  row.appendChild(dateBox); row.appendChild(info); row.appendChild(srcBadge); row.appendChild(delBtn);
+  return row;
+}
+
+function renderAgendaListe() {
+  const wrap = h("div",{});
+  const todayStr = isoDate(new Date());
   const items = [...state.appointments].sort((a,b) => (a.date+((a.heure||"00:00"))).localeCompare(b.date+(b.heure||"00:00")));
   const upcoming = items.filter(a => !a.date || a.date >= todayStr);
   const past = items.filter(a => a.date && a.date < todayStr).reverse();
 
-  function rowFor(a) {
-    const isPast = a.date && a.date < todayStr;
-    const row = h("div",{class:"card",style:"padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px"+(isPast?";opacity:0.55":"")});
-    const dateBox = h("div",{style:"min-width:78px;text-align:center"},
-      h("div",{style:"font-size:13px;font-weight:700;color:#c8a042"}, a.date || "—"),
-      h("div",{style:"font-size:11px;color:#7a9a80;margin-top:2px"}, a.heure || "")
-    );
-    const info = h("div",{style:"flex:1;min-width:0"},
-      h("div",{style:"color:#ede8d8;font-size:14px;font-weight:600"}, a.clientName),
-      h("div",{style:"color:#7a9a80;font-size:12px;margin-top:2px"}, a.motif || "Rendez-vous")
-    );
-    const srcBadge = h("span",{style:`font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:${a.source==="site"?"#5aaec822":"#9880d022"};color:${a.source==="site"?"#5aaec8":"#9880d0"}`}, a.source==="site" ? "site" : "manuel");
-    const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#4a6a52;font-size:18px;padding:0 4px"},"×");
-    delBtn.addEventListener("click", () => {
-      if (!confirm("Supprimer ce rendez-vous ?")) return;
-      state.appointments = state.appointments.filter(x => x.id !== a.id);
-      save(); setState({tab:"agenda"});
-    });
-    row.appendChild(dateBox); row.appendChild(info); row.appendChild(srcBadge); row.appendChild(delBtn);
-    return row;
-  }
-
   wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:10px"}, "À venir (" + upcoming.length + ")"));
   if (!upcoming.length) wrap.appendChild(h("p",{style:"color:#7a9a80;font-size:13px;padding:10px 0"},"Aucun rendez-vous à venir."));
-  upcoming.forEach(a => wrap.appendChild(rowFor(a)));
+  upcoming.forEach(a => wrap.appendChild(appointmentRow(a)));
 
   if (past.length) {
     wrap.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#7a9a80;margin:22px 0 10px"}, "Passés"));
-    past.slice(0,15).forEach(a => wrap.appendChild(rowFor(a)));
+    past.slice(0,15).forEach(a => wrap.appendChild(appointmentRow(a)));
+  }
+  return wrap;
+}
+
+function renderAgendaSemaine() {
+  const wrap = h("div",{});
+  const ref = parseISO(state.agendaRef);
+  const monday = startOfWeekMonday(ref);
+  const days = [...Array(7)].map((_,i) => { const d = new Date(monday); d.setDate(monday.getDate()+i); return d; });
+  const todayStr = isoDate(new Date());
+
+  const nav = h("div",{style:"display:flex;align-items:center;gap:12px;margin-bottom:16px"});
+  const prevBtn = h("button",{class:"btn-sm"},"‹ Semaine préc.");
+  const nextBtn = h("button",{class:"btn-sm"},"Semaine suiv. ›");
+  prevBtn.addEventListener("click", () => { const d = new Date(monday); d.setDate(d.getDate()-7); state.agendaRef = isoDate(d); render(); });
+  nextBtn.addEventListener("click", () => { const d = new Date(monday); d.setDate(d.getDate()+7); state.agendaRef = isoDate(d); render(); });
+  const label = MOIS_NOMS_FR[days[0].getMonth()] + " " + days[0].getDate() + " – " + (days[6].getMonth()!==days[0].getMonth() ? MOIS_NOMS_FR[days[6].getMonth()]+" " : "") + days[6].getDate() + " " + days[6].getFullYear();
+  nav.appendChild(prevBtn); nav.appendChild(h("div",{style:"color:#ede8d8;font-weight:700;font-size:14px;flex:1;text-align:center"},label)); nav.appendChild(nextBtn);
+  wrap.appendChild(nav);
+
+  days.forEach(d => {
+    const dStr = isoDate(d);
+    const dayApts = appointmentsForDate(dStr);
+    const isToday = dStr === todayStr;
+    const dayCard = h("div",{class:"card",style:"padding:14px 18px;margin-bottom:10px"+(isToday?";border-color:#c8a04266":"")});
+    dayCard.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"},
+      h("div",{style:"color:"+(isToday?"#c8a042":"#ede8d8")+";font-weight:700;font-size:13px;text-transform:capitalize"}, JOURS_COURT[d.getDay()===0?6:d.getDay()-1] + " " + d.getDate()),
+      h("span",{style:"color:#4a6a52;font-size:11px"}, dayApts.length ? dayApts.length + " RDV" : "")
+    ));
+    if (!dayApts.length) {
+      dayCard.appendChild(h("p",{style:"color:#4a6a52;font-size:12.5px"},"Aucun rendez-vous."));
+    } else {
+      dayApts.forEach(a => {
+        const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #1e3322"});
+        row.appendChild(h("div",{style:"min-width:44px;color:#c8a042;font-size:12.5px;font-weight:600"}, a.heure||"—"));
+        row.appendChild(h("div",{style:"flex:1;color:#ede8d8;font-size:13px"}, a.clientName + (a.motif ? " — "+a.motif : "")));
+        const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#4a6a52;font-size:16px"},"×");
+        delBtn.addEventListener("click", () => { if(confirm("Supprimer ce rendez-vous ?")){ state.appointments = state.appointments.filter(x=>x.id!==a.id); save(); render(); } });
+        row.appendChild(delBtn);
+        dayCard.appendChild(row);
+      });
+    }
+    wrap.appendChild(dayCard);
+  });
+
+  return wrap;
+}
+
+function renderAgendaMois() {
+  const wrap = h("div",{});
+  const ref = parseISO(state.agendaRef);
+  const year = ref.getFullYear(), month = ref.getMonth();
+  const firstOfMonth = new Date(year, month, 1);
+  const startGrid = startOfWeekMonday(firstOfMonth);
+  const todayStr = isoDate(new Date());
+
+  const nav = h("div",{style:"display:flex;align-items:center;gap:12px;margin-bottom:16px"});
+  const prevBtn = h("button",{class:"btn-sm"},"‹ Mois préc.");
+  const nextBtn = h("button",{class:"btn-sm"},"Mois suiv. ›");
+  prevBtn.addEventListener("click", () => { const d = new Date(year, month-1, 1); state.agendaRef = isoDate(d); state.agendaSelectedDay=null; render(); });
+  nextBtn.addEventListener("click", () => { const d = new Date(year, month+1, 1); state.agendaRef = isoDate(d); state.agendaSelectedDay=null; render(); });
+  nav.appendChild(prevBtn); nav.appendChild(h("div",{style:"color:#ede8d8;font-weight:700;font-size:14px;flex:1;text-align:center;text-transform:capitalize"}, MOIS_NOMS_FR[month]+" "+year)); nav.appendChild(nextBtn);
+  wrap.appendChild(nav);
+
+  const grid = h("div",{style:"display:grid;grid-template-columns:repeat(7,1fr);gap:6px"});
+  JOURS_COURT.forEach(j => grid.appendChild(h("div",{style:"text-align:center;color:#4a6a52;font-size:11px;font-weight:700;padding-bottom:4px;text-transform:capitalize"}, j)));
+
+  const cursor = new Date(startGrid);
+  for (let w = 0; w < 6; w++) {
+    for (let i = 0; i < 7; i++) {
+      const dStr = isoDate(cursor);
+      const inMonth = cursor.getMonth() === month;
+      const dayApts = appointmentsForDate(dStr);
+      const isToday = dStr === todayStr;
+      const isSelected = state.agendaSelectedDay === dStr;
+      const cell = h("div",{style:`min-height:56px;border-radius:8px;padding:6px;cursor:pointer;background:${isSelected?"#c8a04222":"#0d1c10"};border:1px solid ${isToday?"#c8a04266":"#1e3322"};opacity:${inMonth?1:0.35}`});
+      cell.appendChild(h("div",{style:"font-size:12px;color:"+(isToday?"#c8a042":"#ede8d8")+";font-weight:600"}, String(cursor.getDate())));
+      if (dayApts.length) {
+        cell.appendChild(h("div",{style:"margin-top:4px;font-size:9.5px;color:#c8a042;font-weight:700"}, dayApts.length + " RDV"));
+      }
+      cell.addEventListener("click", () => { state.agendaSelectedDay = (state.agendaSelectedDay===dStr) ? null : dStr; render(); });
+      grid.appendChild(cell);
+      cursor.setDate(cursor.getDate()+1);
+    }
+  }
+  wrap.appendChild(grid);
+
+  if (state.agendaSelectedDay) {
+    const dayApts = appointmentsForDate(state.agendaSelectedDay);
+    const detail = h("div",{class:"card",style:"padding:16px 18px;margin-top:16px"});
+    detail.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#ede8d8;margin-bottom:10px"}, state.agendaSelectedDay));
+    if (!dayApts.length) detail.appendChild(h("p",{style:"color:#4a6a52;font-size:12.5px"},"Aucun rendez-vous ce jour-là."));
+    dayApts.forEach(a => detail.appendChild(appointmentRow(a)));
+    wrap.appendChild(detail);
   }
 
   return wrap;
