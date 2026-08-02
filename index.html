@@ -1045,6 +1045,11 @@ const RdvRequests = {
               .catch(e => console.error("bookedSlots:", e));
           }
           creerOuMajClientDepuisRdv(req);
+        } else if (status === "rejete" && req && req.date && req.heure) {
+          // Le créneau avait été réservé automatiquement à l'envoi : on le libère.
+          const slotId = req.date + "_" + req.heure;
+          db.collection("bookedSlots").doc(slotId).delete()
+            .catch(e => console.error("bookedSlots (liberation):", e));
         }
       })
       .catch(e => notifCoach("Erreur : " + e.message));
