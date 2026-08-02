@@ -1024,14 +1024,28 @@ function renderReglagesTab() {
 const RdvRequests = {
   items: [],
   unsub: null,
+  autoTraites: new Set(),
   listen() {
     if (this.unsub || !CoachLink.user) return;
     this.unsub = firebase.firestore().collection("rdvRequests")
       .orderBy("createdAt", "desc")
       .onSnapshot(snap => {
         this.items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        if (state.tab === "rdv") render();
+        this.autoConfirmerClientsExistants();
+        if (state.tab === "rdv" || state.tab === "agenda") render();
       }, e => console.error("listen rdvRequests:", e));
+  },
+  autoConfirmerClientsExistants() {
+    this.items
+      .filter(r => r.status === "nouveau" && !this.autoTraites.has(r.id))
+      .forEach(r => {
+        const client = trouverClientExistant(r);
+        if (client) {
+          this.autoTraites.add(r.id);
+          this.setStatus(r.id, "confirme");
+          notifCoach("✅ RDV auto-confirmé (client existant) : " + client.name);
+        }
+      });
   },
   setStatus(id, status) {
     const db = firebase.firestore();
@@ -1051,6 +1065,24 @@ const RdvRequests = {
           db.collection("bookedSlots").doc(slotId).delete()
             .catch(e => console.error("bookedSlots (liberation):", e));
         }
+      })
+      .catch(e => notifCoach("Erreur : " + e.message));
+  },
+  annuler(id) {
+    const db = firebase.firestore();
+    const req = this.items.find(r => r.id === id);
+    db.collection("rdvRequests").doc(id).update({ status: "annule" })
+      .then(() => {
+        if (req && req.date && req.heure) {
+          const slotId = req.date + "_" + req.heure;
+          db.collection("bookedSlots").doc(slotId).delete()
+            .catch(e => console.error("bookedSlots (annulation):", e));
+          state.appointments = state.appointments.filter(a =>
+            !(a.source === "site" && a.date === req.date && a.heure === req.heure));
+          save();
+        }
+        notifCoach("Rendez-vous annulé, créneau libéré.");
+        render();
       })
       .catch(e => notifCoach("Erreur : " + e.message));
   }
@@ -1096,7 +1128,7 @@ function normalizePhone(raw) {
   return d;
 }
 
-function ajouterRdvAgenda({ clientId, clientName, date, heure, motif, notes, source }) {
+function ajouterRdvAgenda({ clientId, clientName, date, heure, motif, notes, source, reqId }) {
   state.appointments.push({
     id: "a" + Date.now() + Math.random().toString(36).slice(2,6),
     clientId: clientId || null,
@@ -1105,7 +1137,8 @@ function ajouterRdvAgenda({ clientId, clientName, date, heure, motif, notes, sou
     heure: heure || "",
     motif: motif || "",
     notes: notes || "",
-    source: source || "manuel"
+    source: source || "manuel",
+    reqId: reqId || null
   });
   save();
   if (date && heure) {
@@ -1124,16 +1157,24 @@ function supprimerRdvAgenda(id) {
     firebase.firestore().collection("bookedSlots").doc(slotId).delete()
       .catch(e => console.error("bookedSlots delete:", e));
   }
+  if (item && item.reqId) {
+    firebase.firestore().collection("rdvRequests").doc(item.reqId).update({ status: "annule" })
+      .catch(e => console.error("annulation rdvRequests:", e));
+  }
 }
 
-function creerOuMajClientDepuisRdv(req) {
+function trouverClientExistant(req) {
   const emailNorm = (req.email || "").trim().toLowerCase();
   const telNorm = normalizePhone(req.tel);
-  let client = state.clients.find(c => {
+  return state.clients.find(c => {
     const sameEmail = emailNorm && (c.email||"").trim().toLowerCase() === emailNorm;
     const samePhone = telNorm && normalizePhone(c.tel) === telNorm;
     return sameEmail || samePhone;
-  });
+  }) || null;
+}
+
+function creerOuMajClientDepuisRdv(req) {
+  let client = trouverClientExistant(req);
   const montant = montantPourMotif(req.motif);
 
   if (client) {
@@ -1145,7 +1186,7 @@ function creerOuMajClientDepuisRdv(req) {
     client.paiements = client.paiements || [];
     client.paiements.push({ id: Date.now()+"", date: req.date || new Date().toISOString().slice(0,10), montant, statut: "en attente" });
     save();
-    ajouterRdvAgenda({ clientId: client.id, clientName: client.name, date: req.date, heure: req.heure, motif: req.motif, notes: req.message, source: "site" });
+    ajouterRdvAgenda({ clientId: client.id, clientName: client.name, date: req.date, heure: req.heure, motif: req.motif, notes: req.message, source: "site", reqId: req.id });
     notifCoach("✅ Séance ajoutée à la fiche de " + client.name);
   } else {
     const nom = ((req.prenom||"") + " " + (req.nom||"")).trim() || "Nouveau client";
@@ -1168,7 +1209,7 @@ function creerOuMajClientDepuisRdv(req) {
     appliquerForfait(nouveauClient, req.motif);
     state.clients.push(nouveauClient);
     save();
-    ajouterRdvAgenda({ clientId: nouveauClient.id, clientName: nom, date: req.date, heure: req.heure, motif: req.motif, notes: req.message, source: "site" });
+    ajouterRdvAgenda({ clientId: nouveauClient.id, clientName: nom, date: req.date, heure: req.heure, motif: req.motif, notes: req.message, source: "site", reqId: req.id });
     notifCoach("✅ Nouvelle fiche client créée : " + nom);
   }
 }
@@ -1559,11 +1600,19 @@ function renderRdvTab() {
   if (traites.length) {
     wrap.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#7a9a80;margin:18px 0 10px"}, "Traitées"));
     traites.slice(0,10).forEach(r => {
-      const col = r.status === "confirme" ? "#4a9e6a" : "#d07070";
-      wrap.appendChild(h("div",{style:"display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #2a3c2e;font-size:12.5px"},
-        h("div",{style:"color:#ede8d8"}, r.prenom + " " + r.nom + " — " + r.motif),
-        h("span",{style:"color:"+col}, r.status === "confirme" ? "Confirmé" : "Rejeté")
-      ));
+      const col = r.status === "confirme" ? "#4a9e6a" : (r.status === "annule" ? "#d0a070" : "#d07070");
+      const label = r.status === "confirme" ? "Confirmé" : (r.status === "annule" ? "Annulé" : "Rejeté");
+      const row = h("div",{style:"display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #2a3c2e;font-size:12.5px;gap:10px"});
+      row.appendChild(h("div",{style:"color:#ede8d8;flex:1"}, r.prenom + " " + r.nom + " — " + r.motif));
+      row.appendChild(h("span",{style:"color:"+col}, label));
+      if (r.status === "confirme") {
+        const cancelBtn = h("button",{class:"btn-sm",style:"border-color:#d0707044;color:#d07070;padding:4px 10px;font-size:11.5px"},"✕ Annuler");
+        cancelBtn.addEventListener("click", () => {
+          if (confirm("Annuler ce rendez-vous et libérer le créneau ?")) RdvRequests.annuler(r.id);
+        });
+        row.appendChild(cancelBtn);
+      }
+      wrap.appendChild(row);
     });
   }
 
