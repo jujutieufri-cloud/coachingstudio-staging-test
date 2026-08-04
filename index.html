@@ -1773,6 +1773,20 @@ function renderNav() {
 // ══════════════════════════════════════════
 //  DASHBOARD
 // ══════════════════════════════════════════
+function caduMoisCourant() {
+  const maintenant = new Date();
+  const cleMoisCourant = maintenant.getFullYear() + "-" + String(maintenant.getMonth()+1).padStart(2,"0");
+  let reel = 0;
+  state.clients.forEach(c => {
+    (c.paiements || []).forEach(p => {
+      if (p.date && p.date.slice(0,7) === cleMoisCourant && p.statut === "payé") {
+        reel += Number(p.montant || 0);
+      }
+    });
+  });
+  return reel;
+}
+
 function renderDashboard() {
   const clients = state.clients;
   const actifs = clients.filter(c=>c.status==="actif").length;
@@ -1783,10 +1797,11 @@ function renderDashboard() {
     {label:"Clients actifs",   val:actifs,          icon:"◉", color:"#4a9e6a"},
     {label:"Séances réalisées",val:total,            icon:"◈", color:"#5aaec8"},
     {label:"Clients total",    val:clients.length,  icon:"◇", color:"#c8a042"},
+    {label:"CA ce mois-ci",    val:caduMoisCourant()+" €", icon:"💰", color:"#4a9e6a"},
     {label:"Fiches coaching",  val:BIBLIO.length,   icon:"▣", color:"#9880d0"},
   ];
 
-  const statsRow = h("div",{style:"display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px"});
+  const statsRow = h("div",{style:"display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px"});
   stats.forEach(s => {
     statsRow.appendChild(h("div",{class:"card stat-card"},
       h("div",{class:"stat-icon",style:`background:${s.color}18;color:${s.color}`}, s.icon),
