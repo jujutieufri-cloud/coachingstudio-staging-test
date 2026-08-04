@@ -1503,6 +1503,34 @@ function renderFinancesTab() {
   const cleMoisProchain = moisProchain.getFullYear() + "-" + String(moisProchain.getMonth()+1).padStart(2,"0");
   const dataMoisProchain = parMois[cleMoisProchain] || {reel:0, prevu:0, seances:0};
 
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"📦 Suivi des forfaits en cours"));
+  const clientsAvecForfait = state.clients.filter(c => c.forfaitNom && c.forfaitTotal);
+  if (!clientsAvecForfait.length) {
+    wrap.appendChild(h("p",{style:"color:#aecab3;font-size:13px;padding:10px 0 20px"},"Aucun forfait en cours actuellement."));
+  } else {
+    clientsAvecForfait.forEach(c => {
+      const utilisees = c.forfaitUtilisees || 0;
+      const pct = Math.min(100, Math.round(utilisees / c.forfaitTotal * 100));
+      const termine = utilisees >= c.forfaitTotal;
+      const fCard = h("div",{class:"card",style:"padding:14px 18px;margin-bottom:8px;cursor:pointer"});
+      fCard.addEventListener("click", () => setState({tab:"clients", selClientId:c.id, subTab:"fiche"}));
+      fCard.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"},
+        h("div",{style:"display:flex;align-items:center;gap:10px"},
+          avatar(c.name, c.profile, 30),
+          h("div",{},
+            h("div",{style:"color:#ede8d8;font-size:13.5px;font-weight:600"}, c.name),
+            h("div",{style:"color:#aecab3;font-size:12px;margin-top:1px"}, c.forfaitNom)
+          )
+        ),
+        h("div",{style:"color:"+(termine?"#4a9e6a":"#c8a042")+";font-size:13px;font-weight:700"}, utilisees + " / " + c.forfaitTotal + (termine ? " ✓" : ""))
+      ));
+      const barBg = h("div",{style:"background:#1e3322;border-radius:6px;height:7px;overflow:hidden"});
+      barBg.appendChild(h("div",{style:"background:"+(termine?"#4a9e6a":"#c8a042")+";height:100%;width:"+pct+"%"}));
+      fCard.appendChild(barBg);
+      wrap.appendChild(fCard);
+    });
+  }
+
   wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:10px"},"💰 Ce mois-ci"));
   const summaryMoisCourant = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px"});
   summaryMoisCourant.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center;border-color:#4a9e6a44"},
@@ -1930,7 +1958,8 @@ function renderClientList() {
           h("div",{style:"display:flex;gap:6px;align-items:center"},
             badgeStatus(c.status),
             h("span",{style:"color:#93b399;font-size:12px"},`${c.sessions} séances`)
-          )
+          ),
+          (c.forfaitNom && c.forfaitTotal) ? h("span",{style:"color:#c8a042;font-size:11px;font-weight:600"}, "📦 "+(c.forfaitUtilisees||0)+"/"+c.forfaitTotal) : null
         ),
         h("span",{style:"color:#2a4535;font-size:18px"},"›")
       );
