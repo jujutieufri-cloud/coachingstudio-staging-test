@@ -1497,10 +1497,36 @@ function renderFinancesTab() {
   const totalSeances = moisTries.reduce((s,mk) => s + parMois[mk].seances, 0);
 
   const maintenant = new Date();
+  const cleMoisCourant = maintenant.getFullYear() + "-" + String(maintenant.getMonth()+1).padStart(2,"0");
+  const dataMoisCourant = parMois[cleMoisCourant] || {reel:0, prevu:0, seances:0};
   const moisProchain = new Date(maintenant.getFullYear(), maintenant.getMonth()+1, 1);
   const cleMoisProchain = moisProchain.getFullYear() + "-" + String(moisProchain.getMonth()+1).padStart(2,"0");
   const dataMoisProchain = parMois[cleMoisProchain] || {reel:0, prevu:0, seances:0};
 
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:10px"},"💰 Ce mois-ci"));
+  const summaryMoisCourant = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px"});
+  summaryMoisCourant.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center;border-color:#4a9e6a44"},
+    h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"ENCAISSÉ CE MOIS-CI (réel)"),
+    h("div",{style:"font-size:26px;font-weight:800;color:#4a9e6a"}, dataMoisCourant.reel.toFixed(0)+" €"),
+    h("div",{style:"font-size:10.5px;color:#7a9a80;margin-top:2px"}, dataMoisCourant.seances + " séance(s)")
+  ));
+  summaryMoisCourant.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center;border-color:#c8a04244"},
+    h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"PROGRAMMÉ CE MOIS-CI (total)"),
+    h("div",{style:"font-size:26px;font-weight:800;color:#c8a042"}, dataMoisCourant.prevu.toFixed(0)+" €"),
+    h("div",{style:"font-size:10.5px;color:#7a9a80;margin-top:2px"}, "reste "+(dataMoisCourant.prevu-dataMoisCourant.reel).toFixed(0)+" € à encaisser")
+  ));
+  wrap.appendChild(summaryMoisCourant);
+
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:10px"},"📆 Le mois prochain"));
+  const summaryMoisProchain = h("div",{style:"margin-bottom:20px"});
+  summaryMoisProchain.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center;border-color:#5aaec844"},
+    h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"PRÉVISIONNEL MOIS PROCHAIN"),
+    h("div",{style:"font-size:24px;font-weight:800;color:#5aaec8"}, dataMoisProchain.prevu.toFixed(0)+" €"),
+    h("div",{style:"font-size:10.5px;color:#7a9a80;margin-top:2px"}, dataMoisProchain.seances + " séance(s) déjà programmée(s)")
+  ));
+  wrap.appendChild(summaryMoisProchain);
+
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:10px"},"📊 Totaux cumulés"));
   // --- Résumé global ---
   const summary = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px"});
   summary.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
@@ -1513,11 +1539,6 @@ function renderFinancesTab() {
   ));
   wrap.appendChild(summary);
   const summary2 = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px"});
-  summary2.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center;border-color:#5aaec844"},
-    h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"PRÉVISIONNEL MOIS PROCHAIN"),
-    h("div",{style:"font-size:22px;font-weight:800;color:#5aaec8"}, dataMoisProchain.prevu.toFixed(0)+" €"),
-    h("div",{style:"font-size:10.5px;color:#7a9a80;margin-top:2px"}, dataMoisProchain.seances + " séance(s) déjà programmée(s)")
-  ));
   summary2.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
     h("div",{style:"font-size:11px;color:#7a9a80;margin-bottom:4px"},"SÉANCES ENREGISTRÉES (total)"),
     h("div",{style:"font-size:24px;font-weight:800;color:#ede8d8"}, String(totalSeances))
