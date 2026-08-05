@@ -1448,7 +1448,9 @@ function buildAgendaForm() {
   const g2 = h("div",{class:"grid2",style:"margin-bottom:12px"});
   const heureInp = inputEl({ type:"time", onChange: v => fd.heure = v });
   g2.appendChild(field("HEURE", heureInp));
-  const motifInp = inputEl({ placeholder:"Ex: Séance de suivi", onInput: v => fd.motif = v });
+  const MOTIFS_AGENDA = ["Séance Découverte (gratuite)","Séance à l'unité","Forfait Déclic","Programme Sérénité","Forfait Famille Hérisson","Autre"];
+  fd.motif = MOTIFS_AGENDA[0];
+  const motifInp = selectEl({ options: MOTIFS_AGENDA, value: MOTIFS_AGENDA[0], onChange: v => fd.motif = v });
   g2.appendChild(field("MOTIF", motifInp));
   form.appendChild(g2);
 
@@ -1465,6 +1467,21 @@ function buildAgendaForm() {
     if (!nom) { notifCoach("Merci d'indiquer un client ou un nom."); return; }
     if (!fd.date) { notifCoach("Merci d'indiquer une date."); return; }
     ajouterRdvAgenda({ clientId: fd.clientId, clientName: nom, date: fd.date, heure: fd.heure, motif: fd.motif, notes: fd.notes, source: "manuel" });
+
+    // Si un client existant est sélectionné, on décompte la séance sur sa fiche (sessions + forfait).
+    if (fd.clientId) {
+      const client = state.clients.find(c => c.id === fd.clientId);
+      if (client) {
+        client.sessions = (client.sessions || 0) + 1;
+        client.nextSession = fd.date || client.nextSession || "";
+        client.sessionHistory = client.sessionHistory || [];
+        client.sessionHistory.push("Séance " + client.sessionHistory.length + 1 + " — " + (fd.motif || "RDV (agenda)") + (fd.date ? " (" + fd.date + ")" : ""));
+        appliquerForfait(client, fd.motif);
+        save();
+        notifCoach("📦 Séance décomptée pour " + client.name + (client.forfaitTotal ? " (" + client.forfaitUtilisees + "/" + client.forfaitTotal + ")" : ""));
+      }
+    }
+
     setState({ tab: "agenda" });
   });
   const cancelBtn = h("button",{class:"btn-g"},"Annuler");
