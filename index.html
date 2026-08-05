@@ -1068,7 +1068,7 @@ const RdvRequests = {
       })
       .catch(e => notifCoach("Erreur : " + e.message));
   },
-  annuler(id) {
+  annuler(id, callback) {
     const db = firebase.firestore();
     const req = this.items.find(r => r.id === id);
     db.collection("rdvRequests").doc(id).update({ status: "annule" })
@@ -1082,9 +1082,13 @@ const RdvRequests = {
           save();
         }
         notifCoach("Rendez-vous annulé, créneau libéré.");
+        if (callback) callback(null);
         render();
       })
-      .catch(e => notifCoach("Erreur : " + e.message));
+      .catch(e => {
+        notifCoach("Erreur : " + e.message);
+        if (callback) callback(e);
+      });
   }
 };
 
@@ -1675,7 +1679,18 @@ function renderRdvTab() {
       if (r.status === "confirme") {
         const cancelBtn = h("button",{class:"btn-sm",style:"border-color:#d0707044;color:#d07070;padding:4px 10px;font-size:13.5px"},"✕ Annuler");
         cancelBtn.addEventListener("click", () => {
-          if (confirm("Annuler ce rendez-vous et libérer le créneau ?")) RdvRequests.annuler(r.id);
+          if (!confirm("Annuler ce rendez-vous et libérer le créneau ?")) return;
+          cancelBtn.disabled = true;
+          cancelBtn.textContent = "Annulation…";
+          RdvRequests.annuler(r.id, (err) => {
+            if (err) {
+              cancelBtn.disabled = false;
+              cancelBtn.textContent = "✕ Annuler";
+              cancelBtn.style.background = "#d0707022";
+              const errMsg = h("div",{style:"color:#d07070;font-size:11px;margin-top:4px"}, "Échec : " + err.message);
+              row.appendChild(errMsg);
+            }
+          });
         });
         row.appendChild(cancelBtn);
       }
