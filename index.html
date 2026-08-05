@@ -1047,7 +1047,7 @@ const RdvRequests = {
         }
       });
   },
-  setStatus(id, status) {
+  setStatus(id, status, callback) {
     const db = firebase.firestore();
     const req = this.items.find(r => r.id === id);
     db.collection("rdvRequests").doc(id).update({ status })
@@ -1065,8 +1065,12 @@ const RdvRequests = {
           db.collection("bookedSlots").doc(slotId).delete()
             .catch(e => console.error("bookedSlots (liberation):", e));
         }
+        if (callback) callback(null);
       })
-      .catch(e => notifCoach("Erreur : " + e.message));
+      .catch(e => {
+        notifCoach("Erreur : " + e.message);
+        if (callback) callback(e);
+      });
   },
   annuler(id, callback) {
     const db = firebase.firestore();
@@ -1661,8 +1665,27 @@ function renderRdvTab() {
     const actions = h("div",{style:"display:flex;gap:8px;margin-top:12px"});
     const confirmBtn = h("button",{class:"btn-sm",style:"border-color:#4a9e6a44;color:#4a9e6a"},"✓ Confirmer");
     const rejectBtn = h("button",{class:"btn-sm",style:"border-color:#d0707044;color:#d07070"},"✕ Rejeter");
-    confirmBtn.addEventListener("click", () => RdvRequests.setStatus(r.id, "confirme"));
-    rejectBtn.addEventListener("click", () => RdvRequests.setStatus(r.id, "rejete"));
+    function bloquerBoutons(txtConfirm, txtReject) {
+      confirmBtn.disabled = true; rejectBtn.disabled = true;
+      if (txtConfirm) confirmBtn.textContent = txtConfirm;
+      if (txtReject) rejectBtn.textContent = txtReject;
+    }
+    function debloquerBoutons(err) {
+      confirmBtn.disabled = false; rejectBtn.disabled = false;
+      confirmBtn.textContent = "✓ Confirmer"; rejectBtn.textContent = "✕ Rejeter";
+      if (err) {
+        const errMsg = h("div",{style:"color:#d07070;font-size:12px;margin-top:6px"}, "Échec : " + err.message);
+        card.appendChild(errMsg);
+      }
+    }
+    confirmBtn.addEventListener("click", () => {
+      bloquerBoutons("Confirmation…", null);
+      RdvRequests.setStatus(r.id, "confirme", (err) => { if (err) debloquerBoutons(err); });
+    });
+    rejectBtn.addEventListener("click", () => {
+      bloquerBoutons(null, "Rejet…");
+      RdvRequests.setStatus(r.id, "rejete", (err) => { if (err) debloquerBoutons(err); });
+    });
     actions.appendChild(confirmBtn); actions.appendChild(rejectBtn);
     card.appendChild(actions);
     wrap.appendChild(card);
