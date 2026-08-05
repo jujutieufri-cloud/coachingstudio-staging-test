@@ -1181,7 +1181,7 @@ function creerOuMajClientDepuisRdv(req) {
     client.sessions = (client.sessions || 0) + 1;
     client.nextSession = req.date || client.nextSession || "";
     client.sessionHistory = client.sessionHistory || [];
-    client.sessionHistory.push("Séance " + client.sessionHistory.length + 1 + " — " + (req.motif || "RDV") + (req.date ? " (" + req.date + ")" : ""));
+    client.sessionHistory.push("Séance " + client.sessionHistory.length + 1 + " — " + (req.motif || "RDV") + (req.theme ? " (" + req.theme + ")" : "") + (req.date ? " le " + req.date : ""));
     appliquerForfait(client, req.motif);
     client.paiements = client.paiements || [];
     client.paiements.push({ id: Date.now()+"", date: req.date || new Date().toISOString().slice(0,10), montant, statut: "en attente" });
@@ -1202,7 +1202,7 @@ function creerOuMajClientDepuisRdv(req) {
       nextSession: req.date || "",
       status: "actif",
       notes: req.message || "",
-      sessionHistory: ["Séance 1 — " + (req.motif || "RDV") + (req.date ? " (" + req.date + ")" : "")],
+      sessionHistory: ["Séance 1 — " + (req.motif || "RDV") + (req.theme ? " (" + req.theme + ")" : "") + (req.date ? " le " + req.date : "")],
       objectifs: [],
       paiements: [{ id: Date.now()+"", date: req.date || new Date().toISOString().slice(0,10), montant, statut: "en attente" }]
     };
@@ -1647,6 +1647,7 @@ function renderRdvTab() {
       h("div",{},
         h("div",{style:"font-size:14px;font-weight:700;color:#ede8d8"}, r.prenom + " " + r.nom),
         h("div",{style:"font-size:12px;color:#c8a042;margin-top:2px"}, r.motif),
+        r.theme ? h("div",{style:"font-size:12px;color:#9880d0;margin-top:2px"}, "💭 " + r.theme) : null,
         h("div",{style:"font-size:13.5px;color:#aecab3;margin-top:6px"}, "📧 " + r.email + (r.tel ? " · 📞 " + r.tel : "")),
         h("div",{style:"font-size:13.5px;color:#aecab3;margin-top:2px"},
           (r.date ? "Souhaité : " + r.date + (r.heure ? " à " + r.heure : "") : "Aucune date précisée")),
