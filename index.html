@@ -6,46 +6,46 @@
 <title>CoachingStudio</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'Segoe UI',Tahoma,Geneva,sans-serif;background:#080f0a;color:#ede8d8}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0a1710}::-webkit-scrollbar-thumb{background:#2d4533;border-radius:4px}
+html,body{height:100%;font-family:'Segoe UI',Tahoma,Geneva,sans-serif;background:#F7F2E7;color:#2E2A20}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#FDFBF5}::-webkit-scrollbar-thumb{background:#D8CBA8;border-radius:4px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fade{animation:fadeUp .25s ease}
-input,textarea,select{font-family:inherit;color:#ede8d8;background:#0d1c10;border:1px solid #2a4535;border-radius:8px;padding:10px 14px;font-size:14px;width:100%;outline:none;transition:border .2s}
-input:focus,textarea:focus,select:focus{border-color:#c8a042}
-input::placeholder,textarea::placeholder{color:#93b399}
-select option{background:#162b1e}
+input,textarea,select{font-family:inherit;color:#2E2A20;background:#FFFFFF;border:1px solid #D8CBA8;border-radius:8px;padding:10px 14px;font-size:14px;width:100%;outline:none;transition:border .2s}
+input:focus,textarea:focus,select:focus{border-color:#9C7A2E}
+input::placeholder,textarea::placeholder{color:#6B6355}
+select option{background:#FBF7EC}
 textarea{resize:vertical}
 button{cursor:pointer;font-family:inherit;border:none;transition:opacity .15s,background .15s}
-.btn{background:#c8a042;color:#080f0a;border-radius:8px;padding:9px 20px;font-weight:700;font-size:14px}
+.btn{background:#9C7A2E;color:#F7F2E7;border-radius:8px;padding:9px 20px;font-weight:700;font-size:14px}
 .btn:hover{opacity:.85}
-.btn-g{background:transparent;color:#aecab3;border:1px solid #2a4535;border-radius:8px;padding:9px 16px;font-size:13px}
-.btn-g:hover{background:#192a1c}
-.btn-sm{background:transparent;color:#aecab3;border:1px solid #2a4535;border-radius:7px;padding:4px 11px;font-size:12px}
-.btn-sm:hover{background:#192a1c}
-.card{background:#121f15;border:1px solid #1e3322;border-radius:14px}
-.lbl{color:#aecab3;font-size:13px;display:block;margin-bottom:4px;letter-spacing:.07em}
+.btn-g{background:transparent;color:#5A5648;border:1px solid #D8CBA8;border-radius:8px;padding:9px 16px;font-size:13px}
+.btn-g:hover{background:#F0E9D8}
+.btn-sm{background:transparent;color:#5A5648;border:1px solid #D8CBA8;border-radius:7px;padding:4px 11px;font-size:12px}
+.btn-sm:hover{background:#F0E9D8}
+.card{background:#FFFFFF;border:1px solid #E4DAC0;border-radius:14px}
+.lbl{color:#5A5648;font-size:13px;display:block;margin-bottom:4px;letter-spacing:.07em}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .span2{grid-column:span 2}
 #app{display:flex;height:100vh;overflow:hidden}
 /* Sidebar */
-#sidebar{width:224px;background:#0d1c10;border-right:1px solid #1e3322;display:flex;flex-direction:column;padding:22px 10px;flex-shrink:0;transition:width .25s ease,padding .25s ease;overflow:hidden}
+#sidebar{width:224px;background:#FFFFFF;border-right:1px solid #E4DAC0;display:flex;flex-direction:column;padding:22px 10px;flex-shrink:0;transition:width .25s ease,padding .25s ease;overflow:hidden}
 #sidebar.collapsed{width:52px;padding:12px 8px}
 #sidebar.collapsed .brand,#sidebar.collapsed .sidebar-foot,#sidebar.collapsed .nav-label,#sidebar.collapsed .dot,#sidebar.collapsed .badge,#sidebar.collapsed .divider{display:none}
 #sidebar.collapsed .nav-item{justify-content:center;padding:10px;font-size:17px}
 #sidebar.collapsed .toggle-btn{margin:0 auto}
 .brand{padding-left:8px;margin-bottom:28px}
-.brand h1{font-size:22px;color:#ede8d8;font-weight:700}.brand h1 span{color:#c8a042}
-.brand p{color:#93b399;font-size:12px;letter-spacing:.12em;margin-top:3px}
-.divider{height:1px;background:#1e3322;margin:8px 0}
+.brand h1{font-size:22px;color:#2E2A20;font-weight:700}.brand h1 span{color:#9C7A2E}
+.brand p{color:#6B6355;font-size:12px;letter-spacing:.12em;margin-top:3px}
+.divider{height:1px;background:#E4DAC0;margin:8px 0}
 nav{flex:1}
-.nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:10px;border:none;background:transparent;color:#aecab3;font-size:13.5px;font-weight:400;margin-bottom:3px;text-align:left;white-space:nowrap}
-.nav-item:hover{background:#192a1c;color:#ede8d8}
-.nav-item.active{background:#c8a04218;color:#c8a042;font-weight:700}
-.nav-item .dot{margin-left:auto;width:5px;height:5px;border-radius:50%;background:#c8a042;flex-shrink:0}
-.nav-item .badge{margin-left:auto;background:#c8a04230;color:#c8a042;border-radius:20px;padding:1px 8px;font-size:13px;font-weight:700;flex-shrink:0}
-.sidebar-foot{padding-left:8px;padding-top:12px;color:#93b399;font-size:12px;line-height:1.7}
-.toggle-btn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid #2a4535;background:transparent;color:#aecab3;font-size:15px;cursor:pointer;transition:background .15s,color .15s;flex-shrink:0}
-.toggle-btn:hover{background:#192a1c;color:#c8a042}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:10px;border:none;background:transparent;color:#5A5648;font-size:13.5px;font-weight:400;margin-bottom:3px;text-align:left;white-space:nowrap}
+.nav-item:hover{background:#F0E9D8;color:#2E2A20}
+.nav-item.active{background:#9C7A2E18;color:#9C7A2E;font-weight:700}
+.nav-item .dot{margin-left:auto;width:5px;height:5px;border-radius:50%;background:#9C7A2E;flex-shrink:0}
+.nav-item .badge{margin-left:auto;background:#9C7A2E30;color:#9C7A2E;border-radius:20px;padding:1px 8px;font-size:13px;font-weight:700;flex-shrink:0}
+.sidebar-foot{padding-left:8px;padding-top:12px;color:#6B6355;font-size:12px;line-height:1.7}
+.toggle-btn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid #D8CBA8;background:transparent;color:#5A5648;font-size:15px;cursor:pointer;transition:background .15s,color .15s;flex-shrink:0}
+.toggle-btn:hover{background:#F0E9D8;color:#9C7A2E}
 .toggle-row{display:flex;justify-content:flex-end;margin-bottom:16px}
 /* Main */
 #main{flex:1;overflow-y:auto;padding:32px 36px}
@@ -57,38 +57,38 @@ nav{flex:1}
 .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
 /* Lists */
 .client-row{padding:15px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;transition:background .15s}
-.client-row:hover{background:#192a1c}
+.client-row:hover{background:#F0E9D8}
 /* Subtabs */
-.subtabs{display:flex;margin-bottom:20px;border-bottom:1px solid #1e3322}
-.subtab{padding:8px 16px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:13px;color:#aecab3;border-bottom:2px solid transparent;margin-bottom:-1px}
-.subtab.active{color:#c8a042;font-weight:700;border-bottom-color:#c8a042}
+.subtabs{display:flex;margin-bottom:20px;border-bottom:1px solid #E4DAC0}
+.subtab{padding:8px 16px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:13px;color:#5A5648;border-bottom:2px solid transparent;margin-bottom:-1px}
+.subtab.active{color:#9C7A2E;font-weight:700;border-bottom-color:#9C7A2E}
 /* Stat cards */
 .stat-card{padding:18px;display:flex;align-items:center;gap:14px}
 .stat-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .stat-val{font-size:30px;font-weight:700;line-height:1}
-.stat-lbl{font-size:13px;color:#aecab3;margin-top:3px}
+.stat-lbl{font-size:13px;color:#5A5648;margin-top:3px}
 /* Biblio */
-.fiche-body{margin-top:16px;padding:16px 18px;background:#0d1c10;border-radius:10px;border:1px solid #1e3322;color:#aecab3;font-size:13.5px;line-height:2;white-space:pre-wrap;display:none}
+.fiche-body{margin-top:16px;padding:16px 18px;background:#FFFFFF;border-radius:10px;border:1px solid #E4DAC0;color:#5A5648;font-size:13.5px;line-height:2;white-space:pre-wrap;display:none}
 .fiche-body.open{display:block}
 /* Session row */
-.sess-row{display:flex;gap:12px;padding:12px 16px;background:#0d1c10;border-radius:10px;border:1px solid #1e3322;margin-bottom:8px}
-.sess-num{width:26px;height:26px;border-radius:50%;background:#c8a04218;color:#c8a042;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.sess-row{display:flex;gap:12px;padding:12px 16px;background:#FFFFFF;border-radius:10px;border:1px solid #E4DAC0;margin-bottom:8px}
+.sess-num{width:26px;height:26px;border-radius:50%;background:#9C7A2E18;color:#9C7A2E;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
 /* Obj row */
-.obj-row{display:flex;align-items:center;gap:12px;padding:11px 16px;background:#0d1c10;border-radius:10px;border:1px solid #1e3322;margin-bottom:8px}
+.obj-row{display:flex;align-items:center;gap:12px;padding:11px 16px;background:#FFFFFF;border-radius:10px;border:1px solid #E4DAC0;margin-bottom:8px}
 .obj-check{width:22px;height:22px;border-radius:6px;border:2px solid;background:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;cursor:pointer}
 /* Progress bar */
-.prog-track{height:3px;background:#1e3322;border-radius:4px;margin-top:4px}
+.prog-track{height:3px;background:#E4DAC0;border-radius:4px;margin-top:4px}
 .prog-bar{height:3px;border-radius:4px}
 /* Action buttons on dashboard */
 .action-card{padding:18px;cursor:pointer;text-align:center;border-radius:14px;border:1px dashed;transition:background .15s}
 /* Quick form */
-.qform{padding:24px;margin-bottom:20px;border-radius:14px;border:1px solid #c8a04244;background:#121f15}
+.qform{padding:24px;margin-bottom:20px;border-radius:14px;border:1px solid #9C7A2E44;background:#FFFFFF}
 /* Notes textarea */
 #notesArea{flex:1;line-height:1.9;padding:22px;font-size:14px;border-radius:14px;min-height:0}
 /* Tooltip */
 .copied{color:#4a9e6a!important;border-color:#4a9e6a44!important}
 /* Accordion arrow */
-.arr{color:#93b399;font-size:18px;user-select:none}
+.arr{color:#6B6355;font-size:18px;user-select:none}
 </style>
 </head>
 <body>
@@ -123,7 +123,7 @@ nav{flex:1}
 // ══════════════════════════════════════════
 const PC = {HPI:"#9880d0",HSP:"#d4885a",TDAH:"#5aaec8","HPI+HSP":"#b87898","HPI+TDAH":"#8090c8","HSP+TDAH":"#88a8b0",Mixte:"#4a9e6a"};
 const PROFILES = ["HPI","HSP","TDAH","HPI+HSP","HPI+TDAH","HSP+TDAH","Mixte"];
-const CAT_COLORS = {"Questions puissantes":"#c8a042","NLP":"#9880d0","Sophrologie & somatique":"#5ab8a8","Protocole burnout":"#d07070","Outils pratiques":"#4a9e6a","Communication assertive":"#5aaec8","Régulation émotionnelle":"#d4885a"};
+const CAT_COLORS = {"Questions puissantes":"#9C7A2E","NLP":"#9880d0","Sophrologie & somatique":"#5ab8a8","Protocole burnout":"#d07070","Outils pratiques":"#4a9e6a","Communication assertive":"#5aaec8","Régulation émotionnelle":"#d4885a"};
 
 const SAMPLE = [
   {id:"s1",name:"Sophie M.",profile:"HPI+HSP",age:34,objective:"Gestion du burnout et reconnexion à soi",sessions:4,nextSession:"2026-03-18",status:"actif",notes:"Très analytique. Réagit bien aux métaphores.",sessionHistory:["Séance 1 — Accueil, exploration burnout","Séance 2 — Croyances limitantes (NLP)","Séance 3 — Roue de vie","Séance 4 — Plan de reconnexion"],objectifs:[{id:"o1",titre:"Poser des limites avec sa hiérarchie",echeance:"2026-04-01",statut:"en cours"},{id:"o2",titre:"Cohérence cardiaque chaque matin",echeance:"",statut:"atteint"}]},
@@ -650,7 +650,7 @@ function traduireErreurAuth(code) {
 }
 
 function notifCoach(msg) {
-  const el = h("div", {style:"position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#1a2c1e;color:#ede8d8;padding:10px 18px;border-radius:8px;font-size:13px;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.3)"}, msg);
+  const el = h("div", {style:"position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#FBF7EC;color:#2E2A20;padding:10px 18px;border-radius:8px;font-size:13px;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.3)"}, msg);
   document.body.appendChild(el);
   setTimeout(()=>el.remove(), 3200);
 }
@@ -689,7 +689,7 @@ function computeMemberInsights(data, pid) {
 }
 
 function svgEnergyCurve(entries) {
-  if (!entries.length) return h("div",{style:"font-size:13px;color:#93b399;padding:6px 0"},"Pas encore de données d'énergie enregistrées.");
+  if (!entries.length) return h("div",{style:"font-size:13px;color:#6B6355;padding:6px 0"},"Pas encore de données d'énergie enregistrées.");
   const w = 240, hgt = 46, pad = 4;
   const step = entries.length > 1 ? (w - pad*2) / (entries.length - 1) : 0;
   const pts = entries.map((e,i) => {
@@ -710,9 +710,9 @@ function svgEnergyCurve(entries) {
 
 function renderMemberInsights(data, m) {
   const { entries, incomplete } = computeMemberInsights(data, m.id);
-  const box = h("div",{style:"margin-top:8px;padding-top:8px;border-top:1px solid #2a3c2e"});
+  const box = h("div",{style:"margin-top:8px;padding-top:8px;border-top:1px solid #D8CBA8"});
 
-  box.appendChild(h("div",{style:"font-size:12.5px;color:#aecab3;margin-bottom:4px"},"Énergie (14 derniers jours, /10)"));
+  box.appendChild(h("div",{style:"font-size:12.5px;color:#5A5648;margin-bottom:4px"},"Énergie (14 derniers jours, /10)"));
   box.appendChild(svgEnergyCurve(entries));
 
   if (entries.length) {
@@ -745,13 +745,13 @@ function renderClairiereTab() {
     return wrap;
   }
   const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"},
-    h("div",{style:"font-size:13px;color:#aecab3"}, "Connecté : ", h("b",{style:"color:#ede8d8"}, CoachLink.user.email)),
+    h("div",{style:"font-size:13px;color:#5A5648"}, "Connecté : ", h("b",{style:"color:#2E2A20"}, CoachLink.user.email)),
     h("button",{class:"btn-sm",onclick:()=>CoachLink.logout()},"Déconnexion")
   );
   wrap.appendChild(hdr);
 
   const linkBox = h("div",{class:"card",style:"padding:18px;margin-bottom:18px"});
-  linkBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;margin-bottom:10px;color:#ede8d8"},"🔗 Lier une nouvelle famille"));
+  linkBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;margin-bottom:10px;color:#2E2A20"},"🔗 Lier une nouvelle famille"));
   const inputRow = h("div",{style:"display:flex;gap:8px"});
   const codeInput = h("input",{type:"text",placeholder:"Code reçu de la famille (8 caractères)",style:"flex:1;text-transform:uppercase"});
   const linkBtn = h("button",{class:"btn",style:"padding:9px 16px;font-size:13px"},"Lier");
@@ -761,7 +761,7 @@ function renderClairiereTab() {
   wrap.appendChild(linkBox);
 
   if (!CoachLink.linkedFamilies.length) {
-    wrap.appendChild(h("p",{style:"color:#aecab3;font-size:13px;padding:20px 0;text-align:center"},"Aucune famille liée pour l'instant."));
+    wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;padding:20px 0;text-align:center"},"Aucune famille liée pour l'instant."));
     return wrap;
   }
 
@@ -769,30 +769,30 @@ function renderClairiereTab() {
     const data = CoachLink.familyData[code];
     const card = h("div",{class:"card",style:"padding:18px;margin-bottom:14px"});
     const topRow = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"},
-      h("div",{style:"font-weight:700;font-size:15px;color:#ede8d8"},"🦔 Famille " + code),
+      h("div",{style:"font-weight:700;font-size:15px;color:#2E2A20"},"🦔 Famille " + code),
       h("button",{class:"btn-sm",style:"border-color:#d0707044;color:#d07070",onclick:()=>CoachLink.unlink(code)},"Délier")
     );
     card.appendChild(topRow);
     if (!data) {
-      card.appendChild(h("p",{style:"color:#aecab3;font-size:12.5px"},"Chargement des données…"));
+      card.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px"},"Chargement des données…"));
     } else {
       const fam = data.fam || [];
       fam.forEach(m => {
         const xp = (data.gXP && data.gXP[m.id]) || 0;
         const journalCount = (data.journal||[]).filter(j=>j.pid===m.id).length;
-        const memberBox = h("div",{style:"background:#1a2c1e;border-radius:10px;padding:12px;margin-bottom:10px"});
+        const memberBox = h("div",{style:"background:#FBF7EC;border-radius:10px;padding:12px;margin-bottom:10px"});
         memberBox.appendChild(h("div",{style:"display:flex;align-items:center;gap:10px"},
           h("div",{style:"font-size:22px"}, m.emoji||"👤"),
           h("div",{},
-            h("div",{style:"font-size:13px;font-weight:600;color:#ede8d8"}, m.prenom),
-            h("div",{style:"font-size:13px;color:#aecab3;margin-top:2px"}, xp + " XP · " + journalCount + " entrées journal")
+            h("div",{style:"font-size:13px;font-weight:600;color:#2E2A20"}, m.prenom),
+            h("div",{style:"font-size:13px;color:#5A5648;margin-top:2px"}, xp + " XP · " + journalCount + " entrées journal")
           )
         ));
         memberBox.appendChild(renderMemberInsights(data, m));
         card.appendChild(memberBox);
       });
       const lastUpdate = data.lastUpdate ? ("Dernière activité : " + data.lastUpdate) : "";
-      if (lastUpdate) card.appendChild(h("div",{style:"font-size:13px;color:#aecab3;margin-top:10px"}, lastUpdate));
+      if (lastUpdate) card.appendChild(h("div",{style:"font-size:13px;color:#5A5648;margin-top:10px"}, lastUpdate));
     }
     wrap.appendChild(card);
   });
@@ -803,7 +803,7 @@ function renderClairiereTab() {
 function renderCoachLogin() {
   const box = h("div",{class:"card",style:"max-width:360px;margin:60px auto;padding:28px;text-align:center"});
   box.appendChild(h("div",{style:"font-size:30px;margin-bottom:10px"},"🧭"));
-  box.appendChild(h("div",{style:"font-weight:700;font-size:16px;color:#ede8d8;margin-bottom:18px"},"Connexion coach"));
+  box.appendChild(h("div",{style:"font-weight:700;font-size:16px;color:#2E2A20;margin-bottom:18px"},"Connexion coach"));
   const email = h("input",{type:"email",placeholder:"Email",style:"margin-bottom:10px"});
   const pass = h("input",{type:"password",placeholder:"Mot de passe",style:"margin-bottom:14px"});
   const btn = h("button",{class:"btn",style:"width:100%;padding:11px"},"Se connecter");
@@ -893,29 +893,29 @@ const TARIF_LABELS = {
 function renderReglagesTab() {
   const wrap = h("div",{});
   if (!CoachLink.user) { wrap.appendChild(renderCoachLogin()); return wrap; }
-  if (!CoachSettings.data) { CoachSettings.listen(); wrap.appendChild(h("p",{style:"color:#aecab3"},"Chargement…")); return wrap; }
+  if (!CoachSettings.data) { CoachSettings.listen(); wrap.appendChild(h("p",{style:"color:#5A5648"},"Chargement…")); return wrap; }
 
   const s = CoachSettings.data;
 
   // --- Horaires ---
   const horBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
-  horBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"🕐 Horaires de disponibilité"));
+  horBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:12px"},"🕐 Horaires de disponibilité"));
   const newHoraires = JSON.parse(JSON.stringify(s.horaires));
   const PLAGE_LABELS = ["Matin","Après-midi"];
   JOURS.forEach(j => {
-    const jourBox = h("div",{style:"padding:10px 0;border-bottom:1px solid #2a3c2e"});
-    jourBox.appendChild(h("div",{style:"font-size:13px;color:#ede8d8;text-transform:capitalize;font-weight:700;margin-bottom:6px"}, j));
+    const jourBox = h("div",{style:"padding:10px 0;border-bottom:1px solid #D8CBA8"});
+    jourBox.appendChild(h("div",{style:"font-size:13px;color:#2E2A20;text-transform:capitalize;font-weight:700;margin-bottom:6px"}, j));
     newHoraires[j].plages.forEach((plage, pIdx) => {
       const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:4px 0 4px 12px"});
       const checkbox = h("input",{type:"checkbox"});
       checkbox.checked = plage.ouvert;
       checkbox.addEventListener("change", () => newHoraires[j].plages[pIdx].ouvert = checkbox.checked);
-      const label = h("label",{style:"width:90px;font-size:12.5px;color:#aecab3"}, checkbox, " " + PLAGE_LABELS[pIdx]);
+      const label = h("label",{style:"width:90px;font-size:12.5px;color:#5A5648"}, checkbox, " " + PLAGE_LABELS[pIdx]);
       const debut = h("input",{type:"time",style:"width:110px"}); debut.value = plage.debut;
       debut.addEventListener("change", () => newHoraires[j].plages[pIdx].debut = debut.value);
       const fin = h("input",{type:"time",style:"width:110px"}); fin.value = plage.fin;
       fin.addEventListener("change", () => newHoraires[j].plages[pIdx].fin = fin.value);
-      row.appendChild(label); row.appendChild(debut); row.appendChild(h("span",{style:"color:#aecab3;font-size:12px"},"à")); row.appendChild(fin);
+      row.appendChild(label); row.appendChild(debut); row.appendChild(h("span",{style:"color:#5A5648;font-size:12px"},"à")); row.appendChild(fin);
       jourBox.appendChild(row);
     });
     horBox.appendChild(jourBox);
@@ -924,8 +924,8 @@ function renderReglagesTab() {
   let newDureeRdv = s.dureeRdv || 60;
   saveHorBtn.addEventListener("click", () => CoachSettings.save({ horaires: newHoraires, dureeRdv: newDureeRdv }));
 
-  const dureeRow = h("div",{style:"display:flex;align-items:center;gap:10px;padding:10px 0;margin-top:6px;border-top:1px solid #2a3c2e"});
-  dureeRow.appendChild(h("label",{style:"font-size:13px;color:#ede8d8"},"⏱️ Durée entre les rendez-vous"));
+  const dureeRow = h("div",{style:"display:flex;align-items:center;gap:10px;padding:10px 0;margin-top:6px;border-top:1px solid #D8CBA8"});
+  dureeRow.appendChild(h("label",{style:"font-size:13px;color:#2E2A20"},"⏱️ Durée entre les rendez-vous"));
   const dureeSel = h("select",{style:"width:140px"});
   [15,20,30,45,60,90,120].forEach(min => {
     const opt = h("option",{value:String(min)}, min + " min");
@@ -940,14 +940,14 @@ function renderReglagesTab() {
 
   // --- Tarifs ---
   const tarBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
-  tarBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"€ Tarifs affichés sur le site"));
+  tarBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:12px"},"€ Tarifs affichés sur le site"));
   const newTarifs = { ...s.tarifs };
   Object.keys(TARIF_LABELS).forEach(k => {
     const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:6px 0"});
     const inp = h("input",{type:"number",min:"0",max:"9999",style:"width:100px"}); inp.value = newTarifs[k];
     inp.addEventListener("change", () => newTarifs[k] = clampNum(inp.value, 0, 9999, newTarifs[k]));
-    row.appendChild(h("label",{style:"flex:1;font-size:13px;color:#ede8d8"}, TARIF_LABELS[k]));
-    row.appendChild(inp); row.appendChild(h("span",{style:"color:#aecab3;font-size:12px"},"€"));
+    row.appendChild(h("label",{style:"flex:1;font-size:13px;color:#2E2A20"}, TARIF_LABELS[k]));
+    row.appendChild(inp); row.appendChild(h("span",{style:"color:#5A5648;font-size:12px"},"€"));
     tarBox.appendChild(row);
   });
   const saveTarBtn = h("button",{class:"btn",style:"margin-top:14px;padding:9px 18px;font-size:13px"},"Enregistrer les tarifs");
@@ -957,8 +957,8 @@ function renderReglagesTab() {
 
   // --- Message d'info (fermeture estivale, etc.) ---
   const msgBox = h("div",{class:"card",style:"padding:18px"});
-  msgBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"📢 Message d'information sur le site"));
-  const actifRow = h("label",{style:"display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:#ede8d8"});
+  msgBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:12px"},"📢 Message d'information sur le site"));
+  const actifRow = h("label",{style:"display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:#2E2A20"});
   const actifCb = h("input",{type:"checkbox"}); actifCb.checked = s.messageInfo.actif;
   actifRow.appendChild(actifCb); actifRow.appendChild(document.createTextNode("Afficher un message sur le site (ex: fermeture estivale)"));
   msgBox.appendChild(actifRow);
@@ -972,8 +972,8 @@ function renderReglagesTab() {
 
   // --- Congés / fermetures exceptionnelles ---
   const congesBox = h("div",{class:"card",style:"padding:18px;margin-top:16px"});
-  congesBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"🏖️ Congés / fermetures exceptionnelles"));
-  congesBox.appendChild(h("div",{style:"font-size:12px;color:#aecab3;margin-bottom:12px"},"Ces périodes bloquent la réservation sur le site, en plus des horaires hebdomadaires."));
+  congesBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:12px"},"🏖️ Congés / fermetures exceptionnelles"));
+  congesBox.appendChild(h("div",{style:"font-size:12px;color:#5A5648;margin-bottom:12px"},"Ces périodes bloquent la réservation sur le site, en plus des horaires hebdomadaires."));
 
   const conges = (s.conges || []).slice();
   const listBox = h("div",{id:"congesList"});
@@ -982,11 +982,11 @@ function renderReglagesTab() {
   function renderCongesList() {
     listBox.innerHTML = "";
     if (!conges.length) {
-      listBox.appendChild(h("p",{style:"font-size:12.5px;color:#aecab3;padding:8px 0"},"Aucune période de fermeture enregistrée."));
+      listBox.appendChild(h("p",{style:"font-size:12.5px;color:#5A5648;padding:8px 0"},"Aucune période de fermeture enregistrée."));
     }
     conges.forEach((c, idx) => {
-      const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #2a3c2e"});
-      row.appendChild(h("div",{style:"flex:1;font-size:13px;color:#ede8d8"}, (c.label || "Fermeture") + " — du " + c.debut + " au " + c.fin));
+      const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #D8CBA8"});
+      row.appendChild(h("div",{style:"flex:1;font-size:13px;color:#2E2A20"}, (c.label || "Fermeture") + " — du " + c.debut + " au " + c.fin));
       const delBtn = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:18px"},"×");
       delBtn.addEventListener("click", () => { conges.splice(idx,1); renderCongesList(); });
       row.appendChild(delBtn);
@@ -1276,8 +1276,8 @@ function renderAgendaTab() {
   const wrap = h("div",{class:"fade"});
   const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px"},
     h("div",{},
-      h("h1",{style:"font-size:30px;color:#ede8d8;font-weight:600;font-style:italic"},"Agenda"),
-      h("p",{style:"color:#aecab3;font-size:13px;margin-top:4px"},"Tous les rendez-vous, issus du site ou ajoutés manuellement")
+      h("h1",{style:"font-size:30px;color:#2E2A20;font-weight:600;font-style:italic"},"Agenda"),
+      h("p",{style:"color:#5A5648;font-size:13px;margin-top:4px"},"Tous les rendez-vous, issus du site ou ajoutés manuellement")
     )
   );
   let showForm = false;
@@ -1303,7 +1303,7 @@ function renderAgendaTab() {
   const viewRow = h("div",{style:"display:flex;gap:8px;margin-bottom:18px"});
   [["liste","☰ Liste"],["semaine","▦ Semaine"],["mois","▤ Mois"]].forEach(([id,label]) => {
     const b = h("button",{class:"btn-sm"}, label);
-    if (state.agendaView === id) { b.style.background="#c8a04222"; b.style.color="#c8a042"; b.style.borderColor="#c8a04255"; }
+    if (state.agendaView === id) { b.style.background="#9C7A2E22"; b.style.color="#9C7A2E"; b.style.borderColor="#9C7A2E55"; }
     b.addEventListener("click", () => { state.agendaView = id; state.agendaSelectedDay = null; render(); });
     viewRow.appendChild(b);
   });
@@ -1321,15 +1321,15 @@ function appointmentRow(a) {
   const isPast = a.date && a.date < todayStr;
   const row = h("div",{class:"card",style:"padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px"+(isPast?";opacity:0.55":"")});
   const dateBox = h("div",{style:"min-width:78px;text-align:center"},
-    h("div",{style:"font-size:13px;font-weight:700;color:#c8a042"}, a.date || "—"),
-    h("div",{style:"font-size:13px;color:#aecab3;margin-top:2px"}, a.heure || "")
+    h("div",{style:"font-size:13px;font-weight:700;color:#9C7A2E"}, a.date || "—"),
+    h("div",{style:"font-size:13px;color:#5A5648;margin-top:2px"}, a.heure || "")
   );
   const info = h("div",{style:"flex:1;min-width:0"},
-    h("div",{style:"color:#ede8d8;font-size:14px;font-weight:600"}, a.clientName),
-    h("div",{style:"color:#aecab3;font-size:12px;margin-top:2px"}, a.motif || "Rendez-vous")
+    h("div",{style:"color:#2E2A20;font-size:14px;font-weight:600"}, a.clientName),
+    h("div",{style:"color:#5A5648;font-size:12px;margin-top:2px"}, a.motif || "Rendez-vous")
   );
   const srcBadge = h("span",{style:`font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;background:${a.source==="site"?"#5aaec822":"#9880d022"};color:${a.source==="site"?"#5aaec8":"#9880d0"}`}, a.source==="site" ? "site" : "manuel");
-  const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#93b399;font-size:18px;padding:0 4px"},"×");
+  const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#6B6355;font-size:18px;padding:0 4px"},"×");
   delBtn.addEventListener("click", () => {
     if (!confirm("Supprimer ce rendez-vous ?")) return;
     supprimerRdvAgenda(a.id);
@@ -1346,12 +1346,12 @@ function renderAgendaListe() {
   const upcoming = items.filter(a => !a.date || a.date >= todayStr);
   const past = items.filter(a => a.date && a.date < todayStr).reverse();
 
-  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:10px"}, "À venir (" + upcoming.length + ")"));
-  if (!upcoming.length) wrap.appendChild(h("p",{style:"color:#aecab3;font-size:13px;padding:10px 0"},"Aucun rendez-vous à venir."));
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:10px"}, "À venir (" + upcoming.length + ")"));
+  if (!upcoming.length) wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;padding:10px 0"},"Aucun rendez-vous à venir."));
   upcoming.forEach(a => wrap.appendChild(appointmentRow(a)));
 
   if (past.length) {
-    wrap.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#aecab3;margin:22px 0 10px"}, "Passés"));
+    wrap.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#5A5648;margin:22px 0 10px"}, "Passés"));
     past.slice(0,15).forEach(a => wrap.appendChild(appointmentRow(a)));
   }
   return wrap;
@@ -1370,26 +1370,26 @@ function renderAgendaSemaine() {
   prevBtn.addEventListener("click", () => { const d = new Date(monday); d.setDate(d.getDate()-7); state.agendaRef = isoDate(d); render(); });
   nextBtn.addEventListener("click", () => { const d = new Date(monday); d.setDate(d.getDate()+7); state.agendaRef = isoDate(d); render(); });
   const label = MOIS_NOMS_FR[days[0].getMonth()] + " " + days[0].getDate() + " – " + (days[6].getMonth()!==days[0].getMonth() ? MOIS_NOMS_FR[days[6].getMonth()]+" " : "") + days[6].getDate() + " " + days[6].getFullYear();
-  nav.appendChild(prevBtn); nav.appendChild(h("div",{style:"color:#ede8d8;font-weight:700;font-size:14px;flex:1;text-align:center"},label)); nav.appendChild(nextBtn);
+  nav.appendChild(prevBtn); nav.appendChild(h("div",{style:"color:#2E2A20;font-weight:700;font-size:14px;flex:1;text-align:center"},label)); nav.appendChild(nextBtn);
   wrap.appendChild(nav);
 
   days.forEach(d => {
     const dStr = isoDate(d);
     const dayApts = appointmentsForDate(dStr);
     const isToday = dStr === todayStr;
-    const dayCard = h("div",{class:"card",style:"padding:14px 18px;margin-bottom:10px"+(isToday?";border-color:#c8a04266":"")});
+    const dayCard = h("div",{class:"card",style:"padding:14px 18px;margin-bottom:10px"+(isToday?";border-color:#9C7A2E66":"")});
     dayCard.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"},
-      h("div",{style:"color:"+(isToday?"#c8a042":"#ede8d8")+";font-weight:700;font-size:13px;text-transform:capitalize"}, JOURS_COURT[d.getDay()===0?6:d.getDay()-1] + " " + d.getDate()),
-      h("span",{style:"color:#93b399;font-size:13px"}, dayApts.length ? dayApts.length + " RDV" : "")
+      h("div",{style:"color:"+(isToday?"#9C7A2E":"#2E2A20")+";font-weight:700;font-size:13px;text-transform:capitalize"}, JOURS_COURT[d.getDay()===0?6:d.getDay()-1] + " " + d.getDate()),
+      h("span",{style:"color:#6B6355;font-size:13px"}, dayApts.length ? dayApts.length + " RDV" : "")
     ));
     if (!dayApts.length) {
-      dayCard.appendChild(h("p",{style:"color:#93b399;font-size:12.5px"},"Aucun rendez-vous."));
+      dayCard.appendChild(h("p",{style:"color:#6B6355;font-size:12.5px"},"Aucun rendez-vous."));
     } else {
       dayApts.forEach(a => {
-        const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #1e3322"});
-        row.appendChild(h("div",{style:"min-width:44px;color:#c8a042;font-size:12.5px;font-weight:600"}, a.heure||"—"));
-        row.appendChild(h("div",{style:"flex:1;color:#ede8d8;font-size:13px"}, a.clientName + (a.motif ? " — "+a.motif : "")));
-        const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#93b399;font-size:16px"},"×");
+        const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #E4DAC0"});
+        row.appendChild(h("div",{style:"min-width:44px;color:#9C7A2E;font-size:12.5px;font-weight:600"}, a.heure||"—"));
+        row.appendChild(h("div",{style:"flex:1;color:#2E2A20;font-size:13px"}, a.clientName + (a.motif ? " — "+a.motif : "")));
+        const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#6B6355;font-size:16px"},"×");
         delBtn.addEventListener("click", () => { if(confirm("Supprimer ce rendez-vous ?")){ supprimerRdvAgenda(a.id); render(); } });
         row.appendChild(delBtn);
         dayCard.appendChild(row);
@@ -1414,11 +1414,11 @@ function renderAgendaMois() {
   const nextBtn = h("button",{class:"btn-sm"},"Mois suiv. ›");
   prevBtn.addEventListener("click", () => { const d = new Date(year, month-1, 1); state.agendaRef = isoDate(d); state.agendaSelectedDay=null; render(); });
   nextBtn.addEventListener("click", () => { const d = new Date(year, month+1, 1); state.agendaRef = isoDate(d); state.agendaSelectedDay=null; render(); });
-  nav.appendChild(prevBtn); nav.appendChild(h("div",{style:"color:#ede8d8;font-weight:700;font-size:14px;flex:1;text-align:center;text-transform:capitalize"}, MOIS_NOMS_FR[month]+" "+year)); nav.appendChild(nextBtn);
+  nav.appendChild(prevBtn); nav.appendChild(h("div",{style:"color:#2E2A20;font-weight:700;font-size:14px;flex:1;text-align:center;text-transform:capitalize"}, MOIS_NOMS_FR[month]+" "+year)); nav.appendChild(nextBtn);
   wrap.appendChild(nav);
 
   const grid = h("div",{style:"display:grid;grid-template-columns:repeat(7,1fr);gap:6px"});
-  JOURS_COURT.forEach(j => grid.appendChild(h("div",{style:"text-align:center;color:#93b399;font-size:13px;font-weight:700;padding-bottom:4px;text-transform:capitalize"}, j)));
+  JOURS_COURT.forEach(j => grid.appendChild(h("div",{style:"text-align:center;color:#6B6355;font-size:13px;font-weight:700;padding-bottom:4px;text-transform:capitalize"}, j)));
 
   const cursor = new Date(startGrid);
   for (let w = 0; w < 6; w++) {
@@ -1428,10 +1428,10 @@ function renderAgendaMois() {
       const dayApts = appointmentsForDate(dStr);
       const isToday = dStr === todayStr;
       const isSelected = state.agendaSelectedDay === dStr;
-      const cell = h("div",{style:`min-height:56px;border-radius:8px;padding:6px;cursor:pointer;background:${isSelected?"#c8a04222":"#0d1c10"};border:1px solid ${isToday?"#c8a04266":"#1e3322"};opacity:${inMonth?1:0.35}`});
-      cell.appendChild(h("div",{style:"font-size:12px;color:"+(isToday?"#c8a042":"#ede8d8")+";font-weight:600"}, String(cursor.getDate())));
+      const cell = h("div",{style:`min-height:56px;border-radius:8px;padding:6px;cursor:pointer;background:${isSelected?"#9C7A2E22":"#FFFFFF"};border:1px solid ${isToday?"#9C7A2E66":"#E4DAC0"};opacity:${inMonth?1:0.35}`});
+      cell.appendChild(h("div",{style:"font-size:12px;color:"+(isToday?"#9C7A2E":"#2E2A20")+";font-weight:600"}, String(cursor.getDate())));
       if (dayApts.length) {
-        cell.appendChild(h("div",{style:"margin-top:4px;font-size:9.5px;color:#c8a042;font-weight:700"}, dayApts.length + " RDV"));
+        cell.appendChild(h("div",{style:"margin-top:4px;font-size:9.5px;color:#9C7A2E;font-weight:700"}, dayApts.length + " RDV"));
       }
       cell.addEventListener("click", () => { state.agendaSelectedDay = (state.agendaSelectedDay===dStr) ? null : dStr; render(); });
       grid.appendChild(cell);
@@ -1443,8 +1443,8 @@ function renderAgendaMois() {
   if (state.agendaSelectedDay) {
     const dayApts = appointmentsForDate(state.agendaSelectedDay);
     const detail = h("div",{class:"card",style:"padding:16px 18px;margin-top:16px"});
-    detail.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#ede8d8;margin-bottom:10px"}, state.agendaSelectedDay));
-    if (!dayApts.length) detail.appendChild(h("p",{style:"color:#93b399;font-size:12.5px"},"Aucun rendez-vous ce jour-là."));
+    detail.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#2E2A20;margin-bottom:10px"}, state.agendaSelectedDay));
+    if (!dayApts.length) detail.appendChild(h("p",{style:"color:#6B6355;font-size:12.5px"},"Aucun rendez-vous ce jour-là."));
     dayApts.forEach(a => detail.appendChild(appointmentRow(a)));
     wrap.appendChild(detail);
   }
@@ -1455,7 +1455,7 @@ function renderAgendaMois() {
 function buildAgendaForm() {
   const fd = { clientId:"", clientName:"", date:"", heure:"", motif:"", notes:"" };
   const form = h("div",{class:"qform",style:"margin-bottom:20px"});
-  form.appendChild(h("h3",{style:"color:#c8a042;font-size:21px;margin-bottom:18px;font-style:italic"},"Nouveau rendez-vous"));
+  form.appendChild(h("h3",{style:"color:#9C7A2E;font-size:21px;margin-bottom:18px;font-style:italic"},"Nouveau rendez-vous"));
 
   const g = h("div",{class:"grid2",style:"margin-bottom:12px"});
 
@@ -1547,10 +1547,10 @@ function renderFinancesTab() {
   const cleMoisProchain = moisProchain.getFullYear() + "-" + String(moisProchain.getMonth()+1).padStart(2,"0");
   const dataMoisProchain = parMois[cleMoisProchain] || {reel:0, prevu:0, seances:0};
 
-  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"📦 Suivi des forfaits en cours"));
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:12px"},"📦 Suivi des forfaits en cours"));
   const clientsAvecForfait = state.clients.filter(c => c.forfaitNom && c.forfaitTotal);
   if (!clientsAvecForfait.length) {
-    wrap.appendChild(h("p",{style:"color:#aecab3;font-size:13px;padding:10px 0 20px"},"Aucun forfait en cours actuellement."));
+    wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;padding:10px 0 20px"},"Aucun forfait en cours actuellement."));
   } else {
     clientsAvecForfait.forEach(c => {
       const utilisees = c.forfaitUtilisees || 0;
@@ -1562,65 +1562,65 @@ function renderFinancesTab() {
         h("div",{style:"display:flex;align-items:center;gap:10px"},
           avatar(c.name, c.profile, 30),
           h("div",{},
-            h("div",{style:"color:#ede8d8;font-size:13.5px;font-weight:600"}, c.name),
-            h("div",{style:"color:#aecab3;font-size:12px;margin-top:1px"}, c.forfaitNom)
+            h("div",{style:"color:#2E2A20;font-size:13.5px;font-weight:600"}, c.name),
+            h("div",{style:"color:#5A5648;font-size:12px;margin-top:1px"}, c.forfaitNom)
           )
         ),
-        h("div",{style:"color:"+(termine?"#4a9e6a":"#c8a042")+";font-size:13px;font-weight:700"}, utilisees + " / " + c.forfaitTotal + (termine ? " ✓" : ""))
+        h("div",{style:"color:"+(termine?"#4a9e6a":"#9C7A2E")+";font-size:13px;font-weight:700"}, utilisees + " / " + c.forfaitTotal + (termine ? " ✓" : ""))
       ));
-      const barBg = h("div",{style:"background:#1e3322;border-radius:6px;height:7px;overflow:hidden"});
-      barBg.appendChild(h("div",{style:"background:"+(termine?"#4a9e6a":"#c8a042")+";height:100%;width:"+pct+"%"}));
+      const barBg = h("div",{style:"background:#E4DAC0;border-radius:6px;height:7px;overflow:hidden"});
+      barBg.appendChild(h("div",{style:"background:"+(termine?"#4a9e6a":"#9C7A2E")+";height:100%;width:"+pct+"%"}));
       fCard.appendChild(barBg);
       wrap.appendChild(fCard);
     });
   }
 
-  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:10px"},"💰 Ce mois-ci"));
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:10px"},"💰 Ce mois-ci"));
   const summaryMoisCourant = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px"});
   summaryMoisCourant.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center;border-color:#4a9e6a44"},
-    h("div",{style:"font-size:13px;color:#aecab3;margin-bottom:4px"},"ENCAISSÉ CE MOIS-CI (réel)"),
+    h("div",{style:"font-size:13px;color:#5A5648;margin-bottom:4px"},"ENCAISSÉ CE MOIS-CI (réel)"),
     h("div",{style:"font-size:26px;font-weight:800;color:#4a9e6a"}, dataMoisCourant.reel.toFixed(0)+" €"),
-    h("div",{style:"font-size:12.5px;color:#aecab3;margin-top:2px"}, dataMoisCourant.seances + " séance(s)")
+    h("div",{style:"font-size:12.5px;color:#5A5648;margin-top:2px"}, dataMoisCourant.seances + " séance(s)")
   ));
-  summaryMoisCourant.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center;border-color:#c8a04244"},
-    h("div",{style:"font-size:13px;color:#aecab3;margin-bottom:4px"},"PROGRAMMÉ CE MOIS-CI (total)"),
-    h("div",{style:"font-size:26px;font-weight:800;color:#c8a042"}, dataMoisCourant.prevu.toFixed(0)+" €"),
-    h("div",{style:"font-size:12.5px;color:#aecab3;margin-top:2px"}, "reste "+(dataMoisCourant.prevu-dataMoisCourant.reel).toFixed(0)+" € à encaisser")
+  summaryMoisCourant.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center;border-color:#9C7A2E44"},
+    h("div",{style:"font-size:13px;color:#5A5648;margin-bottom:4px"},"PROGRAMMÉ CE MOIS-CI (total)"),
+    h("div",{style:"font-size:26px;font-weight:800;color:#9C7A2E"}, dataMoisCourant.prevu.toFixed(0)+" €"),
+    h("div",{style:"font-size:12.5px;color:#5A5648;margin-top:2px"}, "reste "+(dataMoisCourant.prevu-dataMoisCourant.reel).toFixed(0)+" € à encaisser")
   ));
   wrap.appendChild(summaryMoisCourant);
 
-  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:10px"},"📆 Le mois prochain"));
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:10px"},"📆 Le mois prochain"));
   const summaryMoisProchain = h("div",{style:"margin-bottom:20px"});
   summaryMoisProchain.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center;border-color:#5aaec844"},
-    h("div",{style:"font-size:13px;color:#aecab3;margin-bottom:4px"},"PRÉVISIONNEL MOIS PROCHAIN"),
+    h("div",{style:"font-size:13px;color:#5A5648;margin-bottom:4px"},"PRÉVISIONNEL MOIS PROCHAIN"),
     h("div",{style:"font-size:24px;font-weight:800;color:#5aaec8"}, dataMoisProchain.prevu.toFixed(0)+" €"),
-    h("div",{style:"font-size:12.5px;color:#aecab3;margin-top:2px"}, dataMoisProchain.seances + " séance(s) déjà programmée(s)")
+    h("div",{style:"font-size:12.5px;color:#5A5648;margin-top:2px"}, dataMoisProchain.seances + " séance(s) déjà programmée(s)")
   ));
   wrap.appendChild(summaryMoisProchain);
 
-  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:10px"},"📊 Totaux cumulés"));
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:10px"},"📊 Totaux cumulés"));
   // --- Résumé global ---
   const summary = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px"});
   summary.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
-    h("div",{style:"font-size:13px;color:#aecab3;margin-bottom:4px"},"CHIFFRE D'AFFAIRES RÉEL"),
+    h("div",{style:"font-size:13px;color:#5A5648;margin-bottom:4px"},"CHIFFRE D'AFFAIRES RÉEL"),
     h("div",{style:"font-size:24px;font-weight:800;color:#4a9e6a"}, totalReel.toFixed(0)+" €")
   ));
   summary.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
-    h("div",{style:"font-size:13px;color:#aecab3;margin-bottom:4px"},"MONTANT PROGRAMMÉ (total)"),
-    h("div",{style:"font-size:24px;font-weight:800;color:#c8a042"}, totalPrevu.toFixed(0)+" €")
+    h("div",{style:"font-size:13px;color:#5A5648;margin-bottom:4px"},"MONTANT PROGRAMMÉ (total)"),
+    h("div",{style:"font-size:24px;font-weight:800;color:#9C7A2E"}, totalPrevu.toFixed(0)+" €")
   ));
   wrap.appendChild(summary);
   const summary2 = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px"});
   summary2.appendChild(h("div",{class:"card",style:"padding:16px;text-align:center"},
-    h("div",{style:"font-size:13px;color:#aecab3;margin-bottom:4px"},"SÉANCES ENREGISTRÉES (total)"),
-    h("div",{style:"font-size:24px;font-weight:800;color:#ede8d8"}, String(totalSeances))
+    h("div",{style:"font-size:13px;color:#5A5648;margin-bottom:4px"},"SÉANCES ENREGISTRÉES (total)"),
+    h("div",{style:"font-size:24px;font-weight:800;color:#2E2A20"}, String(totalSeances))
   ));
   wrap.appendChild(summary2);
 
-  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:12px"},"📅 Détail par mois"));
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:12px"},"📅 Détail par mois"));
 
   if (!moisTries.length) {
-    wrap.appendChild(h("p",{style:"color:#aecab3;font-size:13px;padding:20px 0;text-align:center"},
+    wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;padding:20px 0;text-align:center"},
       "Aucun paiement enregistré pour l'instant. Ajoute des paiements depuis la fiche de chaque client (onglet € Paiements)."));
     return wrap;
   }
@@ -1631,23 +1631,23 @@ function renderFinancesTab() {
     const data = parMois[mk];
     const card = h("div",{class:"card",style:"padding:16px 20px;margin-bottom:10px"});
     card.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center"},
-      h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;text-transform:capitalize"}, label),
-      h("div",{style:"font-size:12px;color:#aecab3"}, data.seances + " séance" + (data.seances>1?"s":""))
+      h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;text-transform:capitalize"}, label),
+      h("div",{style:"font-size:12px;color:#5A5648"}, data.seances + " séance" + (data.seances>1?"s":""))
     ));
     const bar = h("div",{style:"display:flex;gap:20px;margin-top:8px"});
     bar.appendChild(h("div",{},
-      h("div",{style:"font-size:12px;color:#aecab3"},"ENCAISSÉ"),
+      h("div",{style:"font-size:12px;color:#5A5648"},"ENCAISSÉ"),
       h("div",{style:"font-size:16px;font-weight:700;color:#4a9e6a"}, data.reel.toFixed(0)+" €")
     ));
     bar.appendChild(h("div",{},
-      h("div",{style:"font-size:12px;color:#aecab3"},"PROGRAMMÉ (total)"),
-      h("div",{style:"font-size:16px;font-weight:700;color:#c8a042"}, data.prevu.toFixed(0)+" €")
+      h("div",{style:"font-size:12px;color:#5A5648"},"PROGRAMMÉ (total)"),
+      h("div",{style:"font-size:16px;font-weight:700;color:#9C7A2E"}, data.prevu.toFixed(0)+" €")
     ));
     card.appendChild(bar);
     wrap.appendChild(card);
   });
 
-  wrap.appendChild(h("p",{style:"font-size:13.5px;color:#93b399;margin-top:16px"},
+  wrap.appendChild(h("p",{style:"font-size:13.5px;color:#6B6355;margin-top:16px"},
     "« Encaissé » = paiements marqués « payé » sur les fiches clients. « Programmé » = tous les paiements enregistrés, quel que soit leur statut."));
 
   return wrap;
@@ -1661,22 +1661,22 @@ function renderRdvTab() {
   const nouveaux = RdvRequests.items.filter(r => r.status === "nouveau");
   const traites = RdvRequests.items.filter(r => r.status !== "nouveau");
 
-  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#ede8d8;margin-bottom:14px"},
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:14px"},
     "📅 Nouvelles demandes (" + nouveaux.length + ")"));
 
   if (!nouveaux.length) {
-    wrap.appendChild(h("p",{style:"color:#aecab3;font-size:13px;padding:10px 0"},"Aucune nouvelle demande pour l'instant."));
+    wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;padding:10px 0"},"Aucune nouvelle demande pour l'instant."));
   }
 
   nouveaux.forEach(r => {
-    const card = h("div",{class:"card",style:"padding:16px;margin-bottom:12px;border-color:#c8a04233"});
+    const card = h("div",{class:"card",style:"padding:16px;margin-bottom:12px;border-color:#9C7A2E33"});
     card.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:start"},
       h("div",{},
-        h("div",{style:"font-size:14px;font-weight:700;color:#ede8d8"}, r.prenom + " " + r.nom),
-        h("div",{style:"font-size:12px;color:#c8a042;margin-top:2px"}, r.motif),
+        h("div",{style:"font-size:14px;font-weight:700;color:#2E2A20"}, r.prenom + " " + r.nom),
+        h("div",{style:"font-size:12px;color:#9C7A2E;margin-top:2px"}, r.motif),
         r.theme ? h("div",{style:"font-size:12px;color:#9880d0;margin-top:2px"}, "💭 " + r.theme) : null,
-        h("div",{style:"font-size:13.5px;color:#aecab3;margin-top:6px"}, "📧 " + r.email + (r.tel ? " · 📞 " + r.tel : "")),
-        h("div",{style:"font-size:13.5px;color:#aecab3;margin-top:2px"},
+        h("div",{style:"font-size:13.5px;color:#5A5648;margin-top:6px"}, "📧 " + r.email + (r.tel ? " · 📞 " + r.tel : "")),
+        h("div",{style:"font-size:13.5px;color:#5A5648;margin-top:2px"},
           (r.date ? "Souhaité : " + r.date + (r.heure ? " à " + r.heure : "") : "Aucune date précisée")),
         r.message ? h("div",{style:"font-size:12px;color:#9a9a85;margin-top:8px;font-style:italic"}, "\"" + r.message + "\"") : null
       )
@@ -1711,12 +1711,12 @@ function renderRdvTab() {
   });
 
   if (traites.length) {
-    wrap.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#aecab3;margin:18px 0 10px"}, "Traitées"));
+    wrap.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#5A5648;margin:18px 0 10px"}, "Traitées"));
     traites.slice(0,10).forEach(r => {
       const col = r.status === "confirme" ? "#4a9e6a" : (r.status === "annule" ? "#d0a070" : "#d07070");
       const label = r.status === "confirme" ? "Confirmé" : (r.status === "annule" ? "Annulé" : "Rejeté");
-      const row = h("div",{style:"display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #2a3c2e;font-size:12.5px;gap:10px"});
-      row.appendChild(h("div",{style:"color:#ede8d8;flex:1"}, r.prenom + " " + r.nom + " — " + r.motif));
+      const row = h("div",{style:"display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #D8CBA8;font-size:12.5px;gap:10px"});
+      row.appendChild(h("div",{style:"color:#2E2A20;flex:1"}, r.prenom + " " + r.nom + " — " + r.motif));
       row.appendChild(h("span",{style:"color:"+col}, label));
       if (r.status === "confirme") {
         const cancelBtn = h("button",{class:"btn-sm",style:"border-color:#d0707044;color:#d07070;padding:4px 10px;font-size:13.5px"},"✕ Annuler");
@@ -1784,12 +1784,12 @@ function badgeProfil(p) {
 }
 
 function badgeStatus(s) {
-  const col = s==="actif"?"#4a9e6a":s==="pause"?"#d4885a":"#93b399";
+  const col = s==="actif"?"#4a9e6a":s==="pause"?"#d4885a":"#6B6355";
   return h("span",{class:"status-badge",style:`background:${col}18;color:${col};border:1px solid ${col}33`}, s);
 }
 
 function badgeCat(c) {
-  const col = CAT_COLORS[c] || "#aecab3";
+  const col = CAT_COLORS[c] || "#5A5648";
   return h("span",{class:"cat-badge",style:`background:${col}1a;color:${col};border:1px solid ${col}33`}, c);
 }
 
@@ -1899,7 +1899,7 @@ function renderDashboard() {
   const stats = [
     {label:"Clients actifs",   val:actifs,          icon:"◉", color:"#4a9e6a"},
     {label:"Séances réalisées",val:total,            icon:"◈", color:"#5aaec8"},
-    {label:"Clients total",    val:clients.length,  icon:"◇", color:"#c8a042"},
+    {label:"Clients total",    val:clients.length,  icon:"◇", color:"#9C7A2E"},
     {label:"CA ce mois-ci",    val:caduMoisCourant()+" €", icon:"💰", color:"#4a9e6a"},
     {label:"Fiches coaching",  val:BIBLIO.length,   icon:"▣", color:"#9880d0"},
   ];
@@ -1909,7 +1909,7 @@ function renderDashboard() {
     statsRow.appendChild(h("div",{class:"card stat-card"},
       h("div",{class:"stat-icon",style:`background:${s.color}18;color:${s.color}`}, s.icon),
       h("div",{},
-        h("div",{class:"stat-val",style:"color:#ede8d8"}, String(s.val)),
+        h("div",{class:"stat-val",style:"color:#2E2A20"}, String(s.val)),
         h("div",{class:"stat-lbl"}, s.label)
       )
     ));
@@ -1917,17 +1917,17 @@ function renderDashboard() {
 
   // Prochaines séances
   const sessCard = h("div",{class:"card",style:"padding:22px"});
-  sessCard.appendChild(h("h3",{style:"font-size:20px;color:#ede8d8;font-weight:600;margin-bottom:16px;font-style:italic"}, "Prochaines séances"));
-  if (!upcoming.length) sessCard.appendChild(h("p",{style:"color:#93b399;font-size:13px"},"Aucune séance planifiée."));
+  sessCard.appendChild(h("h3",{style:"font-size:20px;color:#2E2A20;font-weight:600;margin-bottom:16px;font-style:italic"}, "Prochaines séances"));
+  if (!upcoming.length) sessCard.appendChild(h("p",{style:"color:#6B6355;font-size:13px"},"Aucune séance planifiée."));
   else upcoming.slice(0,5).forEach(c => {
-    const row = h("div",{style:"display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #1e3322;cursor:pointer"},
+    const row = h("div",{style:"display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #E4DAC0;cursor:pointer"},
       avatar(c.name,c.profile,36),
       h("div",{style:"flex:1;min-width:0"},
-        h("div",{style:"color:#ede8d8;font-size:14px;font-weight:600"},c.name),
-        h("div",{style:"color:#aecab3;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"},c.objective||"")
+        h("div",{style:"color:#2E2A20;font-size:14px;font-weight:600"},c.name),
+        h("div",{style:"color:#5A5648;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"},c.objective||"")
       ),
       h("div",{style:"text-align:right;flex-shrink:0"},
-        h("div",{style:"color:#c8a042;font-size:12px;font-weight:600"},c.nextSession),
+        h("div",{style:"color:#9C7A2E;font-size:12px;font-weight:600"},c.nextSession),
         h("div",{style:"margin-top:3px"},badgeProfil(c.profile))
       )
     );
@@ -1937,8 +1937,8 @@ function renderDashboard() {
 
   // Profils
   const profCard = h("div",{class:"card",style:"padding:22px"});
-  profCard.appendChild(h("h3",{style:"font-size:20px;color:#ede8d8;font-weight:600;margin-bottom:16px;font-style:italic"}, "Profils"));
-  if (!clients.length) profCard.appendChild(h("p",{style:"color:#93b399;font-size:13px"},"Aucun client encore."));
+  profCard.appendChild(h("h3",{style:"font-size:20px;color:#2E2A20;font-weight:600;margin-bottom:16px;font-style:italic"}, "Profils"));
+  if (!clients.length) profCard.appendChild(h("p",{style:"color:#6B6355;font-size:13px"},"Aucun client encore."));
   else PROFILES.forEach(p => {
     const n = clients.filter(c=>c.profile===p).length;
     if (!n) return;
@@ -1946,7 +1946,7 @@ function renderDashboard() {
     const col = profileColor(p);
     const div = h("div",{style:"margin-bottom:12px"},
       h("div",{style:"display:flex;justify-content:space-between;margin-bottom:4px"},
-        badgeProfil(p), h("span",{style:"color:#aecab3;font-size:13px"},`${n} · ${pct}%`)
+        badgeProfil(p), h("span",{style:"color:#5A5648;font-size:13px"},`${n} · ${pct}%`)
       ),
       h("div",{class:"prog-track"}, h("div",{class:"prog-bar",style:`width:${pct}%;background:${col}`}))
     );
@@ -1959,7 +1959,7 @@ function renderDashboard() {
   // Actions
   const actions = h("div",{style:"display:grid;grid-template-columns:repeat(4,1fr);gap:12px"});
   [
-    {label:"Nouveau client",     icon:"＋", color:"#c8a042", act:()=>setState({tab:"clients",selClientId:null})},
+    {label:"Nouveau client",     icon:"＋", color:"#9C7A2E", act:()=>setState({tab:"clients",selClientId:null})},
     {label:"Bibliothèque coach", icon:"▣", color:"#9880d0", act:()=>setState({tab:"bibliotheque"})},
     {label:"Mes ressources",     icon:"◇", color:"#5ab8a8", act:()=>setState({tab:"ressources"})},
     {label:"Journal de bord",    icon:"◻", color:"#5aaec8", act:()=>setState({tab:"notes"})},
@@ -1976,8 +1976,8 @@ function renderDashboard() {
 
   const wrap = h("div",{class:"fade"},
     h("div",{style:"margin-bottom:32px"},
-      h("h1",{style:"font-size:38px;color:#ede8d8;font-weight:600;font-style:italic"},"Tableau de bord ✦"),
-      h("p",{style:"color:#aecab3;font-size:15px;margin-top:6px"},"Vue d'ensemble de votre pratique")
+      h("h1",{style:"font-size:38px;color:#2E2A20;font-weight:600;font-style:italic"},"Tableau de bord ✦"),
+      h("p",{style:"color:#5A5648;font-size:15px;margin-top:6px"},"Vue d'ensemble de votre pratique")
     ),
     statsRow, midRow, actions
   );
@@ -1996,7 +1996,7 @@ function renderClientList() {
   const wrap = h("div",{class:"fade"});
 
   const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:24px"},
-    h("h1",{style:"font-size:30px;color:#ede8d8;font-weight:600;font-style:italic"},"Mes Clients")
+    h("h1",{style:"font-size:30px;color:#2E2A20;font-weight:600;font-style:italic"},"Mes Clients")
   );
   let showForm = false;
 
@@ -2019,24 +2019,24 @@ function renderClientList() {
   // Liste
   const list = h("div",{style:"display:grid;gap:10px"});
   if (!state.clients.length) {
-    list.appendChild(h("div",{class:"card",style:"padding:48px;text-align:center;color:#93b399;font-size:14px"},"Aucun client. Ajoutez le premier ci-dessus."));
+    list.appendChild(h("div",{class:"card",style:"padding:48px;text-align:center;color:#6B6355;font-size:14px"},"Aucun client. Ajoutez le premier ci-dessus."));
   } else {
     state.clients.forEach(c => {
       const row = h("div",{class:"card client-row"},
         avatar(c.name,c.profile),
         h("div",{style:"flex:1;min-width:0"},
-          h("div",{style:"color:#ede8d8;font-size:15px;font-weight:600"},c.name),
-          h("div",{style:"color:#aecab3;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"},c.objective||"Aucun objectif")
+          h("div",{style:"color:#2E2A20;font-size:15px;font-weight:600"},c.name),
+          h("div",{style:"color:#5A5648;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"},c.objective||"Aucun objectif")
         ),
         h("div",{style:"display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0"},
           badgeProfil(c.profile),
           h("div",{style:"display:flex;gap:6px;align-items:center"},
             badgeStatus(c.status),
-            h("span",{style:"color:#93b399;font-size:12px"},`${c.sessions} séances`)
+            h("span",{style:"color:#6B6355;font-size:12px"},`${c.sessions} séances`)
           ),
-          (c.forfaitNom && c.forfaitTotal) ? h("span",{style:"color:#c8a042;font-size:11px;font-weight:600"}, "📦 "+(c.forfaitUtilisees||0)+"/"+c.forfaitTotal) : null
+          (c.forfaitNom && c.forfaitTotal) ? h("span",{style:"color:#9C7A2E;font-size:11px;font-weight:600"}, "📦 "+(c.forfaitUtilisees||0)+"/"+c.forfaitTotal) : null
         ),
-        h("span",{style:"color:#2a4535;font-size:18px"},"›")
+        h("span",{style:"color:#D8CBA8;font-size:18px"},"›")
       );
       row.addEventListener("click",()=>setState({selClientId:c.id,subTab:"fiche"}));
       list.appendChild(row);
@@ -2050,7 +2050,7 @@ let formData = {};
 function buildAddForm() {
   formData = {name:"",profile:"HPI",age:"",objective:"",nextSession:"",notes:"",status:"actif"};
   const form = h("div",{class:"qform",style:"margin-bottom:20px"});
-  form.appendChild(h("h3",{style:"color:#c8a042;font-size:21px;margin-bottom:18px;font-style:italic"},"Nouveau client"));
+  form.appendChild(h("h3",{style:"color:#9C7A2E;font-size:21px;margin-bottom:18px;font-style:italic"},"Nouveau client"));
 
   const g = h("div",{class:"grid2",style:"margin-bottom:12px"});
 
@@ -2101,17 +2101,17 @@ function renderClientDetail() {
     h("div",{style:"display:flex;gap:16px;align-items:center"},
       avatar(c.name,c.profile,58),
       h("div",{},
-        h("h2",{style:"font-size:28px;color:#ede8d8;font-weight:600;font-style:italic"},c.name),
+        h("h2",{style:"font-size:28px;color:#2E2A20;font-weight:600;font-style:italic"},c.name),
         h("div",{style:"display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;align-items:center"},
           badgeProfil(c.profile),
-          c.age?h("span",{style:"color:#aecab3;font-size:13px"},c.age+" ans"):null,
+          c.age?h("span",{style:"color:#5A5648;font-size:13px"},c.age+" ans"):null,
           badgeStatus(c.status)
         )
       )
     ),
     h("div",{style:"text-align:right"},
-      h("div",{style:"font-size:38px;color:#c8a042;font-weight:700;line-height:1"},String(c.sessions||0)),
-      h("div",{style:"color:#aecab3;font-size:12px"},"séances")
+      h("div",{style:"font-size:38px;color:#9C7A2E;font-weight:700;line-height:1"},String(c.sessions||0)),
+      h("div",{style:"color:#5A5648;font-size:12px"},"séances")
     )
   );
   box.appendChild(hdr);
@@ -2144,38 +2144,38 @@ function buildFiche(c) {
   function showView() {
     wrap.innerHTML="";
     if (c.email || c.tel) {
-      const contactBox = h("div",{style:"display:flex;gap:20px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #2a3c2e;flex-wrap:wrap"});
-      if (c.email) contactBox.appendChild(h("div",{style:"font-size:13px;color:#aecab3"}, "📧 ", h("span",{style:"color:#ede8d8"}, c.email)));
-      if (c.tel) contactBox.appendChild(h("div",{style:"font-size:13px;color:#aecab3"}, "📞 ", h("span",{style:"color:#ede8d8"}, c.tel)));
+      const contactBox = h("div",{style:"display:flex;gap:20px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #D8CBA8;flex-wrap:wrap"});
+      if (c.email) contactBox.appendChild(h("div",{style:"font-size:13px;color:#5A5648"}, "📧 ", h("span",{style:"color:#2E2A20"}, c.email)));
+      if (c.tel) contactBox.appendChild(h("div",{style:"font-size:13px;color:#5A5648"}, "📞 ", h("span",{style:"color:#2E2A20"}, c.tel)));
       wrap.appendChild(contactBox);
     }
     const g = h("div",{class:"grid2"});
     if (c.objective) g.appendChild(h("div",{},
-      h("div",{style:"color:#93b399;font-size:13px;letter-spacing:.08em;margin-bottom:5px"},"OBJECTIF"),
-      h("div",{style:"color:#ede8d8;font-size:14px;line-height:1.6"},c.objective)
+      h("div",{style:"color:#6B6355;font-size:13px;letter-spacing:.08em;margin-bottom:5px"},"OBJECTIF"),
+      h("div",{style:"color:#2E2A20;font-size:14px;line-height:1.6"},c.objective)
     ));
     if (c.nextSession) g.appendChild(h("div",{},
-      h("div",{style:"color:#93b399;font-size:13px;letter-spacing:.08em;margin-bottom:5px"},"PROCHAINE SÉANCE"),
-      h("div",{style:"color:#c8a042;font-size:14px;font-weight:600"},c.nextSession)
+      h("div",{style:"color:#6B6355;font-size:13px;letter-spacing:.08em;margin-bottom:5px"},"PROCHAINE SÉANCE"),
+      h("div",{style:"color:#9C7A2E;font-size:14px;font-weight:600"},c.nextSession)
     ));
     wrap.appendChild(g);
     if (c.forfaitNom && c.forfaitTotal) {
       const pct = Math.min(100, Math.round((c.forfaitUtilisees||0) / c.forfaitTotal * 100));
-      const forfaitBox = h("div",{style:"margin-top:18px;background:#0d1c10;padding:14px 16px;border-radius:8px;border:1px solid #1e3322"});
+      const forfaitBox = h("div",{style:"margin-top:18px;background:#FFFFFF;padding:14px 16px;border-radius:8px;border:1px solid #E4DAC0"});
       forfaitBox.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:8px"},
-        h("div",{style:"color:#93b399;font-size:13px;letter-spacing:.08em"},"FORFAIT EN COURS"),
-        h("div",{style:"color:#c8a042;font-size:12px;font-weight:700"}, (c.forfaitUtilisees||0) + " / " + c.forfaitTotal + " séances")
+        h("div",{style:"color:#6B6355;font-size:13px;letter-spacing:.08em"},"FORFAIT EN COURS"),
+        h("div",{style:"color:#9C7A2E;font-size:12px;font-weight:700"}, (c.forfaitUtilisees||0) + " / " + c.forfaitTotal + " séances")
       ));
-      forfaitBox.appendChild(h("div",{style:"font-size:14px;color:#ede8d8;margin-bottom:8px"}, c.forfaitNom));
-      const barBg = h("div",{style:"background:#1e3322;border-radius:6px;height:8px;overflow:hidden"});
+      forfaitBox.appendChild(h("div",{style:"font-size:14px;color:#2E2A20;margin-bottom:8px"}, c.forfaitNom));
+      const barBg = h("div",{style:"background:#E4DAC0;border-radius:6px;height:8px;overflow:hidden"});
       barBg.appendChild(h("div",{style:"background:#4a9e6a;height:100%;width:"+pct+"%"}));
       forfaitBox.appendChild(barBg);
       wrap.appendChild(forfaitBox);
     }
     if (c.notes) {
       wrap.appendChild(h("div",{style:"margin-top:18px"},
-        h("div",{style:"color:#93b399;font-size:13px;letter-spacing:.08em;margin-bottom:5px"},"NOTES"),
-        h("div",{style:"color:#aecab3;font-size:14px;line-height:1.7;background:#0d1c10;padding:12px 16px;border-radius:8px;border:1px solid #1e3322"},c.notes)
+        h("div",{style:"color:#6B6355;font-size:13px;letter-spacing:.08em;margin-bottom:5px"},"NOTES"),
+        h("div",{style:"color:#5A5648;font-size:14px;line-height:1.7;background:#FFFFFF;padding:12px 16px;border-radius:8px;border:1px solid #E4DAC0"},c.notes)
       ));
     }
     const row = h("div",{style:"display:flex;gap:10px;margin-top:22px"});
@@ -2230,15 +2230,15 @@ function buildSeances(c) {
   function render2() {
     wrap.innerHTML="";
     const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"},
-      h("span",{style:"color:#aecab3;font-size:14px"},`${c.sessions||0} séance${(c.sessions||0)>1?"s":""}`),
+      h("span",{style:"color:#5A5648;font-size:14px"},`${c.sessions||0} séance${(c.sessions||0)>1?"s":""}`),
     );
-    const addBtn = h("button",{class:"btn-sm",style:"border-color:#c8a04244;color:#c8a042"},showForm?"✕ Annuler":"+ Nouvelle séance");
+    const addBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E44;color:#9C7A2E"},showForm?"✕ Annuler":"+ Nouvelle séance");
     addBtn.addEventListener("click",()=>{ showForm=!showForm; render2(); });
     hdr.appendChild(addBtn);
     wrap.appendChild(hdr);
 
     if (showForm) {
-      const box = h("div",{class:"card",style:"padding:16px;margin-bottom:14px;border-color:#c8a04233"});
+      const box = h("div",{class:"card",style:"padding:16px;margin-bottom:14px;border-color:#9C7A2E33"});
       box.appendChild(lbl("COMPTE-RENDU"));
       const ta = textareaEl({placeholder:"Points abordés, avancées, outil utilisé...",height:"76px"});
       box.appendChild(ta);
@@ -2257,12 +2257,12 @@ function buildSeances(c) {
     }
 
     if (!(c.sessionHistory||[]).length) {
-      wrap.appendChild(h("p",{style:"color:#93b399;font-size:13px;padding:16px 0"},"Aucune séance enregistrée."));
+      wrap.appendChild(h("p",{style:"color:#6B6355;font-size:13px;padding:16px 0"},"Aucune séance enregistrée."));
     } else {
       [...c.sessionHistory].reverse().forEach((s,i,arr)=>{
         wrap.appendChild(h("div",{class:"sess-row"},
           h("div",{class:"sess-num"},String(arr.length-i)),
-          h("div",{style:"color:#aecab3;font-size:13px;line-height:1.6"},s.replace(/^Séance \d+ — /,""))
+          h("div",{style:"color:#5A5648;font-size:13px;line-height:1.6"},s.replace(/^Séance \d+ — /,""))
         ));
       });
     }
@@ -2281,15 +2281,15 @@ function buildObjectifs(c) {
     if (!c.objectifs) c.objectifs=[];
     const atteints = c.objectifs.filter(o=>o.statut==="atteint").length;
     const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"},
-      h("span",{style:"color:#aecab3;font-size:14px"},`${atteints}/${c.objectifs.length} atteint(s)`)
+      h("span",{style:"color:#5A5648;font-size:14px"},`${atteints}/${c.objectifs.length} atteint(s)`)
     );
-    const addBtn = h("button",{class:"btn-sm",style:"border-color:#c8a04244;color:#c8a042"},showForm?"✕ Annuler":"+ Ajouter");
+    const addBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E44;color:#9C7A2E"},showForm?"✕ Annuler":"+ Ajouter");
     addBtn.addEventListener("click",()=>{ showForm=!showForm; newObj={titre:"",echeance:"",statut:"en cours"}; render2(); });
     hdr.appendChild(addBtn);
     wrap.appendChild(hdr);
 
     if (showForm) {
-      const box = h("div",{class:"card",style:"padding:16px;margin-bottom:14px;border-color:#c8a04233"});
+      const box = h("div",{class:"card",style:"padding:16px;margin-bottom:14px;border-color:#9C7A2E33"});
       const g = h("div",{class:"grid2",style:"margin-bottom:10px"});
       const ti = inputEl({placeholder:"Ex: Poser des limites claires",onInput:v=>newObj.titre=v});
       g.appendChild(h("div",{class:"span2"},field("OBJECTIF",ti)));
@@ -2310,11 +2310,11 @@ function buildObjectifs(c) {
     }
 
     if (!c.objectifs.length) {
-      wrap.appendChild(h("p",{style:"color:#93b399;font-size:13px;padding:16px 0"},"Aucun objectif défini."));
+      wrap.appendChild(h("p",{style:"color:#6B6355;font-size:13px;padding:16px 0"},"Aucun objectif défini."));
     } else {
       c.objectifs.forEach(o => {
-        const col = o.statut==="atteint"?"#4a9e6a":o.statut==="suspendu"?"#93b399":"#5aaec8";
-        const chk = h("div",{class:"obj-check",style:`border-color:${col};background:${o.statut==="atteint"?col:"transparent"};color:#080f0a`},
+        const col = o.statut==="atteint"?"#4a9e6a":o.statut==="suspendu"?"#6B6355":"#5aaec8";
+        const chk = h("div",{class:"obj-check",style:`border-color:${col};background:${o.statut==="atteint"?col:"transparent"};color:#F7F2E7`},
           o.statut==="atteint"?"✓":""
         );
         chk.addEventListener("click",()=>{
@@ -2323,7 +2323,7 @@ function buildObjectifs(c) {
           save(); render2();
         });
         const sbadge = h("span",{style:`padding:2px 8px;border-radius:20px;background:${col}18;color:${col};font-size:12px;font-weight:600`},o.statut);
-        const del = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#93b399;font-size:18px;padding:0 4px"},"×");
+        const del = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#6B6355;font-size:18px;padding:0 4px"},"×");
         del.addEventListener("click",()=>{
           c.objectifs = c.objectifs.filter(x=>x.id!==o.id);
           state.clients = state.clients.map(x=>x.id===c.id?c:x);
@@ -2332,8 +2332,8 @@ function buildObjectifs(c) {
         const row = h("div",{class:"obj-row"},
           chk,
           h("div",{style:"flex:1"},
-            h("div",{style:`color:${o.statut==="atteint"?"#93b399":"#ede8d8"};font-size:14px;text-decoration:${o.statut==="atteint"?"line-through":"none"}`},o.titre),
-            o.echeance?h("div",{style:"color:#93b399;font-size:13px;margin-top:2px"},"Échéance : "+o.echeance):null
+            h("div",{style:`color:${o.statut==="atteint"?"#6B6355":"#2E2A20"};font-size:14px;text-decoration:${o.statut==="atteint"?"line-through":"none"}`},o.titre),
+            o.echeance?h("div",{style:"color:#6B6355;font-size:13px;margin-top:2px"},"Échéance : "+o.echeance):null
           ),
           sbadge, del
         );
@@ -2357,16 +2357,16 @@ function buildPaiements(c) {
     const totalAttente = c.paiements.filter(p=>p.statut==="en attente").reduce((s,p)=>s+Number(p.montant||0),0);
 
     const summary = h("div",{style:"display:flex;gap:20px;margin-bottom:14px"},
-      h("div",{},h("div",{style:"color:#93b399;font-size:13px"},"ENCAISSÉ"),h("div",{style:"color:#4a9e6a;font-size:20px;font-weight:700"},totalPaye.toFixed(0)+" €")),
-      h("div",{},h("div",{style:"color:#93b399;font-size:13px"},"EN ATTENTE"),h("div",{style:"color:#c8a042;font-size:20px;font-weight:700"},totalAttente.toFixed(0)+" €"))
+      h("div",{},h("div",{style:"color:#6B6355;font-size:13px"},"ENCAISSÉ"),h("div",{style:"color:#4a9e6a;font-size:20px;font-weight:700"},totalPaye.toFixed(0)+" €")),
+      h("div",{},h("div",{style:"color:#6B6355;font-size:13px"},"EN ATTENTE"),h("div",{style:"color:#9C7A2E;font-size:20px;font-weight:700"},totalAttente.toFixed(0)+" €"))
     );
-    const addBtn = h("button",{class:"btn-sm",style:"border-color:#c8a04244;color:#c8a042;margin-left:auto"},showForm?"✕ Annuler":"+ Ajouter");
+    const addBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E44;color:#9C7A2E;margin-left:auto"},showForm?"✕ Annuler":"+ Ajouter");
     addBtn.addEventListener("click",()=>{ showForm=!showForm; newPay={date:"",montant:"",statut:"payé"}; render2(); });
     const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"}, summary, addBtn);
     wrap.appendChild(hdr);
 
     if (showForm) {
-      const box = h("div",{class:"card",style:"padding:16px;margin-bottom:14px;border-color:#c8a04233"});
+      const box = h("div",{class:"card",style:"padding:16px;margin-bottom:14px;border-color:#9C7A2E33"});
       const g = h("div",{class:"grid2",style:"margin-bottom:10px"});
       const da = inputEl({type:"date",onChange:v=>newPay.date=v});
       g.appendChild(field("DATE",da));
@@ -2387,11 +2387,11 @@ function buildPaiements(c) {
     }
 
     if (!c.paiements.length) {
-      wrap.appendChild(h("p",{style:"color:#93b399;font-size:13px;padding:16px 0"},"Aucun paiement enregistré."));
+      wrap.appendChild(h("p",{style:"color:#6B6355;font-size:13px;padding:16px 0"},"Aucun paiement enregistré."));
     } else {
       [...c.paiements].sort((a,b)=>(b.date||"").localeCompare(a.date||"")).forEach(pay => {
-        const col = pay.statut==="payé" ? "#4a9e6a" : "#c8a042";
-        const del = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#93b399;font-size:18px;padding:0 4px"},"×");
+        const col = pay.statut==="payé" ? "#4a9e6a" : "#9C7A2E";
+        const del = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#6B6355;font-size:18px;padding:0 4px"},"×");
         del.addEventListener("click",()=>{
           c.paiements = c.paiements.filter(x=>x.id!==pay.id);
           state.clients = state.clients.map(x=>x.id===c.id?c:x);
@@ -2400,8 +2400,8 @@ function buildPaiements(c) {
         const badge = h("span",{style:`padding:2px 8px;border-radius:20px;background:${col}18;color:${col};font-size:12px;font-weight:600`},pay.statut);
         const row = h("div",{class:"obj-row"},
           h("div",{style:"flex:1"},
-            h("div",{style:"color:#ede8d8;font-size:14px"},Number(pay.montant||0).toFixed(0)+" €"),
-            h("div",{style:"color:#93b399;font-size:13px;margin-top:2px"},pay.date||"")
+            h("div",{style:"color:#2E2A20;font-size:14px"},Number(pay.montant||0).toFixed(0)+" €"),
+            h("div",{style:"color:#6B6355;font-size:13px;margin-top:2px"},pay.date||"")
           ),
           badge, del
         );
@@ -2423,7 +2423,7 @@ function buildNotesClient(c) {
     save();
   });
   wrap.appendChild(ta);
-  wrap.appendChild(h("p",{style:"color:#93b399;font-size:12px;margin-top:8px"},"Sauvegardé à la perte de focus."));
+  wrap.appendChild(h("p",{style:"color:#6B6355;font-size:12px;margin-top:8px"},"Sauvegardé à la perte de focus."));
   return wrap;
 }
 
@@ -2433,8 +2433,8 @@ function buildNotesClient(c) {
 function renderBibliotheque() {
   const wrap = h("div",{class:"fade"});
   wrap.appendChild(h("div",{style:"margin-bottom:24px"},
-    h("h1",{style:"font-size:30px;color:#ede8d8;font-weight:600;font-style:italic"},"Bibliothèque du Coach"),
-    h("p",{style:"color:#aecab3;font-size:14px;margin-top:6px"},`${BIBLIO.length} fiches · Questions · NLP · Sophro · Burnout · Outils`)
+    h("h1",{style:"font-size:30px;color:#2E2A20;font-weight:600;font-style:italic"},"Bibliothèque du Coach"),
+    h("p",{style:"color:#5A5648;font-size:14px;margin-top:6px"},`${BIBLIO.length} fiches · Questions · NLP · Sophro · Burnout · Outils`)
   ));
 
   const CATS = [...new Set(BIBLIO.map(r=>r.cat))];
@@ -2446,10 +2446,10 @@ function renderBibliotheque() {
 
   // Cat filter
   const catRow = h("div",{style:"display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center"});
-  catRow.appendChild(h("span",{style:"color:#93b399;font-size:13px;margin-right:4px"},"CAT."));
+  catRow.appendChild(h("span",{style:"color:#6B6355;font-size:13px;margin-right:4px"},"CAT."));
   ["Tous",...CATS].forEach(c => {
     const b = h("button",{class:"btn-sm"}, c);
-    if (state.bibCat===c) { b.style.background="#c8a04222"; b.style.color="#c8a042"; b.style.borderColor="#c8a04255"; }
+    if (state.bibCat===c) { b.style.background="#9C7A2E22"; b.style.color="#9C7A2E"; b.style.borderColor="#9C7A2E55"; }
     b.addEventListener("click",()=>{ state.bibCat=c; rebuildList(); });
     catRow.appendChild(b);
   });
@@ -2457,9 +2457,9 @@ function renderBibliotheque() {
 
   // Profil filter
   const profRow = h("div",{style:"display:flex;gap:8px;flex-wrap:wrap;align-items:center"});
-  profRow.appendChild(h("span",{style:"color:#93b399;font-size:13px;margin-right:4px"},"PROFIL"));
+  profRow.appendChild(h("span",{style:"color:#6B6355;font-size:13px;margin-right:4px"},"PROFIL"));
   ["Tous",...PROFILES].forEach(p => {
-    const col = PC[p]||"#c8a042";
+    const col = PC[p]||"#9C7A2E";
     const b = h("button",{class:"btn-sm"}, p);
     if (state.bibProfil===p) { b.style.background=col+"22"; b.style.color=col; b.style.borderColor=col+"55"; }
     b.addEventListener("click",()=>{ state.bibProfil=p; rebuildList(); });
@@ -2468,7 +2468,7 @@ function renderBibliotheque() {
   fbox.appendChild(profRow);
   wrap.appendChild(fbox);
 
-  const count = h("div",{style:"color:#93b399;font-size:12px;margin-bottom:12px"},"");
+  const count = h("div",{style:"color:#6B6355;font-size:12px;margin-bottom:12px"},"");
   wrap.appendChild(count);
 
   const list = h("div",{style:"display:grid;gap:10px"});
@@ -2485,7 +2485,7 @@ function renderBibliotheque() {
     list.innerHTML="";
 
     if (!filtered.length) {
-      list.appendChild(h("div",{class:"card",style:"padding:40px;text-align:center;color:#93b399;font-size:14px"},"Aucune fiche pour ces filtres."));
+      list.appendChild(h("div",{class:"card",style:"padding:40px;text-align:center;color:#6B6355;font-size:14px"},"Aucune fiche pour ces filtres."));
       return;
     }
 
@@ -2497,10 +2497,10 @@ function renderBibliotheque() {
 
       const hdr2 = h("div",{style:"display:flex;align-items:center;gap:12px;cursor:pointer"});
       const info = h("div",{style:"flex:1"},
-        h("div",{style:"color:#ede8d8;font-size:15px;font-weight:600;margin-bottom:6px"},r.titre),
+        h("div",{style:"color:#2E2A20;font-size:15px;font-weight:600;margin-bottom:6px"},r.titre),
         h("div",{style:"display:flex;gap:6px;flex-wrap:wrap;align-items:center"},
           badgeCat(r.cat), badgeProfil(r.profil),
-          r.source?h("span",{style:"color:#93b399;font-size:12px;font-style:italic"},"— "+r.source):null
+          r.source?h("span",{style:"color:#6B6355;font-size:12px;font-style:italic"},"— "+r.source):null
         )
       );
 
@@ -2538,8 +2538,8 @@ function renderRessources() {
 
   const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:24px"},
     h("div",{},
-      h("h1",{style:"font-size:30px;color:#ede8d8;font-weight:600;font-style:italic"},"Mes Ressources"),
-      h("p",{style:"color:#aecab3;font-size:13px;margin-top:4px"},"Vos outils personnalisés")
+      h("h1",{style:"font-size:30px;color:#2E2A20;font-weight:600;font-style:italic"},"Mes Ressources"),
+      h("p",{style:"color:#5A5648;font-size:13px;margin-top:4px"},"Vos outils personnalisés")
     )
   );
   let showForm = false;
@@ -2559,7 +2559,7 @@ function renderRessources() {
   // Filters
   const frow = h("div",{style:"display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"});
   ["Tous",...PROFILES].forEach(p=>{
-    const col=PC[p]||"#c8a042";
+    const col=PC[p]||"#9C7A2E";
     const b=h("button",{class:"btn-sm"},p);
     if (state.resProfil===p) { b.style.background=col+"22"; b.style.color=col; b.style.borderColor=col+"55"; }
     b.addEventListener("click",()=>{ state.resProfil=p; setState({tab:"ressources"}); });
@@ -2570,7 +2570,7 @@ function renderRessources() {
   const filtered = state.resProfil==="Tous" ? state.ressources : state.ressources.filter(r=>r.profil===state.resProfil);
 
   if (!filtered.length) {
-    wrap.appendChild(h("div",{class:"card",style:"padding:40px;text-align:center;color:#93b399;font-size:14px"},
+    wrap.appendChild(h("div",{class:"card",style:"padding:40px;text-align:center;color:#6B6355;font-size:14px"},
       state.ressources.length===0?"Créez votre première ressource ci-dessus.":"Aucune ressource pour ce filtre."
     ));
   } else {
@@ -2581,7 +2581,7 @@ function renderRessources() {
       const body=h("div",{class:"fiche-body"},r.contenu);
       const hdr2=h("div",{style:"display:flex;align-items:center;gap:12px;cursor:pointer"});
       const info=h("div",{style:"flex:1"},
-        h("div",{style:"color:#ede8d8;font-size:15px;font-weight:600;margin-bottom:6px"},r.titre),
+        h("div",{style:"color:#2E2A20;font-size:15px;font-weight:600;margin-bottom:6px"},r.titre),
         h("div",{style:"display:flex;gap:6px"},badgeCat(r.cat),badgeProfil(r.profil))
       );
       const cpBtn=h("button",{class:"btn-sm",style:"font-size:13px"},"Copier");
@@ -2602,7 +2602,7 @@ function renderRessources() {
 function buildResForm(CATS) {
   const fd={titre:"",profil:"HPI",cat:CATS[0]||"Outils pratiques",contenu:""};
   const form=h("div",{class:"qform",style:"margin-bottom:20px"});
-  form.appendChild(h("h3",{style:"color:#c8a042;font-size:21px;margin-bottom:18px;font-style:italic"},"Nouvelle ressource"));
+  form.appendChild(h("h3",{style:"color:#9C7A2E;font-size:21px;margin-bottom:18px;font-style:italic"},"Nouvelle ressource"));
   const g=h("div",{class:"grid2",style:"margin-bottom:12px"});
   const ti=inputEl({placeholder:"Ex: Mon protocole d'ancrage",onInput:v=>fd.titre=v});
   g.appendChild(h("div",{class:"span2"},field("TITRE",ti)));
@@ -2634,8 +2634,8 @@ function renderNotes() {
   const wrap = h("div",{class:"fade",style:"display:flex;flex-direction:column;height:calc(100vh - 64px)"});
   const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-shrink:0"},
     h("div",{},
-      h("h1",{style:"font-size:30px;color:#ede8d8;font-weight:600;font-style:italic"},"Journal de Bord"),
-      h("p",{style:"color:#aecab3;font-size:13px;margin-top:4px"},"Notes libres, réflexions, observations de pratique")
+      h("h1",{style:"font-size:30px;color:#2E2A20;font-weight:600;font-style:italic"},"Journal de Bord"),
+      h("p",{style:"color:#5A5648;font-size:13px;margin-top:4px"},"Notes libres, réflexions, observations de pratique")
     )
   );
   const savedLbl = h("span",{style:"color:#4a9e6a99;font-size:12px;font-style:italic"},"✓ Sauvegardé");
@@ -2646,11 +2646,11 @@ function renderNotes() {
   ta.id = "notesArea";
   ta.value = state.notes;
   ta.placeholder = "Notes libres…\n\nIdées, réflexions, observations, formations…\n\nTout est sauvegardé automatiquement.";
-  ta.style.cssText = "flex:1;line-height:1.9;padding:22px;font-size:14px;border-radius:14px;min-height:0;width:100%;background:#0d1c10;border:1px solid #2a4535;border-radius:14px;color:#ede8d8;font-family:inherit;resize:none;outline:none";
+  ta.style.cssText = "flex:1;line-height:1.9;padding:22px;font-size:14px;border-radius:14px;min-height:0;width:100%;background:#FFFFFF;border:1px solid #D8CBA8;border-radius:14px;color:#2E2A20;font-family:inherit;resize:none;outline:none";
   ta.addEventListener("input", e => {
     state.notes = e.target.value;
     savedLbl.textContent = "…";
-    savedLbl.style.color = "#93b399";
+    savedLbl.style.color = "#6B6355";
     clearTimeout(notesTimer);
     notesTimer = setTimeout(()=>{
       localStorage.setItem("cs4-notes", state.notes);
@@ -2658,8 +2658,8 @@ function renderNotes() {
       savedLbl.style.color = "#4a9e6a99";
     }, 800);
   });
-  ta.addEventListener("focus", e => { ta.style.borderColor="#c8a042"; });
-  ta.addEventListener("blur", e => { ta.style.borderColor="#2a4535"; });
+  ta.addEventListener("focus", e => { ta.style.borderColor="#9C7A2E"; });
+  ta.addEventListener("blur", e => { ta.style.borderColor="#D8CBA8"; });
   wrap.appendChild(ta);
   return wrap;
 }
