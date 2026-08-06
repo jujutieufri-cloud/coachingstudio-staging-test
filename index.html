@@ -1025,6 +1025,7 @@ const RdvRequests = {
   items: [],
   unsub: null,
   autoTraites: new Set(),
+  autoSupprimees: new Set(),
   listen() {
     if (this.unsub || !CoachLink.user) return;
     this.unsub = firebase.firestore().collection("rdvRequests")
@@ -1032,6 +1033,7 @@ const RdvRequests = {
       .onSnapshot(snap => {
         this.items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         this.autoConfirmerClientsExistants();
+        this.nettoyerAnciennesDemandes();
         if (state.tab === "rdv" || state.tab === "agenda") render();
       }, e => console.error("listen rdvRequests:", e));
   },
@@ -1042,9 +1044,26 @@ const RdvRequests = {
         const client = trouverClientExistant(r);
         if (client) {
           this.autoTraites.add(r.id);
-          this.setStatus(r.id, "confirme");
-          notifCoach("✅ RDV auto-confirmé (client existant) : " + client.name);
+          if (r.motif === "Séance Découverte (gratuite)") {
+            // La séance découverte gratuite est réservée aux nouveaux clients.
+            this.setStatus(r.id, "rejete");
+            notifCoach("⛔ Séance découverte refusée automatiquement : " + client.name + " est déjà client (offre réservée aux nouveaux).");
+          } else {
+            this.setStatus(r.id, "confirme");
+            notifCoach("✅ RDV auto-confirmé (client existant) : " + client.name);
+          }
         }
+      });
+  },
+  nettoyerAnciennesDemandes() {
+    const db = firebase.firestore();
+    const seuil = Date.now() - 3 * 24 * 60 * 60 * 1000; // 3 jours
+    this.items
+      .filter(r => r.status !== "nouveau" && r.createdAt && new Date(r.createdAt).getTime() < seuil && !this.autoSupprimees.has(r.id))
+      .forEach(r => {
+        this.autoSupprimees.add(r.id);
+        db.collection("rdvRequests").doc(r.id).delete()
+          .catch(e => console.error("nettoyage rdvRequests:", e));
       });
   },
   setStatus(id, status, callback) {
