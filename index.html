@@ -2188,40 +2188,59 @@ function renderClientDetail() {
 }
 
 const DIMENSIONS_EVAL = [
-  {key:"chargeMentale", label:"Charge mentale", desc:"Pensées en boucle, rumination, suranalyse"},
-  {key:"intensiteEmo", label:"Intensité émotionnelle", desc:"Réactions amplifiées, submersion émotionnelle"},
-  {key:"questionnement", label:"Questionnement existentiel", desc:"Quête de sens, ennui profond, sentiment de vide"},
-  {key:"syndromeImposteur", label:"Syndrome de l'imposteur", desc:"Doute de soi, dévalorisation, attribution externe"},
-  {key:"perfectionnisme", label:"Perfectionnisme", desc:"Standards irréalistes, procrastination, paralysie"},
-  {key:"frustrationCreative", label:"Frustration créative", desc:"Besoin de créer non satisfait, routines étouffantes"},
-  {key:"difficultesRelation", label:"Difficultés relationnelles", desc:"Communication, conflits, sentiment d'incompréhension"},
-  {key:"troublesSommeil", label:"Troubles du sommeil", desc:"Endormissement, réveils, pensées nocturnes"},
+  // Communes à tous les profils
+  {key:"chargeMentale", label:"Charge mentale", desc:"Pensées en boucle, rumination, suranalyse", profils:["all"]},
+  {key:"perfectionnisme", label:"Perfectionnisme", desc:"Standards irréalistes, procrastination, paralysie", profils:["all"]},
+  {key:"difficultesRelation", label:"Difficultés relationnelles", desc:"Communication, conflits, sentiment d'incompréhension", profils:["all"]},
+  {key:"troublesSommeil", label:"Troubles du sommeil", desc:"Endormissement, réveils, pensées nocturnes", profils:["all"]},
+  // Spécifiques HPI
+  {key:"syndromeImposteur", label:"Syndrome de l'imposteur", desc:"Doute de soi, dévalorisation, attribution externe", profils:["HPI"]},
+  {key:"questionnement", label:"Questionnement existentiel", desc:"Quête de sens, ennui profond, sentiment de vide", profils:["HPI"]},
+  {key:"frustrationCreative", label:"Frustration créative", desc:"Besoin de créer non satisfait, routines étouffantes", profils:["HPI"]},
+  // Spécifiques TDAH
+  {key:"gestionTemps", label:"Gestion du temps", desc:"Procrastination, cécité temporelle, retards", profils:["TDAH"]},
+  {key:"impulsivite", label:"Impulsivité", desc:"Décisions hâtives, interruptions, difficulté à attendre", profils:["TDAH"]},
+  {key:"dispersion", label:"Dispersion attentionnelle", desc:"Difficulté à démarrer/terminer, hyperfocus déséquilibré", profils:["TDAH"]},
+  // Spécifiques HPE / HSP (Haute Sensibilité)
+  {key:"intensiteEmo", label:"Intensité émotionnelle", desc:"Réactions amplifiées, submersion émotionnelle", profils:["HSP","HPE"]},
+  {key:"surchargeSensorielle", label:"Surcharge sensorielle/émotionnelle", desc:"Sensibilité aux stimuli, saturation rapide", profils:["HSP","HPE"]},
+  {key:"empathieEnvahissante", label:"Empathie envahissante", desc:"Difficulté à poser des limites, absorption des émotions d'autrui", profils:["HSP","HPE"]},
 ];
+
+function dimensionsPourProfil(profilClient) {
+  const p = (profilClient || "").toUpperCase();
+  return DIMENSIONS_EVAL.filter(d =>
+    d.profils.includes("all") ||
+    d.profils.some(tag => p.includes(tag))
+  );
+}
 
 function buildEvaluation(c) {
   const wrap = h("div",{});
   c.evaluation = c.evaluation || {};
+  const dims = dimensionsPourProfil(c.profile);
   wrap.appendChild(h("h3",{style:"font-size:20px;color:#2E2A20;font-weight:600;margin-bottom:6px;font-style:italic"},"Grille d'évaluation"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:20px"},"Évaluez l'intensité de chaque dimension de 0 à 10 pour obtenir un score global."));
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:6px"},"Évaluez l'intensité de chaque dimension de 0 à 10 pour obtenir un score global."));
+  wrap.appendChild(h("p",{style:"color:#9C7A2E;font-size:12px;margin-bottom:20px;font-weight:600"},"Dimensions adaptées au profil : "+(c.profile||"non défini")));
 
   const scoreBox = h("div",{class:"card",style:"padding:20px;margin-bottom:20px;text-align:center"});
   function scoreTotal() {
-    return DIMENSIONS_EVAL.reduce((s,d)=>s+(c.evaluation[d.key]||0),0);
+    return dims.reduce((s,d)=>s+(c.evaluation[d.key]||0),0);
   }
   function zone(score) {
-    const max = DIMENSIONS_EVAL.length*10;
-    const pct = score/max;
+    const max = dims.length*10;
+    const pct = max ? score/max : 0;
     if (pct < 0.33) return {label:"Zone verte", color:"#4a9e6a", txt:"Fonctionnement sain — Prévention et optimisation"};
     if (pct < 0.66) return {label:"Zone orange", color:"#c8a042", txt:"Signaux à surveiller — Ajuster le rythme"};
     return {label:"Zone rouge", color:"#d07070", txt:"Épuisement marqué — Prioriser le repos et le soutien"};
   }
   function renderScore() {
     scoreBox.innerHTML = "";
-    const max = DIMENSIONS_EVAL.length*10;
+    const max = dims.length*10;
     const s = scoreTotal();
     const z = zone(s);
     scoreBox.appendChild(h("div",{style:"display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:8px"},
-      h("div",{style:"font-size:34px;font-weight:800;color:"+z.color},String(s)+" / "+max),
+      h("div",{style:"font-size:34px;font-weight:800;color:"+z.color}, String(s)+" / "+max),
       h("span",{style:"background:"+z.color+"22;color:"+z.color+";padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700"}, z.label)
     ));
     scoreBox.appendChild(h("div",{style:"color:#5A5648;font-size:13px"}, z.txt));
@@ -2229,7 +2248,7 @@ function buildEvaluation(c) {
   renderScore();
   wrap.appendChild(scoreBox);
 
-  DIMENSIONS_EVAL.forEach(d => {
+  dims.forEach(d => {
     const card = h("div",{class:"card",style:"padding:16px 18px;margin-bottom:10px"});
     const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(c.evaluation[d.key]||0));
     card.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:4px"},
