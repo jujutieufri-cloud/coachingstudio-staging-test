@@ -2089,7 +2089,7 @@ function renderClientList() {
 
 let formData = {};
 function buildAddForm() {
-  formData = {name:"",profile:"HPI",age:"",objective:"",nextSession:"",notes:"",status:"actif"};
+  formData = {name:"",profile:"HPI",age:"",objective:"",nextSession:"",notes:"",status:"actif",email:"",tel:""};
   const form = h("div",{class:"qform",style:"margin-bottom:20px"});
   form.appendChild(h("h3",{style:"color:#9C7A2E;font-size:21px;margin-bottom:18px;font-style:italic"},"Nouveau client"));
 
@@ -2105,6 +2105,13 @@ function buildAddForm() {
   g.appendChild(field("PROFIL", profSel));
   g.appendChild(field("PROCHAINE SÉANCE", datInp));
   form.appendChild(g);
+
+  const g2 = h("div",{class:"grid2",style:"margin-bottom:12px"});
+  const emailInp = inputEl({type:"email", placeholder:"Ex: marie.d@email.com", onInput:v=>formData.email=v});
+  const telInp = inputEl({type:"tel", placeholder:"Ex: 06 12 34 56 78", onInput:v=>formData.tel=v});
+  g2.appendChild(field("EMAIL", emailInp));
+  g2.appendChild(field("TÉLÉPHONE", telInp));
+  form.appendChild(g2);
 
   const objInp = inputEl({placeholder:"Ex: Confiance en soi, gestion du stress...", onInput:v=>formData.objective=v});
   form.appendChild(h("div",{style:"margin-bottom:12px"},field("OBJECTIF", objInp)));
