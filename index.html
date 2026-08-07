@@ -2100,11 +2100,11 @@ function renderClientDetail() {
   const box = h("div",{class:"card",style:"padding:26px"});
 
   // Header
-  const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px"},
-    h("div",{style:"display:flex;gap:16px;align-items:center"},
+  const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:16px"},
+    h("div",{style:"display:flex;gap:16px;align-items:center;min-width:0"},
       avatar(c.name,c.profile,58),
-      h("div",{},
-        h("h2",{style:"font-size:28px;color:#2E2A20;font-weight:600;font-style:italic"},c.name),
+      h("div",{style:"min-width:0"},
+        h("h2",{style:"font-size:28px;color:#2E2A20;font-weight:600;font-style:italic;word-break:break-word"},c.name),
         h("div",{style:"display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;align-items:center"},
           badgeProfil(c.profile),
           c.age?h("span",{style:"color:#5A5648;font-size:13px"},c.age+" ans"):null,
@@ -2112,7 +2112,7 @@ function renderClientDetail() {
         )
       )
     ),
-    h("div",{style:"text-align:right"},
+    h("div",{style:"text-align:right;flex-shrink:0;margin-left:auto"},
       h("div",{style:"font-size:38px;color:#9C7A2E;font-weight:700;line-height:1"},String(c.sessions||0)),
       h("div",{style:"color:#5A5648;font-size:12px"},"séances")
     )
