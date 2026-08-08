@@ -2175,7 +2175,7 @@ function renderClientDetail() {
 
   // Subtabs
   const stabs = h("div",{class:"subtabs"});
-  [["fiche","◈ Fiche"],["seances","◉ Séances"],["objectifs","◇ Objectifs"],["evaluation","⚡ Évaluation"],["survie","🎒 Kit de survie"],["paiements","€ Paiements"],["notes-c","◻ Notes"]].forEach(([id,lbl])=>{
+  [["fiche","◈ Fiche"],["seances","◉ Séances"],["objectifs","◇ Objectifs"],["preparer","📝 Préparer"],["evaluation","⚡ Évaluation"],["survie","🎒 Kit de survie"],["paiements","€ Paiements"],["notes-c","◻ Notes"]].forEach(([id,lbl])=>{
     const b = h("button",{class:"subtab"+(state.subTab===id?" active":"")},lbl);
     b.addEventListener("click",()=>{ state.subTab=id; render(); });
     stabs.appendChild(b);
@@ -2187,6 +2187,7 @@ function renderClientDetail() {
   if (state.subTab==="fiche")     content.appendChild(buildFiche(c));
   if (state.subTab==="seances")   content.appendChild(buildSeances(c));
   if (state.subTab==="objectifs") content.appendChild(buildObjectifs(c));
+  if (state.subTab==="preparer")  content.appendChild(buildPreparerSeance(c));
   if (state.subTab==="evaluation") content.appendChild(buildEvaluation(c));
   if (state.subTab==="survie")    content.appendChild(buildKitSurvie(c));
   if (state.subTab==="paiements") content.appendChild(buildPaiements(c));
@@ -2275,6 +2276,142 @@ function buildEvaluation(c) {
     card.appendChild(slider);
     wrap.appendChild(card);
   });
+
+  return wrap;
+}
+
+const FICHES_THEMES = [
+  {theme:"Difficultés familiales", icon:"👨‍👩‍👧",
+   objectifs:["Améliorer la communication familiale","Clarifier les rôles de chacun","Réduire les tensions récurrentes"],
+   deroule:"1. Accueillir le vécu de chacun sans jugement\n2. Identifier les besoins non exprimés\n3. Clarifier les rôles et attentes de chacun\n4. Co-construire un mode de communication commun\n5. Définir un petit pas concret pour la semaine"},
+  {theme:"Burn-out", icon:"🔥",
+   objectifs:["Identifier les signaux d'alerte","Poser des limites concrètes","Retrouver un rythme soutenable"],
+   deroule:"1. Évaluer le niveau d'épuisement (grille d'évaluation)\n2. Identifier les sources de surcharge\n3. Définir des limites concrètes et réalistes\n4. Planifier un temps de récupération\n5. Prévoir un point de suivi rapproché"},
+  {theme:"Gestion des émotions", icon:"💭",
+   objectifs:["Nommer et accueillir les émotions","Développer des stratégies de régulation","Réduire la submersion émotionnelle"],
+   deroule:"1. Explorer l'émotion dominante du moment\n2. Distinguer déclencheur / émotion / besoin\n3. Expérimenter un outil de régulation (respiration, ancrage)\n4. Identifier un signal précoce à surveiller\n5. Choisir un outil à tester d'ici la prochaine séance"},
+  {theme:"Gestion du stress", icon:"🌊",
+   objectifs:["Identifier les sources de stress","Mettre en place des routines apaisantes","Renforcer le sentiment de contrôle"],
+   deroule:"1. Cartographier les sources de stress actuelles\n2. Distinguer ce qui est sous contrôle / hors contrôle\n3. Expérimenter une technique de régulation\n4. Ajuster une routine quotidienne\n5. Fixer un objectif réaliste pour la semaine"},
+  {theme:"Défis à relever", icon:"🎯",
+   objectifs:["Clarifier l'objectif visé","Identifier les obstacles réels","Construire un plan d'action concret"],
+   deroule:"1. Clarifier précisément le défi et sa raison d'être\n2. Explorer les ressources déjà disponibles\n3. Identifier les obstacles réels (internes/externes)\n4. Construire un plan d'action en petites étapes\n5. Définir la première action dans les 48h"},
+  {theme:"Gestion de son profil neuro-atypique", icon:"🧠",
+   objectifs:["Mieux comprendre son fonctionnement","Transformer une difficulté en stratégie","Renforcer l'acceptation de soi"],
+   deroule:"1. Explorer comment le profil s'exprime concrètement au quotidien\n2. Distinguer ce qui relève du profil vs. du contexte\n3. Identifier une force à mobiliser davantage\n4. Adapter un outil/une stratégie au fonctionnement réel\n5. Valoriser un progrès récent"},
+  {theme:"Gestion d'un handicap", icon:"♿",
+   objectifs:["Identifier les besoins d'aménagement","Renforcer l'autonomie au quotidien","Travailler l'acceptation et la confiance"],
+   deroule:"1. Faire le point sur le vécu actuel et les besoins\n2. Identifier les aménagements possibles (quotidien, pro, social)\n3. Explorer les ressources et soutiens mobilisables\n4. Renforcer la confiance et l'autonomie\n5. Définir une action concrète à mettre en place"},
+];
+
+function buildPreparerSeance(c) {
+  c.prochainePrep = c.prochainePrep || { objectifsChoisis: [], outilsChoisis: [], notesPrep: "" };
+  const p = c.prochainePrep;
+  const wrap = h("div",{});
+
+  wrap.appendChild(h("h3",{style:"font-size:20px;color:#2E2A20;font-weight:600;margin-bottom:6px;font-style:italic"},"📝 Préparer la prochaine séance"));
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:4px"},
+    c.nextSession ? "Séance prévue le " + c.nextSession : "Aucune date de séance programmée."));
+  wrap.appendChild(h("p",{style:"color:#9C7A2E;font-size:12px;margin-bottom:20px;font-weight:600"},"Profil : "+(c.profile||"non défini")));
+
+  // --- Fiches-types par thème ---
+  const themeBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px;border-color:#9C7A2E44"});
+  themeBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:12px"},"📚 Charger une fiche-type par thème"));
+  const themeGrid = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:8px"});
+  FICHES_THEMES.forEach(ft => {
+    const btn = h("button",{class:"btn-sm",style:"text-align:left;padding:10px 12px"}, ft.icon+" "+ft.theme);
+    btn.addEventListener("click", () => {
+      ft.objectifs.forEach(titre => {
+        c.objectifs = c.objectifs || [];
+        if (!c.objectifs.some(o=>o.titre===titre)) {
+          c.objectifs.push({id:Date.now()+""+Math.random().toString(36).slice(2,5), titre, echeance:"", statut:"en cours"});
+        }
+      });
+      p.notesPrep = (p.notesPrep ? p.notesPrep + "\n\n" : "") + "— Trame « " + ft.theme + " » —\n" + ft.deroule;
+      save();
+      render();
+      notifCoach("Fiche « "+ft.theme+" » chargée : objectifs ajoutés + trame insérée.");
+    });
+    themeGrid.appendChild(btn);
+  });
+  themeBox.appendChild(themeGrid);
+  wrap.appendChild(themeBox);
+
+  // --- Objectifs à travailler ---
+  const objBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
+  objBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:12px"},"🎯 Objectifs à travailler cette séance"));
+  const objs = c.objectifs || [];
+  if (!objs.length) {
+    objBox.appendChild(h("p",{style:"color:#5A5648;font-size:13px"},"Aucun objectif défini — charge une fiche-type ou ajoute-en dans l'onglet Objectifs."));
+  } else {
+    objs.forEach(o => {
+      const checked = p.objectifsChoisis.includes(o.id);
+      const row = h("label",{style:"display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;font-size:13.5px;color:#2E2A20"});
+      const cb = h("input",{type:"checkbox"}); cb.checked = checked;
+      cb.addEventListener("change",()=>{
+        if (cb.checked) p.objectifsChoisis.push(o.id);
+        else p.objectifsChoisis = p.objectifsChoisis.filter(id=>id!==o.id);
+        save();
+      });
+      row.appendChild(cb); row.appendChild(document.createTextNode(o.titre + (o.statut==="atteint"?" ✓":"")));
+      objBox.appendChild(row);
+    });
+  }
+  wrap.appendChild(objBox);
+
+  // --- Outils de la bibliothèque ---
+  const outilsBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
+  outilsBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:12px"},"▣ Outils de la bibliothèque"));
+
+  const selectionnes = h("div",{style:"display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px"});
+  function renderSelectionnes() {
+    selectionnes.innerHTML = "";
+    if (!p.outilsChoisis.length) { selectionnes.appendChild(h("span",{style:"color:#5A5648;font-size:12.5px"},"Aucun outil sélectionné pour l'instant.")); return; }
+    p.outilsChoisis.forEach(id => {
+      const fiche = BIBLIO.find(b=>b.id===id);
+      if (!fiche) return;
+      const chip = h("span",{style:"background:#9C7A2E22;color:#9C7A2E;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px"},
+        fiche.titre);
+      const del = h("button",{style:"background:transparent;border:none;color:#9C7A2E;cursor:pointer;font-size:14px"},"×");
+      del.addEventListener("click",()=>{ p.outilsChoisis = p.outilsChoisis.filter(x=>x!==id); save(); renderSelectionnes(); });
+      chip.appendChild(del);
+      selectionnes.appendChild(chip);
+    });
+  }
+  renderSelectionnes();
+  outilsBox.appendChild(selectionnes);
+
+  const profilClient = (c.profile||"").toUpperCase();
+  const suggestions = BIBLIO.filter(b => b.profil==="Tous" || profilClient.includes(b.profil.toUpperCase()));
+  const listeOutils = h("div",{style:"max-height:260px;overflow-y:auto;border-top:1px solid #E4DAC0;padding-top:10px"});
+  suggestions.forEach(b => {
+    if (p.outilsChoisis.includes(b.id)) return;
+    const row = h("div",{style:"display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px;color:#2E2A20;border-bottom:1px solid #F0E9D8"});
+    row.appendChild(h("div",{},h("span",{style:"font-weight:600"},b.titre), h("span",{style:"color:#5A5648;font-size:11.5px"}," — "+b.cat)));
+    const addBtn = h("button",{class:"btn-sm",style:"padding:3px 10px;font-size:11.5px"},"+ Ajouter");
+    addBtn.addEventListener("click",()=>{ p.outilsChoisis.push(b.id); save(); renderSelectionnes(); addBtn.disabled=true; row.style.opacity=".4"; });
+    row.appendChild(addBtn);
+    listeOutils.appendChild(row);
+  });
+  outilsBox.appendChild(listeOutils);
+  wrap.appendChild(outilsBox);
+
+  // --- Exercices / notes libres ---
+  const notesBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
+  notesBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:10px"},"✏️ Exercices et notes de préparation"));
+  const ta = textareaEl({value:p.notesPrep, placeholder:"Idées, exercices personnalisés, points à aborder...", height:"140px", onInput:v=>{p.notesPrep=v; save();}});
+  notesBox.appendChild(ta);
+  wrap.appendChild(notesBox);
+
+  // --- Récapitulatif ---
+  const recap = h("div",{class:"card",style:"padding:18px;border-color:#9C7A2E44"});
+  recap.appendChild(h("div",{style:"font-weight:700;color:#9C7A2E;margin-bottom:10px"},"📋 Plan de séance — résumé"));
+  const objTxt = objs.filter(o=>p.objectifsChoisis.includes(o.id)).map(o=>o.titre).join(", ") || "—";
+  const outTxt = p.outilsChoisis.map(id=>{const f=BIBLIO.find(b=>b.id===id);return f?f.titre:"";}).filter(Boolean).join(", ") || "—";
+  recap.appendChild(h("p",{style:"font-size:13px;color:#2E2A20;margin-bottom:6px"}, h("b",{},"Objectifs : "), objTxt));
+  recap.appendChild(h("p",{style:"font-size:13px;color:#2E2A20;margin-bottom:6px"}, h("b",{},"Outils : "), outTxt));
+  if (p.notesPrep) recap.appendChild(h("p",{style:"font-size:13px;color:#2E2A20;white-space:pre-wrap"}, h("b",{},"Notes : "), p.notesPrep));
+  wrap.appendChild(recap);
 
   return wrap;
 }
