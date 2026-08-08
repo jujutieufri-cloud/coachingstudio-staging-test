@@ -74,6 +74,8 @@ html,body{overflow-x:hidden;max-width:100vw}
 .divider{height:1px;background:#E4DAC0;margin:8px 0}
 nav{flex:1}
 .nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:10px;border:none;background:transparent;color:#5A5648;font-size:13.5px;font-weight:400;margin-bottom:3px;text-align:left;white-space:nowrap}
+.nav-cat-label{padding:14px 14px 6px;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9C7A2E;opacity:.75}
+#sidebar.collapsed .nav-cat-label{display:none}
 .nav-item:hover{background:#F0E9D8;color:#2E2A20}
 .nav-item.active{background:#9C7A2E18;color:#9C7A2E;font-weight:700}
 .nav-item .dot{margin-left:auto;width:5px;height:5px;border-radius:50%;background:#9C7A2E;flex-shrink:0}
@@ -1884,24 +1886,31 @@ function field(labelText, inputElement) {
 //  NAVIGATION
 // ══════════════════════════════════════════
 const TABS = [
-  {id:"dashboard",    icon:"⬡", label:"Tableau de bord"},
-  {id:"clients",      icon:"◉", label:"Mes clients"},
-  {id:"agenda",       icon:"🗓️", label:"Agenda"},
-  {id:"finances",     icon:"💰", label:"Finances"},
-  {id:"rdv",          icon:"📅", label:"Demandes RDV"},
-  {id:"clairiere",    icon:"🧭", label:"La Clairière"},
-  {id:"reglages",     icon:"⚙️", label:"Réglages"},
-  {id:"bibliotheque", icon:"▣", label:"Bibliothèque coach"},
-  {id:"ressources",   icon:"◇", label:"Mes ressources"},
-  {id:"notes",        icon:"◻", label:"Journal de bord"},
+  {id:"dashboard",    icon:"⬡", label:"Tableau de bord", cat:null},
+  {id:"clients",      icon:"◉", label:"Mes clients", cat:"Suivi client"},
+  {id:"agenda",       icon:"🗓️", label:"Agenda", cat:"Suivi client"},
+  {id:"finances",     icon:"💰", label:"Finances", cat:"Suivi client"},
+  {id:"rdv",          icon:"📅", label:"Demandes RDV", cat:"Suivi client"},
+  {id:"clairiere",    icon:"🧭", label:"La Clairière", cat:"Préparer une séance"},
+  {id:"bibliotheque", icon:"▣", label:"Bibliothèque coach", cat:"Préparer une séance"},
+  {id:"ressources",   icon:"◇", label:"Mes ressources", cat:"Préparer une séance"},
+  {id:"reglages",     icon:"⚙️", label:"Réglages", cat:"Professionnel"},
+  {id:"notes",        icon:"◻", label:"Journal de bord", cat:"Professionnel"},
 ];
 
 function renderNav() {
   const nav = document.getElementById("nav");
   nav.innerHTML = "";
   const upcoming = state.clients.filter(c => c.nextSession && c.status==="actif").length;
+  let dernierCat = null;
   TABS.forEach(t => {
-    const btn = h("button",{class:"nav-item" + (state.tab===t.id?" active":""),onclick:()=>setState({tab:t.id,selClientId:null})},
+    if (t.cat !== dernierCat) {
+      dernierCat = t.cat;
+      if (t.cat) {
+        nav.appendChild(h("div",{class:"nav-cat-label"}, t.cat));
+      }
+    }
+    const btn = h("button",{class:"nav-item" + (state.tab===t.id?" active":"")+(t.cat?" nav-item-sub":""),onclick:()=>setState({tab:t.id,selClientId:null})},
       h("span",{style:"font-size:16px"},t.icon), t.label
     );
     if (t.id==="clients" && upcoming>0) btn.appendChild(h("span",{class:"badge"},String(upcoming)));
