@@ -2481,6 +2481,68 @@ function buildFiche(c) {
       if (c.tel) contactBox.appendChild(h("div",{style:"font-size:13px;color:#5A5648"}, "📞 ", h("span",{style:"color:#2E2A20"}, c.tel)));
       wrap.appendChild(contactBox);
     }
+
+    // --- Envoi du questionnaire d'accueil ---
+    const qBox = h("div",{style:"margin-bottom:18px;padding:14px 16px;background:#FFFFFF;border-radius:10px;border:1px solid #E4DAC0"});
+    qBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13.5px;margin-bottom:10px"},"📨 Questionnaire d'accueil"));
+    const lienQuest = "https://julien-coaching.vercel.app/questionnaire-accueil.html?client="+encodeURIComponent(c.id)+"&nom="+encodeURIComponent(c.name||"")+"&email="+encodeURIComponent(c.email||"");
+    const msgQuest = "Bonjour "+(c.name||"")+", avant notre premier échange, je vous propose de répondre à ce petit questionnaire (5 min) : "+lienQuest;
+    const btnRow = h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"});
+    if (c.email) {
+      const bMail = h("a",{class:"btn-sm",href:"mailto:"+c.email+"?subject="+encodeURIComponent("Avant notre rendez-vous")+"&body="+encodeURIComponent(msgQuest)},"✉️ Email");
+      btnRow.appendChild(bMail);
+    }
+    if (c.tel) {
+      const telClean = c.tel.replace(/[^\d+]/g,"");
+      const bSms = h("a",{class:"btn-sm",href:"sms:"+telClean+"?body="+encodeURIComponent(msgQuest)},"💬 SMS");
+      btnRow.appendChild(bSms);
+      const telWa = telClean.replace(/^0/,"33").replace(/^\+/,"");
+      const bWa = h("a",{class:"btn-sm",href:"https://wa.me/"+telWa+"?text="+encodeURIComponent(msgQuest),target:"_blank"},"🟢 WhatsApp");
+      btnRow.appendChild(bWa);
+    }
+    const bCopy = h("button",{class:"btn-sm"},"🔗 Copier le lien");
+    bCopy.addEventListener("click",()=>{ navigator.clipboard.writeText(lienQuest).then(()=>notifCoach("Lien copié !")); });
+    btnRow.appendChild(bCopy);
+    if (!c.email && !c.tel) qBox.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px"},"Ajoute un email ou téléphone pour pouvoir l'envoyer."));
+    qBox.appendChild(btnRow);
+    wrap.appendChild(qBox);
+
+    // --- Réponses reçues ---
+    const repBox = h("div",{id:"questReponses-"+c.id,style:"margin-bottom:18px"});
+    repBox.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px"},"Chargement des réponses…"));
+    wrap.appendChild(repBox);
+    if (c.email || c.tel) {
+      const db = firebase.firestore();
+      let q = db.collection("questionnaires");
+      (c.email ? q.where("email","==",c.email).get() : Promise.resolve({docs:[]}))
+        .then(snap => {
+          repBox.innerHTML = "";
+          if (!snap.docs.length) { repBox.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px"},"Aucune réponse au questionnaire pour l'instant.")); return; }
+          repBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13.5px;margin-bottom:10px"},"📋 Réponses au questionnaire"));
+          snap.docs.forEach(docu => {
+            const r = docu.data();
+            const card = h("div",{class:"card",style:"padding:14px 16px;margin-bottom:10px;font-size:13px"});
+            const qa = [
+              ["Ce qui l'amène à consulter", r.q1],
+              ["Ce qui est important pour lui/elle", r.q2],
+              ["Ce qu'il/elle attend des séances", r.q3],
+              ["À savoir avant le 1er RDV", r.q4],
+              ["Style d'accompagnement préféré", r.q5],
+            ];
+            qa.forEach(([label,val]) => {
+              if (!val) return;
+              card.appendChild(h("div",{style:"margin-bottom:8px"},
+                h("div",{style:"color:#9C7A2E;font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em"},label),
+                h("div",{style:"color:#2E2A20;margin-top:2px"},val)
+              ));
+            });
+            repBox.appendChild(card);
+          });
+        })
+        .catch(e => { console.error("lecture questionnaires:",e); repBox.innerHTML=""; repBox.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px"},"Impossible de charger les réponses pour l'instant.")); });
+    } else {
+      repBox.innerHTML = "";
+    }
     const g = h("div",{class:"grid2"});
     if (c.objective) g.appendChild(h("div",{},
       h("div",{style:"color:#6B6355;font-size:13px;letter-spacing:.08em;margin-bottom:5px"},"OBJECTIF"),
