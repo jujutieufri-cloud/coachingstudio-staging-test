@@ -1211,7 +1211,7 @@ function renderReglagesTab() {
       const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #D8CBA8"});
       row.appendChild(h("div",{style:"flex:1;font-size:13px;color:#2E2A20"}, (c.label || "Fermeture") + " — du " + c.debut + " au " + c.fin));
       const delBtn = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:18px"},"×");
-      delBtn.addEventListener("click", () => { conges.splice(idx,1); renderCongesList(); });
+      delBtn.addEventListener("click", () => { conges.splice(idx,1); renderCongesList(); CoachSettings.save({ conges: conges }); });
       row.appendChild(delBtn);
       listBox.appendChild(row);
     });
@@ -1222,20 +1222,18 @@ function renderReglagesTab() {
   const labelInp = h("input",{type:"text",placeholder:"Ex: Vacances d'été",style:"flex:1;min-width:140px"});
   const debutInp = h("input",{type:"date",style:"width:140px"});
   const finInp = h("input",{type:"date",style:"width:140px"});
-  const addBtn = h("button",{class:"btn-sm"},"+ Ajouter");
+  const addBtn = h("button",{class:"btn-sm"},"+ Ajouter et enregistrer");
   addBtn.addEventListener("click", () => {
     if (!debutInp.value || !finInp.value) { notifCoach("Dates de début et fin requises"); return; }
     if (finInp.value < debutInp.value) { notifCoach("La date de fin doit être après le début"); return; }
     conges.push({ label: labelInp.value.trim() || "Fermeture", debut: debutInp.value, fin: finInp.value });
     labelInp.value = ""; debutInp.value = ""; finInp.value = "";
     renderCongesList();
+    CoachSettings.save({ conges: conges });
   });
   addRow.appendChild(labelInp); addRow.appendChild(debutInp); addRow.appendChild(finInp); addRow.appendChild(addBtn);
   congesBox.appendChild(addRow);
 
-  const saveCongesBtn = h("button",{class:"btn",style:"margin-top:14px;padding:9px 18px;font-size:13px"},"Enregistrer les congés");
-  saveCongesBtn.addEventListener("click", () => CoachSettings.save({ conges: conges }));
-  congesBox.appendChild(saveCongesBtn);
   wrap.appendChild(congesBox);
 
   return wrap;
