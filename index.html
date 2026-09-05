@@ -345,6 +345,53 @@ SEMAINE 5-6 : RECALIBRATION
 → Script de communication des besoins
 
 QUESTION CLÉ : "Qu'est-ce que tu n'as pas le droit de ressentir selon toi ?"`},
+  {id:"b4b",cat:"Protocole burnout",profil:"TDAH",titre:"Reconstruire un système soutenable post-burnout (TDAH)",source:"Parcours Reconversion après burn-out",
+   contenu:`SEMAINE 1-2 : OBSERVER SANS CORRIGER
+→ Cartographier une journée type sans jugement, repérer les voleurs de temps réels (oublis, recommencements).
+→ Le pic d'énergie du jour : identifier le moment où la concentration est naturellement disponible.
+
+SEMAINE 3-4 : UN SYSTÈME EXTERNE SIMPLE
+→ Un seul support visible (pas de dispersion), échéances affichées physiquement.
+→ Time-boxing en blocs courts (15-25 min) + un blanc protégé par jour, non négociable.
+
+SEMAINE 5 : TENIR LA CHARGE SANS S'EFFONDRER
+→ 3 catégories de priorité maximum (urgent / important / reportable).
+→ Une phrase de refus prête à l'avance, réutilisable telle quelle.
+→ Version « minimum » du planning prévue pour les jours sans énergie.
+
+REPÈRE COACH : un système qui ne prévoit pas les jours sans énergie n'est pas un vrai système — la flexibilité planifiée fait partie de la structure.`},
+  {id:"pr1",cat:"Parcours 5 semaines (reconversion)",profil:"Tous",titre:"Organisation / gestion du temps",source:"Parcours Reconversion après burn-out",
+   contenu:`S1 — Observer avant de changer : cartographier une journée type, repérer les voleurs de temps, sans encore rien corriger.
+S2 — Construire un système externe : un support unique, simple, testé 2 semaines avant tout ajout.
+S3 — Découper et cadencer : time-boxing, règle des 2 minutes, un blanc protégé chaque jour.
+S4 — Tenir la charge dans la durée : prioriser en 3 catégories, anticiper l'imprévu, savoir dire non.
+S5 — Ancrer et transmettre : formaliser le système sur une seule page, le partager, prévoir la version « semaine chargée ».
+
+REPÈRE COACH : chaque semaine se termine par un bilan factuel, jamais un jugement de discipline.`},
+  {id:"pr2",cat:"Parcours 5 semaines (reconversion)",profil:"HSP",titre:"Régulation émotionnelle",source:"Parcours Reconversion après burn-out",
+   contenu:`S1 — Observer les vagues : journal d'intensité émotionnelle (1-10), 3 fois/jour, sans intervenir.
+S2 — Nommer et ralentir : verbaliser l'émotion à voix haute, pause de 90 secondes avant de réagir.
+S3 — Repérer les signaux : signal corporel annonciateur (mâchoire, respiration), seuil de bascule.
+S4 — Construire des espaces de régulation : lieu de retrait, personne ressource, objet apaisant — testés à l'avance.
+S5 — Consolider un rythme stable : une semaine sans journal pour vérifier que les réflexes tiennent seuls.
+
+EXERCICE COACH (S1) : relecture commentée du journal des vagues en séance (20 min) — questions ouvertes uniquement, sans interpréter à la place du client.`},
+  {id:"pr3",cat:"Parcours 5 semaines (reconversion)",profil:"Tous",titre:"Relations sociales / professionnelles",source:"Parcours Reconversion après burn-out",
+   contenu:`S1 — Cartographier les interactions : lesquelles coûtent, lesquelles ressourcent, sans jugement.
+S2 — Clarifier plutôt que deviner : poser la question directe au lieu de supposer une attente implicite.
+S3 — Préparer les échanges à enjeu : 3 points clés écrits à l'avance, scénario de réaction difficile anticipé.
+S4 — Poser des limites : décliner sans justification excessive, limiter la durée d'une interaction.
+S5 — Construire un réseau soutenant durable : identifier le noyau de 3-5 personnes vraiment soutenantes.
+
+REPÈRE COACH : la culpabilité après un refus posé est normale et attendue — ne signifie pas que la limite était injustifiée.`},
+  {id:"pr4",cat:"Parcours 5 semaines (reconversion)",profil:"HPI",titre:"Confiance en soi / estime de soi",source:"Parcours Reconversion après burn-out",
+   contenu:`S1 — Collecter les faits : 3 réussites notées chaque soir, réussites passées oubliées, retours de tiers.
+S2 — Distinguer fait et jugement : reformuler un échec en fait neutre, repérer les mots absolus (toujours/jamais).
+S3 — Solliciter et intégrer les retours : demander un avis ciblé, accueillir un compliment sans le minimiser.
+S4 — Retravailler le discours intérieur : identifier la voix critique d'origine, préparer une réponse ferme et bienveillante.
+S5 — Ancrer une image de soi stable : une semaine sans relevé pour vérifier la stabilité acquise.
+
+REPÈRE COACH : le but n'est pas la pensée positive mais une base factuelle solide face à une mémoire biaisée vers l'échec.`},
   {id:"o1b",cat:"Outils pratiques",profil:"Tous",titre:"Roue de vie — version atypiques",source:"Adapté Wheel of Life",
    contenu:`8 DOMAINES (de 0 à 10) :
 
@@ -1020,6 +1067,20 @@ function renderClairiereTab() {
     wrap.appendChild(card);
   });
 
+  return wrap;
+}
+
+function renderReconversionTab() {
+  const wrap = h("div",{});
+  wrap.appendChild(h("div",{style:"margin-bottom:14px"},
+    h("div",{style:"font-weight:700;font-size:15px;color:#2E2A20;margin-bottom:4px"},"🌱 Parcours Reconversion après burn-out"),
+    h("div",{style:"font-size:13px;color:#5A5648"},"Auto-évaluation, masterclass 12 semaines, parcours thématiques (organisation, émotions, relations, confiance) et routines par profil — à faire vivre au client ou à parcourir avec lui en séance.")
+  ));
+  const frame = h("iframe",{
+    src:"reconversion-burnout.html",
+    style:"width:100%;height:78vh;border:1px solid #00000014;border-radius:14px;background:#EFEDE4"
+  });
+  wrap.appendChild(frame);
   return wrap;
 }
 
@@ -2067,6 +2128,7 @@ const TABS = [
   {id:"dashboard",    icon:"⬡", label:"Tableau de bord", cat:null},
   {id:"clients",      icon:"◉", label:"Mes clients", cat:"Suivi client"},
   {id:"clairiere",    icon:"🧭", label:"La Clairière", cat:"Suivi client"},
+  {id:"reconversion", icon:"🌱", label:"Reconversion / Burnout", cat:"Préparer une séance"},
   {id:"bibliotheque", icon:"▣", label:"Bibliothèque coach", cat:"Préparer une séance"},
   {id:"ressources",   icon:"◇", label:"Mes ressources", cat:"Préparer une séance"},
   {id:"agenda",       icon:"🗓️", label:"Agenda", cat:"Professionnel"},
@@ -3325,6 +3387,7 @@ function renderNow() {
   else if (state.tab==="agenda") content = renderAgendaTab();
   else if (state.tab==="finances") content = renderFinancesTab();
   else if (state.tab==="clairiere") content = renderClairiereTab();
+  else if (state.tab==="reconversion") content = renderReconversionTab();
   else if (state.tab==="rdv") content = renderRdvTab();
   else if (state.tab==="reglages") content = renderReglagesTab();
   else if (state.tab==="bibliotheque") content = renderBibliotheque();
