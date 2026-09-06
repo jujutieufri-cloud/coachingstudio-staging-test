@@ -870,6 +870,7 @@ let state = {
   resProfil: "Tous",
   deroulesCat: "Tous",
   deroulesMode: {},
+  clairiereOpenMember: null,
 };
 
 function save() {
@@ -1126,6 +1127,47 @@ function renderMemberInsights(data, m) {
   return box;
 }
 
+const JOURS_ABBR_ALL = ['lun','mar','mer','jeu','ven','sam','dim'];
+const ROUTINE_TEMPLATES = [
+  {id:'rt_tdah_lever', profile:'tdah', slot:'lever', label:'🌄 Lever', name:'Réveil en douceur (TDAH)',
+   steps:["Ouvrir les rideaux tout de suite","3 grands étirements","Boire un verre d'eau"]},
+  {id:'rt_tdah_matin', profile:'tdah', slot:'matin', label:'🌅 Matin', name:'Matin structuré (TDAH)',
+   steps:["Habits déjà choisis la veille","Petit-déjeuner assis 10 min","Sac vérifié avec la checklist affichée","Dernier contrôle avant de partir"]},
+  {id:'rt_tdah_coucher', profile:'tdah', slot:'coucher', label:'😴 Coucher', name:'Coucher sans écran (TDAH)',
+   steps:["Écrans éteints","Pyjama","Brossage de dents","Une histoire courte","Lumière tamisée"]},
+  {id:'rt_hpi_matin', profile:'hpi', slot:'matin', label:'🌅 Matin', name:'Démarrage sans surcharge (HPI)',
+   steps:["Annoncer à voix haute UNE seule priorité du jour","Petit-déjeuner sans écran","Départ 5 minutes avant l'heure limite"]},
+  {id:'rt_hpi_soir', profile:'hpi', slot:'soir', label:'🌙 Soir', name:'Vider sa tête avant le calme (HPI)',
+   steps:["Dire ou écrire 3 pensées qui tournent en boucle","Choisir la seule chose importante de demain","Respirer lentement 5 fois"]},
+  {id:'rt_hsp_apresmidi', profile:'hsp', slot:'apresmidi', label:'🌞 Après-midi', name:'Sas de décompression (HSP)',
+   steps:["10 minutes seul(e) au calme en rentrant","Boisson ou collation préférée","Musique douce ou silence, au choix"]},
+  {id:'rt_hsp_coucher', profile:'hsp', slot:'coucher', label:'😴 Coucher', name:'Apaisement du soir (HSP)',
+   steps:["Lumière tamisée 30 min avant","Bain ou douche tiède","Doudou ou objet apaisant à portée","Voix chuchotée plutôt que parlée"]},
+  {id:'rt_normal_matin', profile:'normal', slot:'matin', label:'🌅 Matin', name:'Matin classique',
+   steps:["Se lever","Petit-déjeuner","Se laver","S'habiller","Vérifier le sac"]},
+  {id:'rt_normal_coucher', profile:'normal', slot:'coucher', label:'😴 Coucher', name:'Coucher classique',
+   steps:["Pyjama","Brossage de dents","Rangement rapide de la chambre","Extinction des lumières"]},
+  {id:'rt_tous_midi', profile:'tous', slot:'midi', label:'🕛 Midi', name:'Pause déjeuner calme',
+   steps:["Se laver les mains","Manger assis à table","Débarrasser son assiette"]},
+];
+
+function envoyerProgramme(familyCode, memberId, templateId, prenom) {
+  const t = ROUTINE_TEMPLATES.find(x => x.id === templateId);
+  if (!t) return;
+  const routineObj = {
+    id: 'r_' + Date.now(),
+    name: t.name,
+    jours: JOURS_ABBR_ALL.slice(),
+    steps: t.steps.map((s,i) => ({ id: 's_' + (Date.now()+i), name: s }))
+  };
+  const path = `personRoutines.${memberId}.${t.slot}`;
+  firebase.firestore().collection("familles").doc(familyCode).update({
+    [path]: firebase.firestore.FieldValue.arrayUnion(routineObj)
+  }).then(() => {
+    notifCoach("✅ Programme envoyé à " + (prenom||"la famille"));
+  }).catch(e => notifCoach("Erreur : " + e.message));
+}
+
 function renderClairiereTab() {
   const wrap = h("div",{});
   if (!CoachLink.user) {
@@ -1171,12 +1213,45 @@ function renderClairiereTab() {
         const memberBox = h("div",{style:"background:#FBF7EC;border-radius:10px;padding:12px;margin-bottom:10px"});
         memberBox.appendChild(h("div",{style:"display:flex;align-items:center;gap:10px"},
           h("div",{style:"font-size:22px"}, m.emoji||"👤"),
-          h("div",{},
-            h("div",{style:"font-size:13px;font-weight:600;color:#2E2A20"}, m.prenom),
+          h("div",{style:"flex:1"},
+            h("div",{style:"font-size:13px;font-weight:600;color:#2E2A20"}, m.prenom + (m.profile?" · "+m.profile:"")),
             h("div",{style:"font-size:13px;color:#5A5648;margin-top:2px"}, xp + " XP · " + journalCount + " entrées journal")
           )
         ));
         memberBox.appendChild(renderMemberInsights(data, m));
+
+        const openKey = code + "_" + m.id;
+        const isOpen = state.clairiereOpenMember === openKey;
+        const toggleBtn = h("button",{class:"btn-sm",style:"margin-top:8px"}, isOpen ? "▲ Fermer la bibliothèque" : "📚 Envoyer un programme de routine");
+        toggleBtn.addEventListener("click", () => { state.clairiereOpenMember = isOpen ? null : openKey; render(); });
+        memberBox.appendChild(toggleBtn);
+
+        if (isOpen) {
+          const libBox = h("div",{style:"margin-top:10px;padding-top:10px;border-top:1px solid #D8CBA8"});
+          const reco = ROUTINE_TEMPLATES.filter(t => t.profile === m.profile || t.profile === "tous");
+          const autres = ROUTINE_TEMPLATES.filter(t => t.profile !== m.profile && t.profile !== "tous");
+          function templateRow(t) {
+            const row = h("div",{style:"display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #E4DAC0"},
+              h("div",{},
+                h("div",{style:"font-size:12.5px;font-weight:700;color:#2E2A20"}, t.name),
+                h("div",{style:"font-size:11px;color:#8B7355"}, t.label + " · " + t.steps.length + " étapes")
+              )
+            );
+            const sendBtn = h("button",{class:"btn-sm",style:"background:#9C7A2E;color:#fff;flex-shrink:0"},"✅ Envoyer");
+            sendBtn.addEventListener("click", () => envoyerProgramme(code, m.id, t.id, m.prenom));
+            row.appendChild(sendBtn);
+            return row;
+          }
+          libBox.appendChild(h("div",{style:"font-size:11px;font-weight:700;color:#9C7A2E;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px"}, "Recommandés (" + (m.profile||"normal") + ")"));
+          if (!reco.length) libBox.appendChild(h("div",{style:"font-size:12px;color:#5A5648;padding:6px 0"},"Aucun programme spécifique."));
+          else reco.forEach(t => libBox.appendChild(templateRow(t)));
+          if (autres.length) {
+            libBox.appendChild(h("div",{style:"font-size:11px;font-weight:700;color:#8B7355;text-transform:uppercase;letter-spacing:.04em;margin:10px 0 4px"}, "Autres programmes"));
+            autres.forEach(t => libBox.appendChild(templateRow(t)));
+          }
+          memberBox.appendChild(libBox);
+        }
+
         card.appendChild(memberBox);
       });
       const lastUpdate = data.lastUpdate ? ("Dernière activité : " + data.lastUpdate) : "";
