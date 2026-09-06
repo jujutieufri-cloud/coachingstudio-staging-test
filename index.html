@@ -75,6 +75,9 @@ html,body{overflow-x:hidden;max-width:100vw}
 nav{flex:1}
 .nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:10px;border:none;background:transparent;color:#5A5648;font-size:13.5px;font-weight:400;margin-bottom:3px;text-align:left;white-space:nowrap}
 .nav-cat-label{padding:14px 14px 6px;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9C7A2E;opacity:.75}
+.nav-pole-label{padding:18px 14px 4px;margin-top:6px;font-size:11.5px;font-weight:800;letter-spacing:.03em;color:#4A4030;border-top:1px solid #D8CBA8}
+.nav-pole-label:first-of-type{border-top:none;margin-top:0}
+#sidebar.collapsed .nav-pole-label{display:none}
 #sidebar.collapsed .nav-cat-label{display:none}
 .nav-item:hover{background:#F0E9D8;color:#2E2A20}
 .nav-item.active{background:#9C7A2E18;color:#9C7A2E;font-weight:700}
@@ -735,6 +738,119 @@ Ancrage quotidien : rituel de gratitude matin/soir.`},
 ];
 
 // ══════════════════════════════════════════
+//  DÉROULÉS DE SÉANCE (script minuté + trame souple)
+// ══════════════════════════════════════════
+const DEROULES = [
+  {id:"d1", cat:"Accueil", profil:"Tous", duree:60,
+   titre:"Séance d'accueil — bilan initial",
+   objectif:"Poser le cadre de travail, comprendre la demande réelle derrière la demande exprimée, co-construire un premier objectif concret et mesurable.",
+   minute:[
+     {t:"0-5 min", titre:"Accueil", texte:"Installation, cadre de confidentialité rappelé (oral, pas de notes automatiques). Question d'ouverture neutre : « Qu'est-ce qui vous amène aujourd'hui ? »"},
+     {t:"5-20 min", titre:"Écoute de la demande", texte:"Écoute active, reformulation CNV (observation / sentiment / besoin). Ne pas orienter vers un diagnostic. Repérer les mots récurrents et le non-dit."},
+     {t:"20-35 min", titre:"Exploration du fonctionnement", texte:"Roue de vie (8 domaines, notation 0-10) pour objectiver les zones de tension sans jugement. Identifier 2-3 domaines prioritaires selon le client, pas selon le coach."},
+     {t:"35-50 min", titre:"Premier objectif", texte:"Formuler ensemble un objectif SMART limité à une seule zone. Vérifier l'adhésion réelle (pas de complaisance) : « Sur une échelle de 0 à 10, à quel point c'est vraiment vous qui voulez ça ? »"},
+     {t:"50-60 min", titre:"Clôture", texte:"Reformulation finale par le client (pas par le coach). Explication du rythme des séances à venir. Un seul devoir simple, jamais plusieurs."}
+   ],
+   souple:[
+     {etape:"Ouverture", texte:"Accueillir sans grille préconçue. Laisser le client poser sa propre demande avant toute proposition d'outil."},
+     {etape:"Cartographie", texte:"Utiliser la Roue de vie comme support de discussion, pas comme diagnostic. L'outil sert la conversation, pas l'inverse."},
+     {etape:"Co-construction", texte:"Un seul objectif, choisi par le client parmi ce qui émerge — jamais imposé par la grille du coach."},
+     {etape:"Clôture", texte:"Vérifier l'alignement avant de clore : le client repart-il avec SA formulation, ou celle du coach ?"}
+   ],
+   devoirs:"Observer sans corriger : noter 3 moments où le sujet identifié est apparu dans la semaine, sans essayer de le changer."},
+
+  {id:"d2", cat:"Profils", profil:"TDAH", duree:60,
+   titre:"Séance TDAH — structurer sans s'enfermer",
+   objectif:"Construire un système d'organisation externe qui tient compte des variations d'énergie, sans viser une discipline uniforme irréaliste.",
+   minute:[
+     {t:"0-5 min", titre:"Météo intérieure", texte:"Question rapide : niveau d'énergie du jour (1-10), sans commentaire. Sert de calibrage pour la suite."},
+     {t:"5-20 min", titre:"Bilan de la semaine", texte:"Revue factuelle (pas de jugement) : ce qui a été tenu, ce qui a débordé. Chercher le pattern, pas la faute."},
+     {t:"20-40 min", titre:"Ajustement du système", texte:"Un seul point du système externe retravaillé à la fois (support unique, time-boxing, blanc protégé). Tester verbalement le scénario d'un jour « sans énergie »."},
+     {t:"40-55 min", titre:"Script de refus / priorisation", texte:"Préparer une phrase de refus réutilisable. Trier les tâches en 3 catégories maximum (urgent/important/reportable)."},
+     {t:"55-60 min", titre:"Clôture", texte:"Reformulation par le client du changement précis à tester, pas d'une intention vague."}
+   ],
+   souple:[
+     {etape:"Calibrage", texte:"Prendre la température énergétique avant toute chose — un système qui ignore l'énergie du jour ne tiendra pas."},
+     {etape:"Observation sans jugement", texte:"Nommer les patterns comme des faits, jamais comme des échecs de volonté."},
+     {etape:"Un seul changement", texte:"Résister à la tentation de tout réorganiser en une séance. Un ajustement, testé, puis évalué la fois suivante."},
+     {etape:"Anticiper la rechute", texte:"Toujours prévoir la version dégradée du système pour les jours difficiles — elle fait partie du système, pas un aveu d'échec."}
+   ],
+   devoirs:"Tester le point ajusté pendant 5 jours. Noter uniquement les faits (tenu / pas tenu), sans commentaire sur soi-même."},
+
+  {id:"d3", cat:"Profils", profil:"HPI", duree:60,
+   titre:"Séance HPI — ralentir la pensée en arborescence",
+   objectif:"Aider à choisir une branche de réflexion sans étouffer les autres, et transformer l'excès d'analyse en décision utilisable.",
+   minute:[
+     {t:"0-5 min", titre:"Accueil", texte:"Laisser un temps pour « vider » — le HPI arrive souvent avec plusieurs sujets en tête. Lister-les à voix haute sans les traiter."},
+     {t:"5-10 min", titre:"Priorisation", texte:"Choisir UN seul sujet parmi la liste, avec l'accord explicite du client. Les autres restent notés, pas ignorés."},
+     {t:"10-35 min", titre:"Exploration structurée", texte:"Niveaux logiques de Dilts (environnement → comportement → capacités → croyances → identité) pour éviter de rester bloqué au niveau des idées abstraites."},
+     {t:"35-50 min", titre:"Ancrage dans le concret", texte:"Traduire l'insight en une action vérifiable cette semaine. Question clé : « À quoi verra-t-on que ce n'est plus juste une idée ? »"},
+     {t:"50-60 min", titre:"Clôture", texte:"Reformulation courte, une phrase. Si le client part avec un paragraphe, c'est que ce n'est pas encore ancré."}
+   ],
+   souple:[
+     {etape:"Décharge", texte:"Ne jamais commencer par traiter — d'abord lister ce qui encombre, pour libérer de la place."},
+     {etape:"Un seul fil", texte:"Le coach protège la focalisation sur un seul sujet ; c'est son rôle face à la dispersion naturelle du profil."},
+     {etape:"Descendre les niveaux", texte:"Ramener systématiquement l'abstrait vers l'observable et le testable."},
+     {etape:"Sobriété de clôture", texte:"Une séance réussie se termine par une phrase simple, pas par une nouvelle idée brillante."}
+   ],
+   devoirs:"Une seule action test, avec un critère de vérification écrit à l'avance (pour éviter de juger a posteriori selon un critère mouvant)."},
+
+  {id:"d4", cat:"Profils", profil:"HSP", duree:60,
+   titre:"Séance HSP — réguler la charge sensorielle et émotionnelle",
+   objectif:"Restaurer un budget d'énergie soutenable et repérer les signaux avant-coureurs de surcharge.",
+   minute:[
+     {t:"0-5 min", titre:"Accueil au ralenti", texte:"Rythme volontairement plus lent que d'habitude. Éviter les questions fermées en rafale."},
+     {t:"5-20 min", titre:"Journal des vagues", texte:"Relecture commentée du journal d'intensité émotionnelle si tenu. Questions ouvertes uniquement, sans interpréter à la place du client."},
+     {t:"20-35 min", titre:"Signal corporel", texte:"Identifier le signal physique annonciateur de bascule (mâchoire, respiration, oppression). Cohérence cardiaque (5 min) en séance pour l'ancrer."},
+     {t:"35-50 min", titre:"Espace de régulation", texte:"Construire concrètement un lieu de retrait ou un rituel de 10 minutes, testé en dehors des moments de crise."},
+     {t:"50-60 min", titre:"Clôture", texte:"Vérifier que le client ne repart pas en surcharge après la séance elle-même — ralentir la fin si besoin."}
+   ],
+   souple:[
+     {etape:"Rythme adapté", texte:"La vitesse de la séance est elle-même un outil thérapeutique ici — ne pas calquer le rythme d'une séance TDAH."},
+     {etape:"Nommer avant d'agir", texte:"Mettre des mots sur l'intensité avant de proposer une technique de régulation."},
+     {etape:"Tester hors-crise", texte:"Tout outil de régulation se construit et se répète en dehors des pics, jamais pour la première fois pendant une crise."},
+     {etape:"Sortie de séance", texte:"Le coach reste attentif à l'état du client à la sortie — une séance ne doit pas laisser en surcharge."}
+   ],
+   devoirs:"Trois relevés d'intensité par jour (1-10), sans intervenir dessus — observer uniquement."},
+
+  {id:"d5", cat:"Burnout / Reconversion", profil:"Tous", duree:60,
+   titre:"Séance bilan — évaluation initiale burnout (5 axes)",
+   objectif:"Poser un état des lieux objectivé du niveau d'épuisement avant tout protocole, sans minimiser ni dramatiser.",
+   minute:[
+     {t:"0-5 min", titre:"Accueil", texte:"Cadre bienveillant explicite : cette évaluation n'est pas un diagnostic médical, c'est un point de départ de travail."},
+     {t:"5-30 min", titre:"Grille des 5 axes", texte:"Épuisement émotionnel / dépersonnalisation / accomplissement personnel (Maslach) + 2 axes complémentaires du modèle CARE. Notation par le client, commentée verbalement, pas juste chiffrée."},
+     {t:"30-45 min", titre:"Repérage du profil", texte:"Identifier la coloration dominante (TDAH / HPI / HSP) pour orienter le protocole adapté à suivre (fiches b2b/b3b/b4b)."},
+     {t:"45-55 min", titre:"Priorité immédiate", texte:"Une seule urgence à traiter en premier (souvent : sommeil, ou une limite non posée). Pas de plan à 12 semaines dès la première séance."},
+     {t:"55-60 min", titre:"Clôture", texte:"Rappeler que si des signaux d'alerte médicaux sont présents (idées noires, épuisement physique sévère), orientation vers un médecin en parallèle du coaching."}
+   ],
+   souple:[
+     {etape:"Cadrage", texte:"Différencier clairement coaching et suivi médical/psychologique dès l'ouverture."},
+     {etape:"Objectiver sans dramatiser", texte:"La grille sert à sortir du flou (« je suis fatigué ») pour aller vers du concret et actionnable."},
+     {etape:"Orientation profil", texte:"Le protocole qui suivra dépend du profil dominant — ne pas appliquer un protocole générique."},
+     {etape:"Une urgence, pas un programme", texte:"Résister à la tentation de tout traiter en une séance ; la reconstruction se fait sur plusieurs semaines."}
+   ],
+   devoirs:"Aucun devoir actif cette semaine si l'épuisement est marqué — le repos fait partie du protocole, pas une pause avant le vrai travail."},
+
+  {id:"d6", cat:"Burnout / Reconversion", profil:"Tous", duree:60,
+   titre:"Séance bilan mi-parcours — reconversion",
+   objectif:"Objectiver les progrès réels sur les 5 semaines écoulées, ajuster la suite, et vérifier l'alignement avec le projet de reconversion.",
+   minute:[
+     {t:"0-5 min", titre:"Accueil", texte:"Question d'ouverture : « Qu'est-ce qui est différent aujourd'hui par rapport au premier jour ? » — laisser venir librement."},
+     {t:"5-25 min", titre:"Relecture du parcours", texte:"Reprendre les relevés du parcours suivi (organisation / émotions / relations / confiance selon le track engagé). Repérer les faits, pas les impressions."},
+     {t:"25-40 min", titre:"Écarts et ajustements", texte:"Ce qui a bien fonctionné → à garder. Ce qui n'a pas tenu → ajuster la méthode, pas culpabiliser le client."},
+     {t:"40-55 min", titre:"Projection reconversion", texte:"Si le sujet reconversion professionnelle est présent : vérifier l'alignement valeurs/compétences/marché (pas juste l'envie du moment)."},
+     {t:"55-60 min", titre:"Clôture", texte:"Fixer le cap des semaines restantes en une phrase claire."}
+   ],
+   souple:[
+     {etape:"Bilan factuel d'abord", texte:"Toujours partir des faits observés avant les ressentis, pour contrer la mémoire biaisée vers l'échec fréquente en sortie de burnout."},
+     {etape:"Ajuster, ne pas recommencer", texte:"Un mi-parcours sert à affiner la trajectoire, pas à tout remettre à plat."},
+     {etape:"Reconversion = test, pas verdict", texte:"Toute piste de reconversion doit rester réversible et testée à petite échelle avant engagement définitif."},
+     {etape:"Cap clair", texte:"Terminer sur une direction unique et formulée simplement par le client lui-même."}
+   ],
+   devoirs:"Choisir une seule piste de reconversion (si applicable) à tester concrètement à très petite échelle avant la prochaine séance."}
+];
+
+// ══════════════════════════════════════════
 //  ÉTAT GLOBAL
 // ══════════════════════════════════════════
 let state = {
@@ -752,6 +868,8 @@ let state = {
   bibProfil: "Tous",
   bibSearch: "",
   resProfil: "Tous",
+  deroulesCat: "Tous",
+  deroulesMode: {},
 };
 
 function save() {
@@ -1070,6 +1188,70 @@ function renderClairiereTab() {
   return wrap;
 }
 
+function renderDeroulesTab() {
+  const wrap = h("div",{});
+  wrap.appendChild(h("div",{style:"margin-bottom:14px"},
+    h("div",{style:"font-weight:700;font-size:15px;color:#2E2A20;margin-bottom:4px"},"📖 Déroulés de séance"),
+    h("div",{style:"font-size:13px;color:#5A5648"},"Scripts prêts à suivre en direct pendant la séance. Deux formats disponibles par déroulé : script minuté (pas à pas, chronométré) ou trame souple (repères sans minutage).")
+  ));
+
+  const filterRow = h("div",{style:"display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"});
+  const cats = ["Tous", ...Array.from(new Set(DEROULES.map(d=>d.cat)))];
+  let filtreCat = state.deroulesCat || "Tous";
+  cats.forEach(c => {
+    const b = h("button",{class:"btn-sm"+(filtreCat===c?" active":""),style:"padding:6px 14px"+(filtreCat===c?";background:#9C7A2E;color:#fff":"")},c);
+    b.addEventListener("click", () => { state.deroulesCat = c; render(); });
+    filterRow.appendChild(b);
+  });
+  wrap.appendChild(filterRow);
+
+  const list = DEROULES.filter(d => filtreCat==="Tous" || d.cat===filtreCat);
+  list.forEach(d => {
+    const card = h("div",{class:"card",style:"padding:18px;margin-bottom:14px"});
+    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"},
+      h("div",{},
+        h("div",{style:"font-weight:700;font-size:14.5px;color:#2E2A20"}, d.titre),
+        h("div",{style:"font-size:12px;color:#8B7355;margin-top:2px"}, d.profil + " · " + d.duree + " min · " + d.cat)
+      )
+    ));
+    card.appendChild(h("div",{style:"font-size:13px;color:#5A5648;margin:10px 0;font-style:italic"}, "Objectif : " + d.objectif));
+
+    const toggleRow = h("div",{style:"display:flex;gap:8px;margin-bottom:12px"});
+    const mode = state.deroulesMode[d.id] || "minute";
+    const btnMinute = h("button",{class:"btn-sm"+(mode==="minute"?" active":""),style:"padding:5px 12px"+(mode==="minute"?";background:#9C7A2E;color:#fff":"")},"⏱ Script minuté");
+    const btnSouple = h("button",{class:"btn-sm"+(mode==="souple"?" active":""),style:"padding:5px 12px"+(mode==="souple"?";background:#9C7A2E;color:#fff":"")},"〰 Trame souple");
+    btnMinute.addEventListener("click", () => { state.deroulesMode[d.id] = "minute"; render(); });
+    btnSouple.addEventListener("click", () => { state.deroulesMode[d.id] = "souple"; render(); });
+    toggleRow.appendChild(btnMinute); toggleRow.appendChild(btnSouple);
+    card.appendChild(toggleRow);
+
+    const body = h("div",{});
+    if (mode==="minute") {
+      d.minute.forEach(step => {
+        body.appendChild(h("div",{style:"display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #00000010"},
+          h("div",{style:"width:78px;flex-shrink:0;font-size:12px;font-weight:700;color:#9C7A2E"}, step.t),
+          h("div",{},
+            h("div",{style:"font-size:13px;font-weight:700;color:#2E2A20"}, step.titre),
+            h("div",{style:"font-size:12.5px;color:#5A5648;margin-top:2px"}, step.texte)
+          )
+        ));
+      });
+    } else {
+      d.souple.forEach(step => {
+        body.appendChild(h("div",{style:"padding:8px 0;border-bottom:1px solid #00000010"},
+          h("div",{style:"font-size:13px;font-weight:700;color:#2E2A20"}, "→ " + step.etape),
+          h("div",{style:"font-size:12.5px;color:#5A5648;margin-top:2px"}, step.texte)
+        ));
+      });
+    }
+    card.appendChild(body);
+    card.appendChild(h("div",{style:"font-size:12.5px;color:#6B6355;margin-top:12px;padding-top:10px;border-top:1px solid #D8CBA8"}, "📝 Devoirs : " + d.devoirs));
+    wrap.appendChild(card);
+  });
+
+  return wrap;
+}
+
 function renderReconversionTab() {
   const wrap = h("div",{});
   wrap.appendChild(h("div",{style:"margin-bottom:14px"},
@@ -1116,7 +1298,31 @@ const DEFAULT_SETTINGS = {
   dureeRdv: 60,
   tarifs: { decouverte:0, unite:70, declic:190, codeChaine:520, famille:340, club:20 },
   messageInfo: { actif:false, texte:"" },
-  conges: []
+  conges: [],
+  contenuSite: {
+    hero: {
+      subtitle: "Le Coaching TDAH",
+      h1: "Transforme tes différences<br>pour en faire une force",
+      lead: "Je vous aide à apprivoiser votre TDAH et votre HPI pour en faire votre plus grande force au quotidien."
+    },
+    quiSuisJe: {
+      subtitle: "Qui suis-je",
+      h2: "Du défi personnel à la vocation",
+      lead: "Champion de France de basket fauteuil, TDAH et HPI diagnostiqués à l'âge adulte, père d'une fille au profil semblable au mien : mon parcours nourrit directement ma façon d'accompagner."
+    },
+    profilIntro: {
+      subtitle: "Mon profil",
+      h2: "Du défi personnel à la vocation",
+      lead: "Cinq chapitres, un même fil : comprendre ce qui semblait être un obstacle pour en faire une force."
+    },
+    chapitres: [
+      {titre:"Un premier obstacle", texte:"Il est des vies qui commencent par une résistance. La mienne a débuté dans l'effort — né avec un handicap physique, j'ai appris dès l'enfance que le monde ne s'offre pas, il se mérite. À seize ans, une opération lourde et six mois de rééducation intensive m'ont demandé de tout réapprendre : habiter mon propre corps, un geste à la fois, un souffle après l'autre. Dans cette traversée silencieuse et exigeante, j'ai découvert une résilience que je ne savais pas porter en moi."},
+      {titre:"Se dépasser", texte:"Après des années d'acharnement, de chutes relevées et de victoires arrachées centimètre par centimètre, j'ai décroché le titre de Champion de France de basket fauteuil. Ce titre m'a révélé quelque chose de fondamental : la même intensité qui me dépassait parfois pouvait devenir, une fois canalisée, le moteur d'un accomplissement durable."},
+      {titre:"Me comprendre enfin", texte:"Ce que je ne savais pas encore, c'est que derrière cette intensité — cette pensée qui s'emballe, cette hypersensibilité, ce besoin viscéral d'aller toujours plus loin — se cachait un profil doublement atypique : TDAH et Haut Potentiel Intellectuel (HPI). Deux réalités entrelacées, souvent confondues, parfois opposées en apparence, mais qui ensemble formaient le moteur le plus puissant que je n'aurais pu imaginer."},
+      {titre:"Devenir père", texte:"Puis il y a six ans, ma fille est venue au monde — et avec elle, une lumière nouvelle. C'est en la regardant grandir que j'ai reconnu en elle quelque chose de profondément familier : ce même feu intérieur, cette même vivacité d'esprit, que j'avais appris, à mon tour, à transformer en carburant."},
+      {titre:"Ma vocation", texte:"Je ne pouvais pas la laisser traverser seule ce que j'avais mis des années à comprendre. C'est là qu'est née ma vocation : mettre ce que la résilience et le sport de haut niveau m'avaient appris au service des autres."}
+    ]
+  }
 };
 
 const CoachSettings = {
@@ -1150,7 +1356,13 @@ const CoachSettings = {
         dureeRdv: raw.dureeRdv || DEFAULT_SETTINGS.dureeRdv,
         tarifs: { ...DEFAULT_SETTINGS.tarifs, ...(raw.tarifs||{}) },
         messageInfo: { ...DEFAULT_SETTINGS.messageInfo, ...(raw.messageInfo||{}) },
-        conges: raw.conges || []
+        conges: raw.conges || [],
+        contenuSite: {
+          hero: { ...DEFAULT_SETTINGS.contenuSite.hero, ...((raw.contenuSite||{}).hero||{}) },
+          quiSuisJe: { ...DEFAULT_SETTINGS.contenuSite.quiSuisJe, ...((raw.contenuSite||{}).quiSuisJe||{}) },
+          profilIntro: { ...DEFAULT_SETTINGS.contenuSite.profilIntro, ...((raw.contenuSite||{}).profilIntro||{}) },
+          chapitres: DEFAULT_SETTINGS.contenuSite.chapitres.map((ch,i) => ({ ...ch, ...(((raw.contenuSite||{}).chapitres||[])[i]||{}) }))
+        }
       };
       if (!raw.horaires) {
         // Le document n'a jamais reçu d'horaires : on les initialise
@@ -1180,6 +1392,50 @@ function renderReglagesTab() {
   if (!CoachSettings.data) { CoachSettings.listen(); wrap.appendChild(h("p",{style:"color:#5A5648"},"Chargement…")); return wrap; }
 
   const s = CoachSettings.data;
+
+  // --- Contenu du site (textes éditables) ---
+  const csBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
+  csBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:4px"},"📝 Contenu du site"));
+  csBox.appendChild(h("div",{style:"font-size:12px;color:#5A5648;margin-bottom:14px"},"Modifie les textes affichés sur julien-coaching.vercel.app (page d'accueil + page Profil). Laisse vide pour garder le texte actuel."));
+
+  const cs = JSON.parse(JSON.stringify(s.contenuSite));
+
+  function csField(labelText, obj, key, multiline) {
+    const row = h("div",{style:"margin-bottom:10px"});
+    row.appendChild(h("div",{style:"font-size:12px;font-weight:600;color:#6B6355;margin-bottom:4px"}, labelText));
+    const inp = h(multiline?"textarea":"input", multiline?{style:"width:100%;min-height:60px;font-size:13.5px"}:{type:"text",style:"width:100%;font-size:13.5px"});
+    inp.value = obj[key] || "";
+    inp.addEventListener("change", () => obj[key] = inp.value);
+    row.appendChild(inp);
+    return row;
+  }
+
+  csBox.appendChild(h("div",{style:"font-weight:700;font-size:12.5px;color:#8B7355;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.04em"},"Accueil — bandeau principal"));
+  csBox.appendChild(csField("Sur-titre", cs.hero, "subtitle", false));
+  csBox.appendChild(csField("Titre principal (le <br> saute une ligne)", cs.hero, "h1", false));
+  csBox.appendChild(csField("Phrase d'intro", cs.hero, "lead", true));
+
+  csBox.appendChild(h("div",{style:"font-weight:700;font-size:12.5px;color:#8B7355;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.04em"},"Accueil — teaser \"Qui suis-je\""));
+  csBox.appendChild(csField("Sur-titre", cs.quiSuisJe, "subtitle", false));
+  csBox.appendChild(csField("Titre", cs.quiSuisJe, "h2", false));
+  csBox.appendChild(csField("Texte", cs.quiSuisJe, "lead", true));
+
+  csBox.appendChild(h("div",{style:"font-weight:700;font-size:12.5px;color:#8B7355;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.04em"},"Page Profil — intro"));
+  csBox.appendChild(csField("Sur-titre", cs.profilIntro, "subtitle", false));
+  csBox.appendChild(csField("Titre", cs.profilIntro, "h2", false));
+  csBox.appendChild(csField("Texte", cs.profilIntro, "lead", true));
+
+  csBox.appendChild(h("div",{style:"font-weight:700;font-size:12.5px;color:#8B7355;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.04em"},"Page Profil — 5 chapitres"));
+  cs.chapitres.forEach((ch, i) => {
+    csBox.appendChild(h("div",{style:"font-size:12px;font-weight:700;color:#2E2A20;margin-top:8px"}, "Chapitre " + (i+1)));
+    csBox.appendChild(csField("Titre", ch, "titre", false));
+    csBox.appendChild(csField("Texte", ch, "texte", true));
+  });
+
+  const saveCsBtn = h("button",{class:"btn",style:"margin-top:10px;padding:9px 18px;font-size:13px"},"Enregistrer le contenu du site");
+  saveCsBtn.addEventListener("click", () => CoachSettings.save({ contenuSite: cs }));
+  csBox.appendChild(saveCsBtn);
+  wrap.appendChild(csBox);
 
   // --- Horaires ---
   const horBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
@@ -2125,25 +2381,36 @@ function field(labelText, inputElement) {
 //  NAVIGATION
 // ══════════════════════════════════════════
 const TABS = [
-  {id:"dashboard",    icon:"⬡", label:"Tableau de bord", cat:null},
-  {id:"clients",      icon:"◉", label:"Mes clients", cat:"Suivi client"},
-  {id:"clairiere",    icon:"🧭", label:"La Clairière", cat:"Suivi client"},
-  {id:"reconversion", icon:"🌱", label:"Reconversion / Burnout", cat:"Préparer une séance"},
-  {id:"bibliotheque", icon:"▣", label:"Bibliothèque coach", cat:"Préparer une séance"},
-  {id:"ressources",   icon:"◇", label:"Mes ressources", cat:"Préparer une séance"},
-  {id:"agenda",       icon:"🗓️", label:"Agenda", cat:"Professionnel"},
-  {id:"finances",     icon:"💰", label:"Finances", cat:"Professionnel"},
-  {id:"rdv",          icon:"📅", label:"Demandes RDV", cat:"Professionnel"},
-  {id:"reglages",     icon:"⚙️", label:"Réglages", cat:"Professionnel"},
-  {id:"notes",        icon:"◻", label:"Journal de bord", cat:"Professionnel"},
+  {id:"dashboard",    icon:"⬡", label:"Tableau de bord", cat:null, pole:null},
+
+  // ── PÔLE : SUIVI CLIENTS ──
+  {id:"clients",      icon:"◉", label:"Mes clients",              pole:"Suivi clients", cat:"Clients"},
+  {id:"clairiere",    icon:"🧭", label:"La Clairière",             pole:"Suivi clients", cat:"Clients"},
+  {id:"deroules",     icon:"📖", label:"Déroulés de séance",       pole:"Suivi clients", cat:"Préparer une séance"},
+  {id:"bibliotheque", icon:"▣", label:"Bibliothèque coach",        pole:"Suivi clients", cat:"Préparer une séance"},
+  {id:"reconversion", icon:"🌱", label:"Reconversion / Burnout",   pole:"Suivi clients", cat:"Préparer une séance"},
+  {id:"ressources",   icon:"◇", label:"Mes ressources",            pole:"Suivi clients", cat:"Préparer une séance"},
+
+  // ── PÔLE : GESTION ──
+  {id:"agenda",       icon:"🗓️", label:"Agenda",                  pole:"Gestion", cat:"Planning"},
+  {id:"rdv",          icon:"📅", label:"Demandes RDV",             pole:"Gestion", cat:"Planning"},
+  {id:"finances",     icon:"💰", label:"Finances",                 pole:"Gestion", cat:"Finances"},
+  {id:"reglages",     icon:"⚙️", label:"Site internet & réglages", pole:"Gestion", cat:"Site internet"},
+  {id:"notes",        icon:"◻", label:"Journal de bord",           pole:"Gestion", cat:"Administratif"},
 ];
 
 function renderNav() {
   const nav = document.getElementById("nav");
   nav.innerHTML = "";
   const upcoming = state.clients.filter(c => c.nextSession && c.status==="actif").length;
+  let dernierPole = undefined;
   let dernierCat = null;
   TABS.forEach(t => {
+    if (t.pole !== dernierPole) {
+      dernierPole = t.pole;
+      dernierCat = null;
+      if (t.pole) nav.appendChild(h("div",{class:"nav-pole-label"}, t.pole));
+    }
     if (t.cat !== dernierCat) {
       dernierCat = t.cat;
       if (t.cat) {
@@ -2160,7 +2427,7 @@ function renderNav() {
 
   const foot = document.getElementById("sidefoot");
   const total = state.clients.reduce((s,c)=>s+(c.sessions||0),0);
-  foot.innerHTML = `${state.clients.length} client${state.clients.length!==1?"s":""} · ${total} séances<br>${BIBLIO.length} fiches intégrées`;
+  foot.innerHTML = `${state.clients.length} client${state.clients.length!==1?"s":""} · ${total} séances<br>${BIBLIO.length} fiches · ${DEROULES.length} déroulés`;
 }
 
 // ══════════════════════════════════════════
@@ -2415,7 +2682,7 @@ function renderClientDetail() {
 
   // Subtabs
   const stabs = h("div",{class:"subtabs"});
-  [["fiche","◈ Fiche"],["seances","◉ Séances"],["objectifs","◇ Objectifs"],["preparer","📝 Préparer"],["programme90","🗓️ Programme 90j"],["evaluation","⚡ Évaluation"],["survie","🎒 Kit de survie"],["paiements","€ Paiements"],["notes-c","◻ Notes"]].forEach(([id,lbl])=>{
+  [["fiche","◈ Fiche"],["seances","◉ Séances"],["objectifs","◇ Objectifs"],["preparer","📝 Préparer"],["programme90","🗓️ Programme 90j"],["evaluation","⚡ Évaluation"],["bilanmp","🧭 Bilan mi-parcours"],["survie","🎒 Kit de survie"],["paiements","€ Paiements"],["notes-c","◻ Notes"]].forEach(([id,lbl])=>{
     const b = h("button",{class:"subtab"+(state.subTab===id?" active":"")},lbl);
     b.addEventListener("click",()=>{ state.subTab=id; render(); });
     stabs.appendChild(b);
@@ -2430,6 +2697,7 @@ function renderClientDetail() {
   if (state.subTab==="preparer")  content.appendChild(buildPreparerSeance(c));
   if (state.subTab==="programme90") content.appendChild(buildProgramme90(c));
   if (state.subTab==="evaluation") content.appendChild(buildEvaluation(c));
+  if (state.subTab==="bilanmp")    content.appendChild(buildBilanMiParcours(c));
   if (state.subTab==="survie")    content.appendChild(buildKitSurvie(c));
   if (state.subTab==="paiements") content.appendChild(buildPaiements(c));
   if (state.subTab==="notes-c")   content.appendChild(buildNotesClient(c));
@@ -2517,6 +2785,73 @@ function buildEvaluation(c) {
     card.appendChild(slider);
     wrap.appendChild(card);
   });
+
+  return wrap;
+}
+
+function buildBilanMiParcours(c) {
+  const wrap = h("div",{});
+  c.bilanMiParcours = c.bilanMiParcours || { date:"", scores:{organisation:0,emotions:0,relations:0,confiance:0}, progres:"", difficile:"", prochaineEtape:"" };
+  const b = c.bilanMiParcours;
+
+  wrap.appendChild(h("h3",{style:"font-size:20px;color:#2E2A20;font-weight:600;margin-bottom:6px;font-style:italic"},"🧭 Bilan mi-parcours"));
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Point d'étape factuel sur les 4 dimensions du parcours de reconversion/burnout. Objectif : objectiver les progrès réels, pas mesurer une performance."));
+
+  if (c.evaluation && Object.keys(c.evaluation).length) {
+    const dims0 = dimensionsPourProfil(c.profile);
+    const score0 = dims0.reduce((s,d)=>s+(c.evaluation[d.key]||0),0);
+    wrap.appendChild(h("div",{style:"font-size:12.5px;color:#8B7355;margin-bottom:16px;padding:10px 14px;background:#E4DAC055;border-radius:10px"}, "📌 Score à l'évaluation initiale : " + score0 + " / " + (dims0.length*10) + " — sert de point de comparaison, pas d'objectif chiffré."));
+  }
+
+  const dateRow = h("div",{style:"margin-bottom:16px"});
+  dateRow.appendChild(h("label",{style:"font-size:12px;color:#6B6355;display:block;margin-bottom:4px"},"Date du bilan"));
+  const dateInp = h("input",{type:"date",value:b.date||""});
+  dateInp.addEventListener("change", () => { b.date = dateInp.value; save(); });
+  dateRow.appendChild(dateInp);
+  wrap.appendChild(dateRow);
+
+  const DIMS_MP = [
+    {key:"organisation", label:"Organisation / gestion du temps", desc:"Capacité à tenir un système soutenable au quotidien"},
+    {key:"emotions",      label:"Régulation émotionnelle",        desc:"Capacité à repérer et réguler les vagues émotionnelles"},
+    {key:"relations",     label:"Relations sociales / pro",       desc:"Qualité et clarté des interactions, limites posées"},
+    {key:"confiance",     label:"Confiance / estime de soi",      desc:"Stabilité de l'image de soi face aux difficultés"},
+  ];
+
+  const scoreBox = h("div",{class:"card",style:"padding:20px;margin-bottom:16px;text-align:center"});
+  function totalMp() { return DIMS_MP.reduce((s,d)=>s+(b.scores[d.key]||0),0); }
+  function renderScoreMp() {
+    scoreBox.innerHTML = "";
+    scoreBox.appendChild(h("div",{style:"font-size:30px;font-weight:800;color:#9C7A2E"}, String(totalMp())+" / 40"));
+    scoreBox.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-top:4px"},"Somme des 4 dimensions — à comparer au prochain bilan, pas à une norme absolue."));
+  }
+  renderScoreMp();
+  wrap.appendChild(scoreBox);
+
+  DIMS_MP.forEach(d => {
+    const card = h("div",{class:"card",style:"padding:16px 18px;margin-bottom:10px"});
+    const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(b.scores[d.key]||0));
+    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:4px"},
+      h("div",{style:"color:#2E2A20;font-weight:600;font-size:14.5px"}, d.label), valSpan
+    ));
+    card.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-bottom:10px"}, d.desc));
+    const slider = h("input",{type:"range",min:"0",max:"10",value:String(b.scores[d.key]||0),style:"width:100%"});
+    slider.addEventListener("input", () => { b.scores[d.key]=Number(slider.value); valSpan.textContent=slider.value; renderScoreMp(); save(); });
+    card.appendChild(slider);
+    wrap.appendChild(card);
+  });
+
+  function textBlock(label, key, placeholder) {
+    const box = h("div",{class:"card",style:"padding:16px 18px;margin-bottom:10px"});
+    box.appendChild(h("div",{style:"color:#2E2A20;font-weight:600;font-size:14px;margin-bottom:8px"}, label));
+    const ta = h("textarea",{style:"width:100%;min-height:70px;font-size:13.5px",placeholder:placeholder});
+    ta.value = b[key] || "";
+    ta.addEventListener("change", () => { b[key]=ta.value; save(); });
+    box.appendChild(ta);
+    wrap.appendChild(box);
+  }
+  textBlock("✅ Progrès observés (faits, pas ressentis)", "progres", "Ex : tient le système d'organisation 5 jours sur 7 depuis 3 semaines...");
+  textBlock("⚠️ Ce qui reste difficile", "difficile", "Ex : les fins de semaine chargées font toujours dérailler le rythme...");
+  textBlock("➡️ Prochaine étape choisie par le client", "prochaineEtape", "Ex : tester la version allégée du planning le vendredi...");
 
   return wrap;
 }
@@ -3388,6 +3723,7 @@ function renderNow() {
   else if (state.tab==="finances") content = renderFinancesTab();
   else if (state.tab==="clairiere") content = renderClairiereTab();
   else if (state.tab==="reconversion") content = renderReconversionTab();
+  else if (state.tab==="deroules") content = renderDeroulesTab();
   else if (state.tab==="rdv") content = renderRdvTab();
   else if (state.tab==="reglages") content = renderReglagesTab();
   else if (state.tab==="bibliotheque") content = renderBibliotheque();
