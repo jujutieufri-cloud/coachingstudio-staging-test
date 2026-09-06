@@ -2757,7 +2757,7 @@ function renderClientDetail() {
 
   // Subtabs
   const stabs = h("div",{class:"subtabs"});
-  [["fiche","◈ Fiche"],["seances","◉ Séances"],["objectifs","◇ Objectifs"],["preparer","📝 Préparer"],["programme90","🗓️ Programme 90j"],["evaluation","⚡ Évaluation"],["bilanmp","🧭 Bilan mi-parcours"],["survie","🎒 Kit de survie"],["paiements","€ Paiements"],["notes-c","◻ Notes"]].forEach(([id,lbl])=>{
+  [["fiche","◈ Fiche"],["protocole","🧭 Protocole"],["paiements","€ Paiements"],["notes-c","◻ Notes"]].forEach(([id,lbl])=>{
     const b = h("button",{class:"subtab"+(state.subTab===id?" active":"")},lbl);
     b.addEventListener("click",()=>{ state.subTab=id; render(); });
     stabs.appendChild(b);
@@ -2767,13 +2767,7 @@ function renderClientDetail() {
   // Content
   const content = h("div",{class:"fade"});
   if (state.subTab==="fiche")     content.appendChild(buildFiche(c));
-  if (state.subTab==="seances")   content.appendChild(buildSeances(c));
-  if (state.subTab==="objectifs") content.appendChild(buildObjectifs(c));
-  if (state.subTab==="preparer")  content.appendChild(buildPreparerSeance(c));
-  if (state.subTab==="programme90") content.appendChild(buildProgramme90(c));
-  if (state.subTab==="evaluation") content.appendChild(buildEvaluation(c));
-  if (state.subTab==="bilanmp")    content.appendChild(buildBilanMiParcours(c));
-  if (state.subTab==="survie")    content.appendChild(buildKitSurvie(c));
+  if (state.subTab==="protocole") content.appendChild(buildProtocole(c));
   if (state.subTab==="paiements") content.appendChild(buildPaiements(c));
   if (state.subTab==="notes-c")   content.appendChild(buildNotesClient(c));
   box.appendChild(content);
@@ -2809,54 +2803,204 @@ function dimensionsPourProfil(profilClient) {
   );
 }
 
-function buildEvaluation(c) {
+const PROTOCOLE_STEPS = [
+  {id:"objectif",   num:1, label:"Objectif",      icon:"🎯"},
+  {id:"bilan",      num:2, label:"Bilan initial",  icon:"📊"},
+  {id:"seances",    num:3, label:"Séances",        icon:"📖"},
+  {id:"miparcours", num:4, label:"Mi-parcours",    icon:"🧭"},
+  {id:"survie",     num:5, label:"Kit de survie",  icon:"🎒"},
+  {id:"cloture",    num:6, label:"Clôture",        icon:"✅"},
+];
+
+function buildProtocole(c) {
+  c.protocole = c.protocole || { step:"objectif", demandeInitiale:"", objectifFormule:"", adhesion:0 };
+  c.protocoleSeances = c.protocoleSeances || [];
+  const pr = c.protocole;
+  const wrap = h("div",{});
+
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px;margin-bottom:10px"},"Un seul protocole, étape par étape — de l'objectif initial au rapport final."));
+
+  const stepBar = h("div",{style:"display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap"});
+  PROTOCOLE_STEPS.forEach(s => {
+    const active = pr.step === s.id;
+    const btn = h("button",{style:"flex:1;min-width:88px;padding:8px 4px;border-radius:8px;border:1.5px solid "+(active?"#9C7A2E":"#D8CBA8")+";background:"+(active?"#9C7A2E":"transparent")+";color:"+(active?"#fff":"#6B6355")+";font-size:11px;font-weight:700;cursor:pointer"},
+      s.icon + " " + s.num + ". " + s.label
+    );
+    btn.addEventListener("click", () => { pr.step = s.id; save(); render(); });
+    stepBar.appendChild(btn);
+  });
+  wrap.appendChild(stepBar);
+
+  const rapportBtn = h("button",{class:"btn-sm",style:"margin-bottom:16px;border-color:#9C7A2E;color:#9C7A2E"},"🖨️ Générer le rapport complet");
+  rapportBtn.addEventListener("click", () => genererRapport(c));
+  wrap.appendChild(rapportBtn);
+
+  const body = h("div",{});
+  if (pr.step === "objectif")   body.appendChild(stepObjectif(c));
+  if (pr.step === "bilan")      body.appendChild(stepBilanInitial(c));
+  if (pr.step === "seances")    body.appendChild(stepSeances(c));
+  if (pr.step === "miparcours") body.appendChild(stepMiParcours(c));
+  if (pr.step === "survie")     body.appendChild(stepKitSurvie(c));
+  if (pr.step === "cloture")    body.appendChild(stepCloture(c));
+  wrap.appendChild(body);
+
+  const idx = PROTOCOLE_STEPS.findIndex(s=>s.id===pr.step);
+  const navRow = h("div",{style:"display:flex;justify-content:space-between;gap:10px;margin-top:20px"});
+  const prevBtn = h("button",{class:"btn-g"}, "← Précédent");
+  if (idx<=0) prevBtn.disabled = true;
+  else prevBtn.addEventListener("click", () => { pr.step = PROTOCOLE_STEPS[idx-1].id; save(); render(); });
+  const nextBtn = h("button",{class:"btn"}, idx<PROTOCOLE_STEPS.length-1 ? "Suivant →" : "🖨️ Terminer & générer le rapport");
+  if (idx<PROTOCOLE_STEPS.length-1) nextBtn.addEventListener("click", () => { pr.step = PROTOCOLE_STEPS[idx+1].id; save(); render(); });
+  else nextBtn.addEventListener("click", () => genererRapport(c));
+  navRow.appendChild(prevBtn); navRow.appendChild(nextBtn);
+  wrap.appendChild(navRow);
+
+  return wrap;
+}
+
+function stepObjectif(c) {
+  const wrap = h("div",{});
+  const pr = c.protocole;
+  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"🎯 Étape 1 — Objectif & demande initiale"));
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Poser le cadre avant d'aller plus loin."));
+
+  const themeBox = h("div",{class:"card",style:"padding:16px;margin-bottom:16px"});
+  themeBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:10px;font-size:13px"},"📚 Démarrer depuis une thématique (optionnel)"));
+  const themeGrid = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:8px"});
+  FICHES_THEMES.forEach(ft => {
+    const btn = h("button",{class:"btn-sm",style:"text-align:left;padding:8px 10px"}, ft.icon+" "+ft.theme);
+    btn.addEventListener("click", () => {
+      c.objectifs = c.objectifs || [];
+      ft.objectifs.forEach(titre => {
+        if (!c.objectifs.some(o=>o.titre===titre)) c.objectifs.push({id:Date.now()+""+Math.random().toString(36).slice(2,5), titre, echeance:"", statut:"en cours"});
+      });
+      if (!pr.objectifFormule) pr.objectifFormule = ft.objectifs[0];
+      save(); render();
+      notifCoach("Thématique « "+ft.theme+" » chargée.");
+    });
+    themeGrid.appendChild(btn);
+  });
+  themeBox.appendChild(themeGrid);
+  wrap.appendChild(themeBox);
+
+  const q1 = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
+  q1.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Qu'est-ce qui vous amène aujourd'hui ?"));
+  q1.appendChild(textareaEl({value:pr.demandeInitiale, placeholder:"Demande du client, dans ses mots.", height:"70px", onInput:v=>{pr.demandeInitiale=v; save();}}));
+  wrap.appendChild(q1);
+
+  const q2 = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
+  q2.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Quel est l'objectif reformulé et partagé avec le client ?"));
+  q2.appendChild(textareaEl({value:pr.objectifFormule, placeholder:"Objectif SMART, formulé avec le client.", height:"70px", onInput:v=>{pr.objectifFormule=v; save();}}));
+  wrap.appendChild(q2);
+
+  const q3 = h("div",{class:"card",style:"padding:16px;margin-bottom:16px"});
+  const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(pr.adhesion||0));
+  q3.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:8px"},
+    h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px"},"❓ Sur 10, à quel point c'est vraiment le client qui veut cet objectif ?"), valSpan));
+  const slider = h("input",{type:"range",min:"0",max:"10",value:String(pr.adhesion||0),style:"width:100%"});
+  slider.addEventListener("input", () => { pr.adhesion=Number(slider.value); valSpan.textContent=slider.value; save(); });
+  q3.appendChild(slider); wrap.appendChild(q3);
+
+  wrap.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:16px 0 8px"},"Objectifs concrets suivis"));
+  wrap.appendChild(buildObjectifsListe(c));
+
+  return wrap;
+}
+
+function buildObjectifsListe(c) {
+  const wrap = h("div",{});
+  c.objectifs = c.objectifs || [];
+  let showForm = false;
+  let newObj = {titre:"",echeance:"",statut:"en cours"};
+
+  function render2() {
+    wrap.innerHTML="";
+    const atteints = c.objectifs.filter(o=>o.statut==="atteint").length;
+    const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"},
+      h("span",{style:"color:#5A5648;font-size:13px"},`${atteints}/${c.objectifs.length} atteint(s)`)
+    );
+    const addBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E44;color:#9C7A2E"},showForm?"✕ Annuler":"+ Ajouter");
+    addBtn.addEventListener("click",()=>{ showForm=!showForm; newObj={titre:"",echeance:"",statut:"en cours"}; render2(); });
+    hdr.appendChild(addBtn);
+    wrap.appendChild(hdr);
+
+    if (showForm) {
+      const box = h("div",{class:"card",style:"padding:14px;margin-bottom:12px;border-color:#9C7A2E33"});
+      const g = h("div",{class:"grid2",style:"margin-bottom:10px"});
+      const ti = inputEl({placeholder:"Ex: Poser des limites claires",onInput:v=>newObj.titre=v});
+      g.appendChild(h("div",{class:"span2"},field("OBJECTIF",ti)));
+      const da = inputEl({type:"date",onChange:v=>newObj.echeance=v});
+      g.appendChild(field("ÉCHÉANCE",da));
+      const st = selectEl({options:["en cours","atteint","suspendu"],value:"en cours",onChange:v=>newObj.statut=v});
+      g.appendChild(field("STATUT",st));
+      box.appendChild(g);
+      const sv = h("button",{class:"btn",style:"padding:8px 18px;font-size:13px"},"Ajouter");
+      sv.addEventListener("click",()=>{
+        if (!newObj.titre.trim()) return;
+        c.objectifs.push({...newObj,id:Date.now()+""});
+        save(); showForm=false; render2();
+      });
+      box.appendChild(sv);
+      wrap.appendChild(box);
+    }
+
+    if (!c.objectifs.length) {
+      wrap.appendChild(h("p",{style:"color:#6B6355;font-size:13px;padding:8px 0"},"Aucun objectif défini."));
+    } else {
+      c.objectifs.forEach(o => {
+        const col = o.statut==="atteint"?"#4a9e6a":o.statut==="suspendu"?"#6B6355":"#5aaec8";
+        const chk = h("div",{class:"obj-check",style:`border-color:${col};background:${o.statut==="atteint"?col:"transparent"};color:#F7F2E7`}, o.statut==="atteint"?"✓":"");
+        chk.addEventListener("click",()=>{ o.statut = o.statut==="atteint"?"en cours":"atteint"; save(); render2(); });
+        const sbadge = h("span",{style:`padding:2px 8px;border-radius:20px;background:${col}18;color:${col};font-size:12px;font-weight:600`},o.statut);
+        const del = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#6B6355;font-size:18px;padding:0 4px"},"×");
+        del.addEventListener("click",()=>{ c.objectifs = c.objectifs.filter(x=>x.id!==o.id); save(); render2(); });
+        wrap.appendChild(h("div",{class:"obj-row"}, chk,
+          h("div",{style:"flex:1"},
+            h("div",{style:`color:${o.statut==="atteint"?"#6B6355":"#2E2A20"};font-size:14px;text-decoration:${o.statut==="atteint"?"line-through":"none"}`},o.titre),
+            o.echeance?h("div",{style:"color:#6B6355;font-size:13px;margin-top:2px"},"Échéance : "+o.echeance):null
+          ), sbadge, del
+        ));
+      });
+    }
+  }
+  render2();
+  return wrap;
+}
+
+function stepBilanInitial(c) {
   const wrap = h("div",{});
   c.evaluation = c.evaluation || {};
   const dims = dimensionsPourProfil(c.profile);
-  wrap.appendChild(h("h3",{style:"font-size:20px;color:#2E2A20;font-weight:600;margin-bottom:6px;font-style:italic"},"Grille d'évaluation"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:6px"},"Évaluez l'intensité de chaque dimension de 0 à 10 pour obtenir un score global."));
-  wrap.appendChild(h("p",{style:"color:#9C7A2E;font-size:12px;margin-bottom:20px;font-weight:600"},"Dimensions adaptées au profil : "+(c.profile||"non défini")));
+  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"📊 Étape 2 — Bilan initial"));
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:4px"},"❓ Notez chaque dimension de 0 (aucune difficulté) à 10 (difficulté majeure)."));
+  wrap.appendChild(h("p",{style:"color:#9C7A2E;font-size:12px;margin-bottom:16px;font-weight:600"},"Dimensions adaptées au profil : "+(c.profile||"non défini")));
 
-  const scoreBox = h("div",{class:"card",style:"padding:20px;margin-bottom:20px;text-align:center"});
-  function scoreTotal() {
-    return dims.reduce((s,d)=>s+(c.evaluation[d.key]||0),0);
+  const scoreBox = h("div",{class:"card",style:"padding:20px;margin-bottom:16px;text-align:center"});
+  function scoreTotal(){ return dims.reduce((s,d)=>s+(c.evaluation[d.key]||0),0); }
+  function zone(score){
+    const max=dims.length*10; const pct=max?score/max:0;
+    if (pct<0.33) return {label:"Zone verte",color:"#4a9e6a",txt:"Fonctionnement sain — Prévention et optimisation"};
+    if (pct<0.66) return {label:"Zone orange",color:"#c8a042",txt:"Signaux à surveiller — Ajuster le rythme"};
+    return {label:"Zone rouge",color:"#d07070",txt:"Épuisement marqué — Prioriser le repos et le soutien"};
   }
-  function zone(score) {
-    const max = dims.length*10;
-    const pct = max ? score/max : 0;
-    if (pct < 0.33) return {label:"Zone verte", color:"#4a9e6a", txt:"Fonctionnement sain — Prévention et optimisation"};
-    if (pct < 0.66) return {label:"Zone orange", color:"#c8a042", txt:"Signaux à surveiller — Ajuster le rythme"};
-    return {label:"Zone rouge", color:"#d07070", txt:"Épuisement marqué — Prioriser le repos et le soutien"};
-  }
-  function renderScore() {
-    scoreBox.innerHTML = "";
-    const max = dims.length*10;
-    const s = scoreTotal();
-    const z = zone(s);
+  function renderScore(){
+    scoreBox.innerHTML="";
+    const max=dims.length*10, s=scoreTotal(), z=zone(s);
     scoreBox.appendChild(h("div",{style:"display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:8px"},
       h("div",{style:"font-size:34px;font-weight:800;color:"+z.color}, String(s)+" / "+max),
       h("span",{style:"background:"+z.color+"22;color:"+z.color+";padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700"}, z.label)
     ));
     scoreBox.appendChild(h("div",{style:"color:#5A5648;font-size:13px"}, z.txt));
   }
-  renderScore();
-  wrap.appendChild(scoreBox);
+  renderScore(); wrap.appendChild(scoreBox);
 
   dims.forEach(d => {
     const card = h("div",{class:"card",style:"padding:16px 18px;margin-bottom:10px"});
     const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(c.evaluation[d.key]||0));
-    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:4px"},
-      h("div",{style:"color:#2E2A20;font-weight:600;font-size:14.5px"}, d.label),
-      valSpan
-    ));
+    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:4px"}, h("div",{style:"color:#2E2A20;font-weight:600;font-size:14.5px"}, d.label), valSpan));
     card.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-bottom:10px"}, d.desc));
     const slider = h("input",{type:"range",min:"0",max:"10",value:String(c.evaluation[d.key]||0),style:"width:100%"});
-    slider.addEventListener("input", () => {
-      c.evaluation[d.key] = Number(slider.value);
-      valSpan.textContent = slider.value;
-      renderScore();
-      save();
-    });
+    slider.addEventListener("input", () => { c.evaluation[d.key]=Number(slider.value); valSpan.textContent=slider.value; renderScore(); save(); });
     card.appendChild(slider);
     wrap.appendChild(card);
   });
@@ -2864,18 +3008,98 @@ function buildEvaluation(c) {
   return wrap;
 }
 
-function buildBilanMiParcours(c) {
+function stepSeances(c) {
+  const wrap = h("div",{});
+  c.protocoleSeances = c.protocoleSeances || [];
+  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"📖 Étape 3 — Séances de travail"));
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Choisissez un déroulé, menez la séance, puis complétez le compte-rendu — chaque séance validée nourrit le rapport."));
+
+  const profilClient = (c.profile||"").toUpperCase();
+  let suggestionId = null;
+  const e = c.evaluation || {};
+  if (profilClient.includes("TDAH") && ((e.gestionTemps||0)+(e.dispersion||0)+(e.impulsivite||0))>=6) suggestionId="d2";
+  else if (profilClient.includes("HPI") && ((e.syndromeImposteur||0)+(e.questionnement||0))>=6) suggestionId="d3";
+  else if ((profilClient.includes("HSP")||profilClient.includes("HPE")) && ((e.intensiteEmo||0)+(e.surchargeSensorielle||0))>=6) suggestionId="d4";
+  if (!suggestionId && !c.protocoleSeances.length) suggestionId = "d1";
+
+  const form = h("div",{class:"card",style:"padding:16px;margin-bottom:16px;border-color:#9C7A2E44"});
+  form.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Quel déroulé pour cette séance ?"));
+  const sel = h("select",{style:"width:100%;margin-bottom:6px"});
+  DEROULES.forEach(d => {
+    const opt = h("option",{value:d.id}, d.titre + (d.id===suggestionId?" — suggéré":""));
+    if (d.id===(suggestionId||DEROULES[0].id)) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  form.appendChild(sel);
+  if (suggestionId) form.appendChild(h("div",{style:"font-size:11.5px;color:#9C7A2E;margin-bottom:10px"},"💡 Suggéré à partir du profil et du bilan initial."));
+
+  const dateInp = inputEl({type:"date", value:new Date().toISOString().slice(0,10)});
+  form.appendChild(h("div",{style:"margin:10px 0"}, field("DATE", dateInp)));
+
+  form.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:14px 0 8px"},"❓ Résumé de la séance (une fois menée)"));
+  const resumeTa = textareaEl({placeholder:"Points abordés, avancées, réactions du client...", height:"70px"});
+  form.appendChild(resumeTa);
+
+  form.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:14px 0 8px"},"❓ Devoir donné"));
+  const devoirTa = textareaEl({placeholder:"Reprend le devoir du déroulé, à ajuster si besoin.", height:"50px"});
+  const initT = DEROULES.find(d=>d.id===(suggestionId||DEROULES[0].id));
+  if (initT) devoirTa.value = initT.devoirs;
+  sel.addEventListener("change", () => {
+    const t = DEROULES.find(d=>d.id===sel.value);
+    if (t) devoirTa.value = t.devoirs;
+  });
+  form.appendChild(devoirTa);
+
+  const validBtn = h("button",{class:"btn",style:"margin-top:12px"},"✅ Valider cette séance");
+  validBtn.addEventListener("click", () => {
+    const t = DEROULES.find(d=>d.id===sel.value);
+    if (!t) return;
+    c.protocoleSeances.push({
+      date: dateInp.value || new Date().toISOString().slice(0,10),
+      derouleId: t.id, derouleNom: t.titre,
+      resume: resumeTa.value.trim(), devoir: devoirTa.value.trim()
+    });
+    c.sessions = (c.sessions||0)+1;
+    c.sessionHistory = c.sessionHistory || [];
+    c.sessionHistory.push(`Séance ${c.sessions} — [${t.titre}] ${resumeTa.value.trim()}`);
+    state.clients = state.clients.map(x=>x.id===c.id?c:x);
+    save(); render();
+    notifCoach("Séance enregistrée — le rapport est à jour.");
+  });
+  form.appendChild(validBtn);
+  wrap.appendChild(form);
+
+  wrap.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:18px 0 10px"},"Historique des séances (" + c.protocoleSeances.length + ")"));
+  if (!c.protocoleSeances.length) {
+    wrap.appendChild(h("p",{style:"color:#6B6355;font-size:13px"},"Aucune séance enregistrée pour l'instant."));
+  } else {
+    [...c.protocoleSeances].reverse().forEach(s => {
+      const card = h("div",{class:"card",style:"padding:14px 16px;margin-bottom:8px"});
+      card.appendChild(h("div",{style:"display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"},
+        h("div",{style:"font-weight:700;color:#2E2A20;font-size:13px"}, s.derouleNom),
+        h("div",{style:"color:#8B7355;font-size:12px"}, s.date)
+      ));
+      if (s.resume) card.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-top:6px"}, s.resume));
+      if (s.devoir) card.appendChild(h("div",{style:"color:#6B6355;font-size:12px;margin-top:4px;font-style:italic"}, "📝 "+s.devoir));
+      wrap.appendChild(card);
+    });
+  }
+
+  return wrap;
+}
+
+function stepMiParcours(c) {
   const wrap = h("div",{});
   c.bilanMiParcours = c.bilanMiParcours || { date:"", scores:{organisation:0,emotions:0,relations:0,confiance:0}, progres:"", difficile:"", prochaineEtape:"" };
   const b = c.bilanMiParcours;
 
-  wrap.appendChild(h("h3",{style:"font-size:20px;color:#2E2A20;font-weight:600;margin-bottom:6px;font-style:italic"},"🧭 Bilan mi-parcours"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Point d'étape factuel sur les 4 dimensions du parcours de reconversion/burnout. Objectif : objectiver les progrès réels, pas mesurer une performance."));
+  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"🧭 Étape 4 — Bilan mi-parcours"));
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Point d'étape factuel. Objectif : objectiver les progrès réels, pas mesurer une performance."));
 
   if (c.evaluation && Object.keys(c.evaluation).length) {
     const dims0 = dimensionsPourProfil(c.profile);
     const score0 = dims0.reduce((s,d)=>s+(c.evaluation[d.key]||0),0);
-    wrap.appendChild(h("div",{style:"font-size:12.5px;color:#8B7355;margin-bottom:16px;padding:10px 14px;background:#E4DAC055;border-radius:10px"}, "📌 Score à l'évaluation initiale : " + score0 + " / " + (dims0.length*10) + " — sert de point de comparaison, pas d'objectif chiffré."));
+    wrap.appendChild(h("div",{style:"font-size:12.5px;color:#8B7355;margin-bottom:16px;padding:10px 14px;background:#E4DAC055;border-radius:10px"}, "📌 Score à l'évaluation initiale : " + score0 + " / " + (dims0.length*10) + " — sert de point de comparaison."));
   }
 
   const dateRow = h("div",{style:"margin-bottom:16px"});
@@ -2897,7 +3121,7 @@ function buildBilanMiParcours(c) {
   function renderScoreMp() {
     scoreBox.innerHTML = "";
     scoreBox.appendChild(h("div",{style:"font-size:30px;font-weight:800;color:#9C7A2E"}, String(totalMp())+" / 40"));
-    scoreBox.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-top:4px"},"Somme des 4 dimensions — à comparer au prochain bilan, pas à une norme absolue."));
+    scoreBox.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-top:4px"},"Somme des 4 dimensions — à comparer au prochain bilan."));
   }
   renderScoreMp();
   wrap.appendChild(scoreBox);
@@ -2905,9 +3129,7 @@ function buildBilanMiParcours(c) {
   DIMS_MP.forEach(d => {
     const card = h("div",{class:"card",style:"padding:16px 18px;margin-bottom:10px"});
     const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(b.scores[d.key]||0));
-    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:4px"},
-      h("div",{style:"color:#2E2A20;font-weight:600;font-size:14.5px"}, d.label), valSpan
-    ));
+    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:4px"}, h("div",{style:"color:#2E2A20;font-weight:600;font-size:14.5px"}, d.label), valSpan));
     card.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-bottom:10px"}, d.desc));
     const slider = h("input",{type:"range",min:"0",max:"10",value:String(b.scores[d.key]||0),style:"width:100%"});
     slider.addEventListener("input", () => { b.scores[d.key]=Number(slider.value); valSpan.textContent=slider.value; renderScoreMp(); save(); });
@@ -2924,12 +3146,185 @@ function buildBilanMiParcours(c) {
     box.appendChild(ta);
     wrap.appendChild(box);
   }
-  textBlock("✅ Progrès observés (faits, pas ressentis)", "progres", "Ex : tient le système d'organisation 5 jours sur 7 depuis 3 semaines...");
-  textBlock("⚠️ Ce qui reste difficile", "difficile", "Ex : les fins de semaine chargées font toujours dérailler le rythme...");
-  textBlock("➡️ Prochaine étape choisie par le client", "prochaineEtape", "Ex : tester la version allégée du planning le vendredi...");
+  textBlock("❓ Progrès observés (faits, pas ressentis)", "progres", "Ex : tient le système d'organisation 5 jours sur 7 depuis 3 semaines...");
+  textBlock("❓ Ce qui reste difficile", "difficile", "Ex : les fins de semaine chargées font toujours dérailler le rythme...");
+  textBlock("❓ Prochaine étape choisie par le client", "prochaineEtape", "Ex : tester la version allégée du planning le vendredi...");
 
   return wrap;
 }
+
+function stepKitSurvie(c) {
+  c.kitSurvie = c.kitSurvie || {profilCoache:"", signaux:[], outils:[], croyanceLimitante:"", croyanceRessource:"", mantras:[]};
+  const k = c.kitSurvie;
+  const wrap = h("div",{});
+  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"🎒 Étape 5 — Kit de survie"));
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Co-construisez un plan personnalisé avec le client."));
+
+  wrap.appendChild(h("div",{class:"card",style:"padding:16px;margin-bottom:14px"},
+    h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:10px"},"❓ Profil du client — particularités, forces, sensibilités"),
+    textareaEl({value:k.profilCoache, placeholder:"Particularités, forces, sensibilités...", height:"64px", onInput:v=>{k.profilCoache=v; save();}})
+  ));
+
+  function listeEditable(titre, arr, placeholder) {
+    const box = h("div",{class:"card",style:"padding:16px;margin-bottom:14px"});
+    const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"},
+      h("div",{style:"font-weight:700;color:#2E2A20"},titre),
+      h("button",{class:"btn-sm"},"+ Ajouter")
+    );
+    const list = h("div",{});
+    function renderList() {
+      list.innerHTML = "";
+      arr.forEach((val,i) => {
+        const row = h("div",{style:"display:flex;gap:8px;margin-bottom:8px"});
+        const inp = inputEl({value:val, placeholder, onInput:v=>{arr[i]=v; save();}});
+        const del = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:16px"},"×");
+        del.addEventListener("click",()=>{ arr.splice(i,1); save(); renderList(); });
+        row.appendChild(inp); row.appendChild(del);
+        list.appendChild(row);
+      });
+    }
+    hdr.querySelector("button").addEventListener("click", () => { arr.push(""); save(); renderList(); });
+    renderList();
+    box.appendChild(hdr); box.appendChild(list);
+    return box;
+  }
+  wrap.appendChild(listeEditable("❓ Signaux d'alerte à surveiller", k.signaux, "Ex: irritabilité, isolement..."));
+  wrap.appendChild(listeEditable("❓ Outils préférés du client", k.outils, "Ex: respiration, marche..."));
+
+  wrap.appendChild(h("div",{class:"card",style:"padding:16px;margin-bottom:14px"},
+    h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:10px"},"❓ Croyance limitante → croyance ressource"),
+    field("Croyance limitante", inputEl({value:k.croyanceLimitante, placeholder:"Ex: Je dois être parfait", onInput:v=>{k.croyanceLimitante=v; save();}})),
+    h("div",{style:"height:10px"}),
+    field("Croyance ressource", inputEl({value:k.croyanceRessource, placeholder:"Ex: Le progrès vaut mieux que la perfection", onInput:v=>{k.croyanceRessource=v; save();}}))
+  ));
+
+  wrap.appendChild(listeEditable("❓ Mantras / affirmations à retenir", k.mantras, "Ex: J'avance à mon rythme"));
+
+  return wrap;
+}
+
+function stepCloture(c) {
+  const wrap = h("div",{});
+  c.protocole.cloture = c.protocole.cloture || {date:"", statutObjectif:"partiellement", changements:"", recommandations:""};
+  const cl = c.protocole.cloture;
+  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"✅ Étape 6 — Bilan final & clôture"));
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Dernier point avant de générer le rapport complet."));
+
+  const dateInp = inputEl({type:"date", value:cl.date, onChange:v=>{cl.date=v; save();}});
+  wrap.appendChild(h("div",{class:"card",style:"padding:16px;margin-bottom:12px"}, field("DATE DE CLÔTURE", dateInp)));
+
+  const q1 = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
+  q1.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ L'objectif initial est-il atteint ?"));
+  q1.appendChild(selectEl({options:["atteint","partiellement","non atteint"], value:cl.statutObjectif, onChange:v=>{cl.statutObjectif=v; save();}}));
+  wrap.appendChild(q1);
+
+  const q2 = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
+  q2.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Qu'est-ce qui a changé depuis le début de l'accompagnement ?"));
+  q2.appendChild(textareaEl({value:cl.changements, placeholder:"Faits observés, pas ressentis.", height:"70px", onInput:v=>{cl.changements=v; save();}}));
+  wrap.appendChild(q2);
+
+  const q3 = h("div",{class:"card",style:"padding:16px;margin-bottom:16px"});
+  q3.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Recommandations pour la suite"));
+  q3.appendChild(textareaEl({value:cl.recommandations, placeholder:"Suivi, ressources, points de vigilance.", height:"70px", onInput:v=>{cl.recommandations=v; save();}}));
+  wrap.appendChild(q3);
+
+  const rapportBtn = h("button",{class:"btn",style:"width:100%;padding:14px"},"🖨️ Générer le rapport complet");
+  rapportBtn.addEventListener("click", () => genererRapport(c));
+  wrap.appendChild(rapportBtn);
+
+  return wrap;
+}
+
+function escHtmlRapport(s) {
+  const d = document.createElement("div");
+  d.textContent = String(s||"");
+  return d.innerHTML;
+}
+
+function genererRapport(c) {
+  const pr = c.protocole || {};
+  const dims = dimensionsPourProfil(c.profile);
+  const scoreEval = (c.evaluation && Object.keys(c.evaluation).length) ? dims.reduce((s,d)=>s+(c.evaluation[d.key]||0),0) : null;
+  const maxEval = dims.length*10;
+  const bmp = c.bilanMiParcours;
+  const kit = c.kitSurvie;
+  const cl = pr.cloture || {};
+  const seances = c.protocoleSeances || [];
+  const esc = escHtmlRapport;
+
+  let rep = "";
+  rep += `<h1>Rapport de suivi — ${esc(c.name||"")}</h1>`;
+  rep += `<div class="meta">Profil : ${esc(c.profile||"—")} · Généré le ${new Date().toLocaleDateString('fr-FR')}</div>`;
+
+  rep += `<h2>🎯 Objectif</h2>`;
+  rep += `<p><b>Demande initiale :</b> ${esc(pr.demandeInitiale||"—")}</p>`;
+  rep += `<p><b>Objectif reformulé :</b> ${esc(pr.objectifFormule||"—")}</p>`;
+  rep += `<p><b>Adhésion du client :</b> ${pr.adhesion||0}/10</p>`;
+  if (c.objectifs && c.objectifs.length) {
+    rep += `<ul>` + c.objectifs.map(o=>`<li>${esc(o.titre)} — <i>${esc(o.statut)}</i></li>`).join("") + `</ul>`;
+  }
+
+  rep += `<h2>📊 Bilan initial</h2>`;
+  if (scoreEval!==null) {
+    rep += `<p><b>Score global :</b> ${scoreEval} / ${maxEval}</p>`;
+    rep += `<ul>` + dims.map(d=>`<li>${esc(d.label)} : ${c.evaluation[d.key]||0}/10</li>`).join("") + `</ul>`;
+  } else rep += `<p>Non renseigné.</p>`;
+
+  rep += `<h2>📖 Historique des séances (${seances.length})</h2>`;
+  if (seances.length) {
+    seances.forEach(s => {
+      rep += `<div class="seance-block"><b>${esc(s.date)} — ${esc(s.derouleNom)}</b>`;
+      if (s.resume) rep += `<p>${esc(s.resume)}</p>`;
+      if (s.devoir) rep += `<p><i>Devoir : ${esc(s.devoir)}</i></p>`;
+      rep += `</div>`;
+    });
+  } else rep += `<p>Aucune séance enregistrée.</p>`;
+
+  rep += `<h2>🧭 Bilan mi-parcours</h2>`;
+  if (bmp && bmp.date) {
+    rep += `<p><b>Date :</b> ${esc(bmp.date)}</p>`;
+    rep += `<ul><li>Organisation : ${bmp.scores.organisation}/10</li><li>Émotions : ${bmp.scores.emotions}/10</li><li>Relations : ${bmp.scores.relations}/10</li><li>Confiance : ${bmp.scores.confiance}/10</li></ul>`;
+    if (bmp.progres) rep += `<p><b>Progrès observés :</b> ${esc(bmp.progres)}</p>`;
+    if (bmp.difficile) rep += `<p><b>Ce qui reste difficile :</b> ${esc(bmp.difficile)}</p>`;
+    if (bmp.prochaineEtape) rep += `<p><b>Prochaine étape :</b> ${esc(bmp.prochaineEtape)}</p>`;
+  } else rep += `<p>Non renseigné.</p>`;
+
+  rep += `<h2>🎒 Kit de survie</h2>`;
+  if (kit && (kit.profilCoache||(kit.signaux&&kit.signaux.length)||(kit.outils&&kit.outils.length)||(kit.mantras&&kit.mantras.length))) {
+    if (kit.profilCoache) rep += `<p><b>Profil :</b> ${esc(kit.profilCoache)}</p>`;
+    if (kit.signaux && kit.signaux.filter(Boolean).length) rep += `<p><b>Signaux d'alerte :</b> ${kit.signaux.filter(Boolean).map(esc).join(", ")}</p>`;
+    if (kit.outils && kit.outils.filter(Boolean).length) rep += `<p><b>Outils préférés :</b> ${kit.outils.filter(Boolean).map(esc).join(", ")}</p>`;
+    if (kit.croyanceLimitante) rep += `<p><b>Croyance limitante → ressource :</b> ${esc(kit.croyanceLimitante)} → ${esc(kit.croyanceRessource||"")}</p>`;
+    if (kit.mantras && kit.mantras.filter(Boolean).length) rep += `<p><b>Mantras :</b> ${kit.mantras.filter(Boolean).map(esc).join(" · ")}</p>`;
+  } else rep += `<p>Non renseigné.</p>`;
+
+  rep += `<h2>✅ Bilan final</h2>`;
+  rep += `<p><b>Date de clôture :</b> ${esc(cl.date||"—")}</p>`;
+  rep += `<p><b>Objectif :</b> ${esc(cl.statutObjectif||"—")}</p>`;
+  if (cl.changements) rep += `<p><b>Changements observés :</b> ${esc(cl.changements)}</p>`;
+  if (cl.recommandations) rep += `<p><b>Recommandations :</b> ${esc(cl.recommandations)}</p>`;
+
+  const fullHtml = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Rapport — ${esc(c.name||"")}</title>
+  <style>
+    body{font-family:Georgia,serif;color:#2E2A20;max-width:720px;margin:40px auto;padding:0 20px;line-height:1.6}
+    h1{font-size:24px;color:#4A4030;margin-bottom:4px}
+    h2{font-size:17px;color:#9C7A2E;margin-top:28px;border-bottom:1px solid #E4DAC0;padding-bottom:6px}
+    .meta{color:#8B7355;font-size:13px;margin-bottom:20px}
+    .seance-block{background:#FBF7EC;border-radius:8px;padding:10px 14px;margin-bottom:8px}
+    ul{padding-left:20px}
+    @media print{ .printbar{display:none} }
+  </style></head><body>
+  <div class="printbar" style="margin-bottom:20px"><button onclick="window.print()" style="padding:8px 16px;font-size:13px;cursor:pointer">🖨️ Imprimer / Enregistrer en PDF</button></div>
+  ${rep}
+  </body></html>`;
+
+  const win = window.open("", "_blank");
+  if (!win) { notifCoach("Autorise les pop-ups pour voir le rapport."); return; }
+  win.document.open();
+  win.document.write(fullHtml);
+  win.document.close();
+}
+
 
 const FICHES_THEMES = [
   {theme:"Difficultés familiales", icon:"👨‍👩‍👧",
@@ -2954,235 +3349,6 @@ const FICHES_THEMES = [
    objectifs:["Identifier les besoins d'aménagement","Renforcer l'autonomie au quotidien","Travailler l'acceptation et la confiance"],
    deroule:"1. Faire le point sur le vécu actuel et les besoins\n2. Identifier les aménagements possibles (quotidien, pro, social)\n3. Explorer les ressources et soutiens mobilisables\n4. Renforcer la confiance et l'autonomie\n5. Définir une action concrète à mettre en place"},
 ];
-
-function buildPreparerSeance(c) {
-  c.prochainePrep = c.prochainePrep || { objectifsChoisis: [], outilsChoisis: [], notesPrep: "" };
-  const p = c.prochainePrep;
-  const wrap = h("div",{});
-
-  wrap.appendChild(h("h3",{style:"font-size:20px;color:#2E2A20;font-weight:600;margin-bottom:6px;font-style:italic"},"📝 Préparer la prochaine séance"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:4px"},
-    c.nextSession ? "Séance prévue le " + c.nextSession : "Aucune date de séance programmée."));
-  wrap.appendChild(h("p",{style:"color:#9C7A2E;font-size:12px;margin-bottom:20px;font-weight:600"},"Profil : "+(c.profile||"non défini")));
-
-  // --- Fiches-types par thème ---
-  const themeBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px;border-color:#9C7A2E44"});
-  themeBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:12px"},"📚 Charger une fiche-type par thème"));
-  const themeGrid = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:8px"});
-  FICHES_THEMES.forEach(ft => {
-    const btn = h("button",{class:"btn-sm",style:"text-align:left;padding:10px 12px"}, ft.icon+" "+ft.theme);
-    btn.addEventListener("click", () => {
-      ft.objectifs.forEach(titre => {
-        c.objectifs = c.objectifs || [];
-        if (!c.objectifs.some(o=>o.titre===titre)) {
-          c.objectifs.push({id:Date.now()+""+Math.random().toString(36).slice(2,5), titre, echeance:"", statut:"en cours"});
-        }
-      });
-      p.notesPrep = (p.notesPrep ? p.notesPrep + "\n\n" : "") + "— Trame « " + ft.theme + " » —\n" + ft.deroule;
-      save();
-      render();
-      notifCoach("Fiche « "+ft.theme+" » chargée : objectifs ajoutés + trame insérée.");
-    });
-    themeGrid.appendChild(btn);
-  });
-  themeBox.appendChild(themeGrid);
-  wrap.appendChild(themeBox);
-
-  // --- Objectifs à travailler ---
-  const objBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
-  objBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:12px"},"🎯 Objectifs à travailler cette séance"));
-  const objs = c.objectifs || [];
-  if (!objs.length) {
-    objBox.appendChild(h("p",{style:"color:#5A5648;font-size:13px"},"Aucun objectif défini — charge une fiche-type ou ajoute-en dans l'onglet Objectifs."));
-  } else {
-    objs.forEach(o => {
-      const checked = p.objectifsChoisis.includes(o.id);
-      const row = h("label",{style:"display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;font-size:13.5px;color:#2E2A20"});
-      const cb = h("input",{type:"checkbox"}); cb.checked = checked;
-      cb.addEventListener("change",()=>{
-        if (cb.checked) p.objectifsChoisis.push(o.id);
-        else p.objectifsChoisis = p.objectifsChoisis.filter(id=>id!==o.id);
-        save();
-      });
-      row.appendChild(cb); row.appendChild(document.createTextNode(o.titre + (o.statut==="atteint"?" ✓":"")));
-      objBox.appendChild(row);
-    });
-  }
-  wrap.appendChild(objBox);
-
-  // --- Outils de la bibliothèque ---
-  const outilsBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
-  outilsBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:12px"},"▣ Outils de la bibliothèque"));
-
-  const selectionnes = h("div",{style:"display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px"});
-  function renderSelectionnes() {
-    selectionnes.innerHTML = "";
-    if (!p.outilsChoisis.length) { selectionnes.appendChild(h("span",{style:"color:#5A5648;font-size:12.5px"},"Aucun outil sélectionné pour l'instant.")); return; }
-    p.outilsChoisis.forEach(id => {
-      const fiche = BIBLIO.find(b=>b.id===id);
-      if (!fiche) return;
-      const chip = h("span",{style:"background:#9C7A2E22;color:#9C7A2E;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px"},
-        fiche.titre);
-      const del = h("button",{style:"background:transparent;border:none;color:#9C7A2E;cursor:pointer;font-size:14px"},"×");
-      del.addEventListener("click",()=>{ p.outilsChoisis = p.outilsChoisis.filter(x=>x!==id); save(); renderSelectionnes(); });
-      chip.appendChild(del);
-      selectionnes.appendChild(chip);
-    });
-  }
-  renderSelectionnes();
-  outilsBox.appendChild(selectionnes);
-
-  const profilClient = (c.profile||"").toUpperCase();
-  const suggestions = BIBLIO.filter(b => b.profil==="Tous" || profilClient.includes(b.profil.toUpperCase()));
-  const listeOutils = h("div",{style:"max-height:260px;overflow-y:auto;border-top:1px solid #E4DAC0;padding-top:10px"});
-  suggestions.forEach(b => {
-    if (p.outilsChoisis.includes(b.id)) return;
-    const row = h("div",{style:"display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px;color:#2E2A20;border-bottom:1px solid #F0E9D8"});
-    row.appendChild(h("div",{},h("span",{style:"font-weight:600"},b.titre), h("span",{style:"color:#5A5648;font-size:11.5px"}," — "+b.cat)));
-    const addBtn = h("button",{class:"btn-sm",style:"padding:3px 10px;font-size:11.5px"},"+ Ajouter");
-    addBtn.addEventListener("click",()=>{ p.outilsChoisis.push(b.id); save(); renderSelectionnes(); addBtn.disabled=true; row.style.opacity=".4"; });
-    row.appendChild(addBtn);
-    listeOutils.appendChild(row);
-  });
-  outilsBox.appendChild(listeOutils);
-  wrap.appendChild(outilsBox);
-
-  // --- Exercices / notes libres ---
-  const notesBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
-  notesBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:10px"},"✏️ Exercices et notes de préparation"));
-  const ta = textareaEl({value:p.notesPrep, placeholder:"Idées, exercices personnalisés, points à aborder...", height:"140px", onInput:v=>{p.notesPrep=v; save();}});
-  notesBox.appendChild(ta);
-  wrap.appendChild(notesBox);
-
-  // --- Récapitulatif ---
-  const recap = h("div",{class:"card",style:"padding:18px;border-color:#9C7A2E44"});
-  recap.appendChild(h("div",{style:"font-weight:700;color:#9C7A2E;margin-bottom:10px"},"📋 Plan de séance — résumé"));
-  const objTxt = objs.filter(o=>p.objectifsChoisis.includes(o.id)).map(o=>o.titre).join(", ") || "—";
-  const outTxt = p.outilsChoisis.map(id=>{const f=BIBLIO.find(b=>b.id===id);return f?f.titre:"";}).filter(Boolean).join(", ") || "—";
-  recap.appendChild(h("p",{style:"font-size:13px;color:#2E2A20;margin-bottom:6px"}, h("b",{},"Objectifs : "), objTxt));
-  recap.appendChild(h("p",{style:"font-size:13px;color:#2E2A20;margin-bottom:6px"}, h("b",{},"Outils : "), outTxt));
-  if (p.notesPrep) recap.appendChild(h("p",{style:"font-size:13px;color:#2E2A20;white-space:pre-wrap"}, h("b",{},"Notes : "), p.notesPrep));
-  wrap.appendChild(recap);
-
-  return wrap;
-}
-
-const PROGRAMME_90J = ["p90-1","p90-2","p90-3","p90-4","p90-5","p90-6","p90-7","p90-8","p90-9","p90-10","p90-11","p90-12"];
-
-function buildProgramme90(c) {
-  const wrap = h("div",{});
-  wrap.appendChild(h("h3",{style:"font-size:20px;color:#2E2A20;font-weight:600;margin-bottom:6px;font-style:italic"},"🗓️ Programme 90 jours"));
-
-  if (!c.programme90) {
-    wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Un parcours structuré de 12 semaines, réparti sur 3 mois."));
-    const startBtn = h("button",{class:"btn"},"Démarrer le programme pour ce client");
-    startBtn.addEventListener("click",()=>{
-      c.programme90 = { dateDebut: new Date().toISOString().slice(0,10), semainesTerminees: [] };
-      save(); render();
-    });
-    wrap.appendChild(startBtn);
-    return wrap;
-  }
-
-  const p = c.programme90;
-  const pct = Math.round(p.semainesTerminees.length/12*100);
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px;margin-bottom:10px"},"Démarré le "+p.dateDebut));
-  const barBg = h("div",{style:"background:#E4DAC0;border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px"});
-  barBg.appendChild(h("div",{style:"background:#9C7A2E;height:100%;width:"+pct+"%"}));
-  wrap.appendChild(barBg);
-  wrap.appendChild(h("p",{style:"color:#9C7A2E;font-size:12.5px;font-weight:700;margin-bottom:18px"}, p.semainesTerminees.length+" / 12 semaines terminées ("+pct+"%)"));
-
-  let ouverte = null;
-  const listeWrap = h("div",{});
-  function renderListe() {
-    listeWrap.innerHTML = "";
-    PROGRAMME_90J.forEach((bid, i) => {
-      const fiche = BIBLIO.find(b=>b.id===bid);
-      if (!fiche) return;
-      const num = i+1;
-      const terminee = p.semainesTerminees.includes(bid);
-      const card = h("div",{class:"card",style:"padding:14px 16px;margin-bottom:8px"});
-      const hdr = h("div",{style:"display:flex;align-items:center;gap:10px;cursor:pointer"});
-      const cb = h("input",{type:"checkbox"}); cb.checked = terminee;
-      cb.addEventListener("click",(e)=>e.stopPropagation());
-      cb.addEventListener("change",()=>{
-        if (cb.checked) p.semainesTerminees.push(bid);
-        else p.semainesTerminees = p.semainesTerminees.filter(x=>x!==bid);
-        save(); render();
-      });
-      hdr.appendChild(cb);
-      hdr.appendChild(h("div",{style:"flex:1;color:#2E2A20;font-size:13.5px;font-weight:600"+(terminee?";text-decoration:line-through;opacity:.55":"")}, fiche.titre));
-      hdr.appendChild(h("span",{style:"color:#9C7A2E;font-size:12px"}, ouverte===bid ? "▴" : "▾"));
-      hdr.addEventListener("click",()=>{ ouverte = ouverte===bid ? null : bid; renderListe(); });
-      card.appendChild(hdr);
-      if (ouverte===bid) {
-        card.appendChild(h("div",{style:"margin-top:10px;padding-top:10px;border-top:1px solid #E4DAC0;color:#2E2A20;font-size:12.5px;white-space:pre-wrap;line-height:1.6"}, fiche.contenu));
-      }
-      listeWrap.appendChild(card);
-    });
-  }
-  renderListe();
-  wrap.appendChild(listeWrap);
-
-  const stopBtn = h("button",{class:"btn-g",style:"margin-top:10px"},"Retirer ce programme");
-  stopBtn.addEventListener("click",()=>{ if(confirm("Retirer le programme 90 jours de ce client ?")){ c.programme90=null; save(); render(); } });
-  wrap.appendChild(stopBtn);
-
-  return wrap;
-}
-
-function buildKitSurvie(c) {
-  c.kitSurvie = c.kitSurvie || {profilCoache:"", signaux:[], outils:[], croyanceLimitante:"", croyanceRessource:"", mantras:[]};
-  const k = c.kitSurvie;
-  const wrap = h("div",{});
-  wrap.appendChild(h("h3",{style:"font-size:20px;color:#2E2A20;font-weight:600;margin-bottom:6px;font-style:italic"},"🎒 Kit de survie"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:20px"},"Co-construisez un plan personnalisé avec le client."));
-
-  wrap.appendChild(h("div",{class:"card",style:"padding:18px;margin-bottom:16px"},
-    h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:10px"},"Profil du client"),
-    (() => {
-      const t = textareaEl({value:k.profilCoache, placeholder:"Particularités, forces, sensibilités...", height:"64px", onInput:v=>{k.profilCoache=v; save();}});
-      return t;
-    })()
-  ));
-
-  function listeEditable(titre, arr, placeholder) {
-    const box = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
-    const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"},
-      h("div",{style:"font-weight:700;color:#2E2A20"},titre),
-      h("button",{class:"btn-sm"},"+ Ajouter")
-    );
-    const list = h("div",{});
-    function renderList() {
-      list.innerHTML = "";
-      arr.forEach((val,i) => {
-        const row = h("div",{style:"display:flex;gap:8px;margin-bottom:8px"});
-        const inp = inputEl({value:val, placeholder, onInput:v=>{arr[i]=v; save();}});
-        const del = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:16px"},"×");
-        del.addEventListener("click",()=>{ arr.splice(i,1); save(); renderList(); });
-        row.appendChild(inp); row.appendChild(del);
-        list.appendChild(row);
-      });
-    }
-    hdr.querySelector("button").addEventListener("click", () => { arr.push(""); save(); renderList(); });
-    renderList();
-    box.appendChild(hdr); box.appendChild(list);
-    return box;
-  }
-  wrap.appendChild(listeEditable("⚠️ Signaux d'alerte", k.signaux, "Ex: irritabilité, isolement..."));
-  wrap.appendChild(listeEditable("🔧 Outils préférés", k.outils, "Ex: respiration, marche..."));
-
-  wrap.appendChild(h("div",{class:"card",style:"padding:18px;margin-bottom:16px"},
-    h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:10px"},"🔄 Croyances transformées"),
-    field("Croyance limitante", inputEl({value:k.croyanceLimitante, placeholder:"Ex: Je dois être parfait", onInput:v=>{k.croyanceLimitante=v; save();}})),
-    h("div",{style:"height:10px"}),
-    field("Croyance ressource", inputEl({value:k.croyanceRessource, placeholder:"Ex: Le progrès vaut mieux que la perfection", onInput:v=>{k.croyanceRessource=v; save();}}))
-  ));
-
-  wrap.appendChild(listeEditable("✨ Mantras / Affirmations", k.mantras, "Ex: J'avance à mon rythme"));
-
-  return wrap;
-}
 
 function buildFiche(c) {
   let editMode = false;
@@ -3329,128 +3495,6 @@ function buildFiche(c) {
   }
 
   showView();
-  return wrap;
-}
-
-function buildSeances(c) {
-  const wrap = h("div",{});
-  let showForm = false;
-
-  function render2() {
-    wrap.innerHTML="";
-    const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"},
-      h("span",{style:"color:#5A5648;font-size:14px"},`${c.sessions||0} séance${(c.sessions||0)>1?"s":""}`),
-    );
-    const addBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E44;color:#9C7A2E"},showForm?"✕ Annuler":"+ Nouvelle séance");
-    addBtn.addEventListener("click",()=>{ showForm=!showForm; render2(); });
-    hdr.appendChild(addBtn);
-    wrap.appendChild(hdr);
-
-    if (showForm) {
-      const box = h("div",{class:"card",style:"padding:16px;margin-bottom:14px;border-color:#9C7A2E33"});
-      box.appendChild(lbl("COMPTE-RENDU"));
-      const ta = textareaEl({placeholder:"Points abordés, avancées, outil utilisé...",height:"76px"});
-      box.appendChild(ta);
-      const sv = h("button",{class:"btn",style:"margin-top:10px;padding:8px 18px;font-size:13px"},"Valider");
-      sv.addEventListener("click",()=>{
-        const val = ta.value.trim();
-        if (!val) return;
-        if (!c.sessionHistory) c.sessionHistory=[];
-        c.sessions = (c.sessions||0)+1;
-        c.sessionHistory.push(`Séance ${c.sessions} — ${val}`);
-        state.clients = state.clients.map(x=>x.id===c.id?c:x);
-        save(); showForm=false; render2();
-      });
-      box.appendChild(sv);
-      wrap.appendChild(box);
-    }
-
-    if (!(c.sessionHistory||[]).length) {
-      wrap.appendChild(h("p",{style:"color:#6B6355;font-size:13px;padding:16px 0"},"Aucune séance enregistrée."));
-    } else {
-      [...c.sessionHistory].reverse().forEach((s,i,arr)=>{
-        wrap.appendChild(h("div",{class:"sess-row"},
-          h("div",{class:"sess-num"},String(arr.length-i)),
-          h("div",{style:"color:#5A5648;font-size:13px;line-height:1.6"},s.replace(/^Séance \d+ — /,""))
-        ));
-      });
-    }
-  }
-  render2();
-  return wrap;
-}
-
-function buildObjectifs(c) {
-  const wrap = h("div",{});
-  let showForm = false;
-  let newObj = {titre:"",echeance:"",statut:"en cours"};
-
-  function render2() {
-    wrap.innerHTML="";
-    if (!c.objectifs) c.objectifs=[];
-    const atteints = c.objectifs.filter(o=>o.statut==="atteint").length;
-    const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"},
-      h("span",{style:"color:#5A5648;font-size:14px"},`${atteints}/${c.objectifs.length} atteint(s)`)
-    );
-    const addBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E44;color:#9C7A2E"},showForm?"✕ Annuler":"+ Ajouter");
-    addBtn.addEventListener("click",()=>{ showForm=!showForm; newObj={titre:"",echeance:"",statut:"en cours"}; render2(); });
-    hdr.appendChild(addBtn);
-    wrap.appendChild(hdr);
-
-    if (showForm) {
-      const box = h("div",{class:"card",style:"padding:16px;margin-bottom:14px;border-color:#9C7A2E33"});
-      const g = h("div",{class:"grid2",style:"margin-bottom:10px"});
-      const ti = inputEl({placeholder:"Ex: Poser des limites claires",onInput:v=>newObj.titre=v});
-      g.appendChild(h("div",{class:"span2"},field("OBJECTIF",ti)));
-      const da = inputEl({type:"date",onChange:v=>newObj.echeance=v});
-      g.appendChild(field("ÉCHÉANCE",da));
-      const st = selectEl({options:["en cours","atteint","suspendu"],value:"en cours",onChange:v=>newObj.statut=v});
-      g.appendChild(field("STATUT",st));
-      box.appendChild(g);
-      const sv = h("button",{class:"btn",style:"padding:8px 18px;font-size:13px"},"Ajouter");
-      sv.addEventListener("click",()=>{
-        if (!newObj.titre.trim()) return;
-        c.objectifs.push({...newObj,id:Date.now()+""});
-        state.clients = state.clients.map(x=>x.id===c.id?c:x);
-        save(); showForm=false; render2();
-      });
-      box.appendChild(sv);
-      wrap.appendChild(box);
-    }
-
-    if (!c.objectifs.length) {
-      wrap.appendChild(h("p",{style:"color:#6B6355;font-size:13px;padding:16px 0"},"Aucun objectif défini."));
-    } else {
-      c.objectifs.forEach(o => {
-        const col = o.statut==="atteint"?"#4a9e6a":o.statut==="suspendu"?"#6B6355":"#5aaec8";
-        const chk = h("div",{class:"obj-check",style:`border-color:${col};background:${o.statut==="atteint"?col:"transparent"};color:#F7F2E7`},
-          o.statut==="atteint"?"✓":""
-        );
-        chk.addEventListener("click",()=>{
-          o.statut = o.statut==="atteint"?"en cours":"atteint";
-          state.clients = state.clients.map(x=>x.id===c.id?c:x);
-          save(); render2();
-        });
-        const sbadge = h("span",{style:`padding:2px 8px;border-radius:20px;background:${col}18;color:${col};font-size:12px;font-weight:600`},o.statut);
-        const del = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#6B6355;font-size:18px;padding:0 4px"},"×");
-        del.addEventListener("click",()=>{
-          c.objectifs = c.objectifs.filter(x=>x.id!==o.id);
-          state.clients = state.clients.map(x=>x.id===c.id?c:x);
-          save(); render2();
-        });
-        const row = h("div",{class:"obj-row"},
-          chk,
-          h("div",{style:"flex:1"},
-            h("div",{style:`color:${o.statut==="atteint"?"#6B6355":"#2E2A20"};font-size:14px;text-decoration:${o.statut==="atteint"?"line-through":"none"}`},o.titre),
-            o.echeance?h("div",{style:"color:#6B6355;font-size:13px;margin-top:2px"},"Échéance : "+o.echeance):null
-          ),
-          sbadge, del
-        );
-        wrap.appendChild(row);
-      });
-    }
-  }
-  render2();
   return wrap;
 }
 
