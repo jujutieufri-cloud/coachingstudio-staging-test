@@ -740,8 +740,15 @@ Ancrage quotidien : rituel de gratitude matin/soir.`},
 // ══════════════════════════════════════════
 //  DÉROULÉS DE SÉANCE (script minuté + trame souple)
 // ══════════════════════════════════════════
+const PHASES_LABELS = {
+  evaluation: "🔍 Évaluation",
+  psychoeducation: "📚 Psychoéducation",
+  entrainement: "🛠️ Entraînement aux compétences",
+  maintien: "🌱 Maintien / prévention rechute"
+};
+
 const DEROULES = [
-  {id:"d1", cat:"Accueil", profil:"Tous", duree:60,
+  {id:"d1", cat:"Accueil", phase:"evaluation", profil:"Tous", duree:60,
    titre:"Séance d'accueil — bilan initial",
    objectif:"Poser le cadre de travail, comprendre la demande réelle derrière la demande exprimée, co-construire un premier objectif concret et mesurable.",
    minute:[
@@ -759,7 +766,7 @@ const DEROULES = [
    ],
    devoirs:"Observer sans corriger : noter 3 moments où le sujet identifié est apparu dans la semaine, sans essayer de le changer."},
 
-  {id:"d2", cat:"Profils", profil:"TDAH", duree:60,
+  {id:"d2", cat:"Profils", phase:"entrainement", profil:"TDAH", duree:60,
    titre:"Séance TDAH — structurer sans s'enfermer",
    objectif:"Construire un système d'organisation externe qui tient compte des variations d'énergie, sans viser une discipline uniforme irréaliste.",
    minute:[
@@ -777,7 +784,7 @@ const DEROULES = [
    ],
    devoirs:"Tester le point ajusté pendant 5 jours. Noter uniquement les faits (tenu / pas tenu), sans commentaire sur soi-même."},
 
-  {id:"d3", cat:"Profils", profil:"HPI", duree:60,
+  {id:"d3", cat:"Profils", phase:"entrainement", profil:"HPI", duree:60,
    titre:"Séance HPI — ralentir la pensée en arborescence",
    objectif:"Aider à choisir une branche de réflexion sans étouffer les autres, et transformer l'excès d'analyse en décision utilisable.",
    minute:[
@@ -795,7 +802,7 @@ const DEROULES = [
    ],
    devoirs:"Une seule action test, avec un critère de vérification écrit à l'avance (pour éviter de juger a posteriori selon un critère mouvant)."},
 
-  {id:"d4", cat:"Profils", profil:"HSP", duree:60,
+  {id:"d4", cat:"Profils", phase:"entrainement", profil:"HSP", duree:60,
    titre:"Séance HSP — réguler la charge sensorielle et émotionnelle",
    objectif:"Restaurer un budget d'énergie soutenable et repérer les signaux avant-coureurs de surcharge.",
    minute:[
@@ -813,7 +820,7 @@ const DEROULES = [
    ],
    devoirs:"Trois relevés d'intensité par jour (1-10), sans intervenir dessus — observer uniquement."},
 
-  {id:"d5", cat:"Burnout / Reconversion", profil:"Tous", duree:60,
+  {id:"d5", cat:"Burnout / Reconversion", phase:"evaluation", profil:"Tous", duree:60,
    titre:"Séance bilan — évaluation initiale burnout (5 axes)",
    objectif:"Poser un état des lieux objectivé du niveau d'épuisement avant tout protocole, sans minimiser ni dramatiser.",
    minute:[
@@ -831,7 +838,7 @@ const DEROULES = [
    ],
    devoirs:"Aucun devoir actif cette semaine si l'épuisement est marqué — le repos fait partie du protocole, pas une pause avant le vrai travail."},
 
-  {id:"d6", cat:"Burnout / Reconversion", profil:"Tous", duree:60,
+  {id:"d6", cat:"Burnout / Reconversion", phase:"maintien", profil:"Tous", duree:60,
    titre:"Séance bilan mi-parcours — reconversion",
    objectif:"Objectiver les progrès réels sur les 5 semaines écoulées, ajuster la suite, et vérifier l'alignement avec le projet de reconversion.",
    minute:[
@@ -1286,7 +1293,7 @@ function renderDeroulesTab() {
     card.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"},
       h("div",{},
         h("div",{style:"font-weight:700;font-size:14.5px;color:#2E2A20"}, d.titre),
-        h("div",{style:"font-size:12px;color:#8B7355;margin-top:2px"}, d.profil + " · " + d.duree + " min · " + d.cat)
+        h("div",{style:"font-size:12px;color:#8B7355;margin-top:2px"}, d.profil + " · " + d.duree + " min · " + d.cat + " · " + PHASES_LABELS[d.phase])
       )
     ));
     card.appendChild(h("div",{style:"font-size:13px;color:#5A5648;margin:10px 0;font-style:italic"}, "Objectif : " + d.objectif));
@@ -2858,6 +2865,14 @@ function buildProtocole(c) {
   return wrap;
 }
 
+const STADES_CHANGEMENT = [
+  {id:"precontemplation", label:"Précontemplation", desc:"Le client ne perçoit pas encore de problème à changer.", implication:"Rester en psychoéducation et observation, ne pas pousser vers l'action — risque d'abandon si on va trop vite."},
+  {id:"contemplation", label:"Contemplation", desc:"Le client envisage le changement mais reste ambivalent.", implication:"Travailler la balance bénéfices/coûts du changement, explorer les freins sans les juger."},
+  {id:"preparation", label:"Préparation", desc:"Le client a l'intention d'agir prochainement.", implication:"Co-construire un plan concret et réaliste, premières actions de faible ampleur."},
+  {id:"action", label:"Action", desc:"Le client modifie activement son comportement.", implication:"Les déroulés orientés compétences (organisation, régulation) sont pertinents maintenant."},
+  {id:"maintien", label:"Maintien", desc:"Le changement est installé, l'enjeu est de le stabiliser.", implication:"Prévention de la rechute, kit de survie, espacement des séances."},
+];
+
 function stepObjectif(c) {
   const wrap = h("div",{});
   const pr = c.protocole;
@@ -2900,6 +2915,25 @@ function stepObjectif(c) {
   const slider = h("input",{type:"range",min:"0",max:"10",value:String(pr.adhesion||0),style:"width:100%"});
   slider.addEventListener("input", () => { pr.adhesion=Number(slider.value); valSpan.textContent=slider.value; save(); });
   q3.appendChild(slider); wrap.appendChild(q3);
+
+  const q4 = h("div",{class:"card",style:"padding:16px;margin-bottom:16px"});
+  q4.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:4px"},"❓ À quel stade de changement se situe le client ?"));
+  q4.appendChild(h("div",{style:"color:#8B7355;font-size:11.5px;margin-bottom:10px"},"Modèle transthéorique de Prochaska & DiClemente — calibre le rythme et le type d'intervention."));
+  const stadeGrid = h("div",{style:"display:flex;flex-direction:column;gap:6px"});
+  STADES_CHANGEMENT.forEach(s => {
+    const active = pr.stadeChangement === s.id;
+    const card = h("div",{style:"padding:10px 12px;border-radius:8px;border:1.5px solid "+(active?"#9C7A2E":"#D8CBA8")+";background:"+(active?"#9C7A2E14":"transparent")+";cursor:pointer"});
+    card.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13px"}, s.label));
+    card.appendChild(h("div",{style:"color:#5A5648;font-size:12px;margin-top:2px"}, s.desc));
+    card.addEventListener("click", () => { pr.stadeChangement = s.id; save(); render(); });
+    stadeGrid.appendChild(card);
+  });
+  q4.appendChild(stadeGrid);
+  if (pr.stadeChangement) {
+    const s = STADES_CHANGEMENT.find(x=>x.id===pr.stadeChangement);
+    q4.appendChild(h("div",{style:"margin-top:10px;padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355"}, "💡 Implication coaching : " + s.implication));
+  }
+  wrap.appendChild(q4);
 
   wrap.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:16px 0 8px"},"Objectifs concrets suivis"));
   wrap.appendChild(buildObjectifsListe(c));
@@ -2967,6 +3001,15 @@ function buildObjectifsListe(c) {
   return wrap;
 }
 
+const SIGNAUX_ALERTE = [
+  {id:"idees_noires", label:"Idées noires, désespoir exprimé"},
+  {id:"depression", label:"Syndrome dépressif marqué (tristesse envahissante, perte d'intérêt généralisée)"},
+  {id:"consommation", label:"Consommation problématique (alcool, médicaments, substances)"},
+  {id:"decompensation", label:"Perte de contact avec la réalité, propos très désorganisés"},
+  {id:"violence", label:"Violence envers soi ou autrui, mise en danger"},
+  {id:"comorbidite", label:"Suspicion de trouble non diagnostiqué nécessitant un avis médical"},
+];
+
 function stepBilanInitial(c) {
   const wrap = h("div",{});
   c.evaluation = c.evaluation || {};
@@ -3005,6 +3048,38 @@ function stepBilanInitial(c) {
     wrap.appendChild(card);
   });
 
+  // Garde-fou déontologique — le coaching n'est pas un soin, il oriente vers un professionnel si besoin
+  c.protocole.signauxAlerte = c.protocole.signauxAlerte || [];
+  const sa = c.protocole.signauxAlerte;
+  const gfBox = h("div",{class:"card",style:"padding:16px;margin-top:8px;border-color:#d0707044"});
+  gfBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:2px"},"🚦 Garde-fou déontologique"));
+  gfBox.appendChild(h("div",{style:"color:#8B7355;font-size:11.5px;margin-bottom:10px"},"Le coach agit dans son champ de compétence et oriente vers un professionnel de santé si l'un de ces signaux est présent — norme reprise des standards de coaching TDAH (NBEFC)."));
+  const flagsList = h("div",{});
+  function renderFlags() {
+    flagsList.innerHTML = "";
+    SIGNAUX_ALERTE.forEach(f => {
+      const checked = sa.includes(f.id);
+      const row = h("label",{style:"display:flex;align-items:flex-start;gap:8px;padding:5px 0;cursor:pointer;font-size:13px;color:#2E2A20"});
+      const cb = h("input",{type:"checkbox"});
+      cb.checked = checked;
+      cb.addEventListener("change", () => {
+        if (cb.checked) { if (!sa.includes(f.id)) sa.push(f.id); }
+        else { c.protocole.signauxAlerte = sa.filter(x=>x!==f.id); }
+        save(); render();
+      });
+      row.appendChild(cb);
+      row.appendChild(h("span",{}, f.label));
+      flagsList.appendChild(row);
+    });
+  }
+  renderFlags();
+  gfBox.appendChild(flagsList);
+  if (sa.length) {
+    gfBox.appendChild(h("div",{style:"margin-top:10px;padding:10px 12px;background:#d0707018;border-radius:8px;font-size:12.5px;color:#a04545;font-weight:600"},
+      "⚠️ Signal(aux) coché(s) — orienter vers un médecin, psychologue ou psychiatre en parallèle du coaching. Le coaching ne remplace pas un suivi médical ou psychologique."));
+  }
+  wrap.appendChild(gfBox);
+
   return wrap;
 }
 
@@ -3015,23 +3090,35 @@ function stepSeances(c) {
   wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Choisissez un déroulé, menez la séance, puis complétez le compte-rendu — chaque séance validée nourrit le rapport."));
 
   const profilClient = (c.profile||"").toUpperCase();
+  const stade = c.protocole.stadeChangement;
   let suggestionId = null;
-  const e = c.evaluation || {};
-  if (profilClient.includes("TDAH") && ((e.gestionTemps||0)+(e.dispersion||0)+(e.impulsivite||0))>=6) suggestionId="d2";
-  else if (profilClient.includes("HPI") && ((e.syndromeImposteur||0)+(e.questionnement||0))>=6) suggestionId="d3";
-  else if ((profilClient.includes("HSP")||profilClient.includes("HPE")) && ((e.intensiteEmo||0)+(e.surchargeSensorielle||0))>=6) suggestionId="d4";
+
+  // Le stade de changement prime : pas d'entraînement aux compétences si le client n'est pas prêt à agir
+  if (stade === "precontemplation" || stade === "contemplation") {
+    suggestionId = c.protocoleSeances.length ? "d5" : "d1"; // psychoéducation / évaluation, pas d'action
+  } else if (stade === "maintien") {
+    suggestionId = "d6"; // consolidation
+  } else {
+    const e = c.evaluation || {};
+    if (profilClient.includes("TDAH") && ((e.gestionTemps||0)+(e.dispersion||0)+(e.impulsivite||0))>=6) suggestionId="d2";
+    else if (profilClient.includes("HPI") && ((e.syndromeImposteur||0)+(e.questionnement||0))>=6) suggestionId="d3";
+    else if ((profilClient.includes("HSP")||profilClient.includes("HPE")) && ((e.intensiteEmo||0)+(e.surchargeSensorielle||0))>=6) suggestionId="d4";
+  }
   if (!suggestionId && !c.protocoleSeances.length) suggestionId = "d1";
 
   const form = h("div",{class:"card",style:"padding:16px;margin-bottom:16px;border-color:#9C7A2E44"});
   form.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Quel déroulé pour cette séance ?"));
   const sel = h("select",{style:"width:100%;margin-bottom:6px"});
   DEROULES.forEach(d => {
-    const opt = h("option",{value:d.id}, d.titre + (d.id===suggestionId?" — suggéré":""));
+    const opt = h("option",{value:d.id}, d.titre + " · " + PHASES_LABELS[d.phase] + (d.id===suggestionId?" — suggéré":""));
     if (d.id===(suggestionId||DEROULES[0].id)) opt.selected = true;
     sel.appendChild(opt);
   });
   form.appendChild(sel);
-  if (suggestionId) form.appendChild(h("div",{style:"font-size:11.5px;color:#9C7A2E;margin-bottom:10px"},"💡 Suggéré à partir du profil et du bilan initial."));
+  if (suggestionId) {
+    const stadeTxt = stade ? " (stade : " + STADES_CHANGEMENT.find(s=>s.id===stade).label + ")" : "";
+    form.appendChild(h("div",{style:"font-size:11.5px;color:#9C7A2E;margin-bottom:10px"},"💡 Suggéré à partir du profil, du bilan initial et du stade de changement"+stadeTxt+"."));
+  }
 
   const dateInp = inputEl({type:"date", value:new Date().toISOString().slice(0,10)});
   form.appendChild(h("div",{style:"margin:10px 0"}, field("DATE", dateInp)));
@@ -3260,6 +3347,10 @@ function genererRapport(c) {
   rep += `<p><b>Demande initiale :</b> ${esc(pr.demandeInitiale||"—")}</p>`;
   rep += `<p><b>Objectif reformulé :</b> ${esc(pr.objectifFormule||"—")}</p>`;
   rep += `<p><b>Adhésion du client :</b> ${pr.adhesion||0}/10</p>`;
+  if (pr.stadeChangement) {
+    const st = STADES_CHANGEMENT.find(s=>s.id===pr.stadeChangement);
+    rep += `<p><b>Stade de changement (Prochaska & DiClemente) :</b> ${esc(st?st.label:pr.stadeChangement)}</p>`;
+  }
   if (c.objectifs && c.objectifs.length) {
     rep += `<ul>` + c.objectifs.map(o=>`<li>${esc(o.titre)} — <i>${esc(o.statut)}</i></li>`).join("") + `</ul>`;
   }
@@ -3269,6 +3360,10 @@ function genererRapport(c) {
     rep += `<p><b>Score global :</b> ${scoreEval} / ${maxEval}</p>`;
     rep += `<ul>` + dims.map(d=>`<li>${esc(d.label)} : ${c.evaluation[d.key]||0}/10</li>`).join("") + `</ul>`;
   } else rep += `<p>Non renseigné.</p>`;
+  if (pr.signauxAlerte && pr.signauxAlerte.length) {
+    const labels = pr.signauxAlerte.map(id => { const f=SIGNAUX_ALERTE.find(x=>x.id===id); return f?f.label:id; });
+    rep += `<p style="color:#a04545"><b>🚦 Signaux d'alerte relevés :</b> ${labels.map(esc).join(", ")} — orientation vers un professionnel de santé recommandée.</p>`;
+  }
 
   rep += `<h2>📖 Historique des séances (${seances.length})</h2>`;
   if (seances.length) {
