@@ -177,7 +177,7 @@ const SAMPLE = [
 ];
 
 const BIBLIO = [
-  {id:"q1",cat:"Questions puissantes",profil:"Tous",titre:"Ouverture & exploration",source:"Meta-Coaching — Hall & Duval",
+  {id:"q1",cat:"Questions puissantes",phase:"evaluation",profil:"Tous",titre:"Ouverture & exploration",source:"Meta-Coaching — Hall & Duval",
    contenu:`1. Qu'est-ce qui est le plus important pour toi là, maintenant ?
 2. Si tu n'avais aucune limite, que ferais-tu ?
 3. Qu'est-ce que cette situation te coûte de ne pas changer ?
@@ -185,25 +185,25 @@ const BIBLIO = [
 5. Qu'est-ce qui serait différent si ce problème était résolu ?
 6. Qu'est-ce que tu sais déjà, au fond de toi ?
 7. Quel serait le premier petit pas possible aujourd'hui ?`},
-  {id:"q2",cat:"Questions puissantes",profil:"HPI",titre:"Décélération & ancrage (HPI)",source:"Assenheim — Mon Cerveau est Hyper",
+  {id:"q2",cat:"Questions puissantes",phase:"entrainement",profil:"HPI",titre:"Décélération & ancrage (HPI)",source:"Assenheim — Mon Cerveau est Hyper",
    contenu:`1. Parmi toutes ces idées, laquelle résonne le plus avec qui tu es vraiment ?
 2. Si tu devais choisir UNE seule priorité cette semaine, laquelle ?
 3. Qu'est-ce que tu ressens dans ton corps quand tu penses à ça ?
 4. Tu analyses beaucoup — qu'est-ce que TOI tu veux vraiment ?
 5. À quel moment tu t'es senti pleinement toi-même récemment ?`},
-  {id:"q3",cat:"Questions puissantes",profil:"HSP",titre:"Validation & besoins (HSP)",source:"Coaching HSP — approche somatique",
+  {id:"q3",cat:"Questions puissantes",phase:"entrainement",profil:"HSP",titre:"Validation & besoins (HSP)",source:"Coaching HSP — approche somatique",
    contenu:`1. Qu'est-ce que tu as absorbé des autres aujourd'hui qui n'est pas le tien ?
 2. Où dans ton corps ressens-tu ça ?
 3. Qu'est-ce dont tu as besoin pour te sentir en sécurité ici ?
 4. Si ta sensibilité était un superpouvoir, comment tu l'utiliserais là ?
 5. Quelle est la frontière que tu as du mal à maintenir en ce moment ?`},
-  {id:"q4",cat:"Questions puissantes",profil:"TDAH",titre:"Focus & momentum (TDAH)",source:"Coaching TDAH — approche forces",
+  {id:"q4",cat:"Questions puissantes",phase:"entrainement",profil:"TDAH",titre:"Focus & momentum (TDAH)",source:"Coaching TDAH — approche forces",
    contenu:`1. Quelle est la SEULE chose que tu ferais si tu ne pouvais en faire qu'une ?
 2. Qu'est-ce qui te donne de l'énergie vs ce qui t'en prend ?
 3. À quel moment de la journée tu es le plus efficace ?
 4. C'est quoi le vrai obstacle : la tâche ou ce qu'elle représente ?
 5. Comment rendre ça plus fun, plus rapide, plus stimulant ?`},
-  {id:"n1",cat:"NLP",profil:"Tous",titre:"Recadrage de contenu",source:"NLP — Bandler & Grinder",
+  {id:"n1",cat:"NLP",phase:"entrainement",profil:"Tous",titre:"Recadrage de contenu",source:"NLP — Bandler & Grinder",
    contenu:`OBJECTIF : Changer la signification attribuée à un événement.
 
 1. Identifier la croyance limitante : « Qu'est-ce que tu dis sur toi dans cette situation ? »
@@ -213,7 +213,7 @@ const BIBLIO = [
 5. Test : « Sur 1 à 10, comment tu te sens avec cette nouvelle façon de voir ? »
 
 EXEMPLE : "Je suis trop sensible" → "Je perçois ce que les autres ne voient pas encore"`},
-  {id:"n2",cat:"NLP",profil:"HPI",titre:"Ligne du temps — décision (HPI)",source:"NLP — Ligne du temps",
+  {id:"n2",cat:"NLP",phase:"entrainement",profil:"HPI",titre:"Ligne du temps — décision (HPI)",source:"NLP — Ligne du temps",
    contenu:`OBJECTIF : Débloquer une décision via la sagesse temporelle.
 
 1. Imaginer une ligne du temps devant soi.
@@ -223,7 +223,7 @@ EXEMPLE : "Je suis trop sensible" → "Je perçois ce que les autres ne voient p
 5. Ancrer la ressource : geste ou mot-clé associé à la clarté ressentie.
 
 ADAPTÉ HPI : Le HPI visualise plusieurs futurs simultanément — choisir le plus ALIGNÉ, pas le plus optimal.`},
-  {id:"n3",cat:"NLP",profil:"HSP",titre:"Ancrage ressource (HSP)",source:"NLP — Ancrage",
+  {id:"n3",cat:"NLP",phase:"entrainement",profil:"HSP",titre:"Ancrage ressource (HSP)",source:"NLP — Ancrage",
    contenu:`OBJECTIF : Créer une ancre corporelle de sécurité rapidement accessible.
 
 1. Identifier un souvenir de sécurité absolue.
@@ -233,7 +233,7 @@ ADAPTÉ HPI : Le HPI visualise plusieurs futurs simultanément — choisir le pl
 5. Tester : activer l'ancre et vérifier le retour de l'état ressource.
 
 ADAPTÉ HSP : Ancres discrètes (poignet, lobe de l'oreille) utilisables en public.`},
-  {id:"n4",cat:"NLP",profil:"TDAH",titre:"Modélisation état de flow (TDAH)",source:"NLP + Csikszentmihalyi — Flow",
+  {id:"n4",cat:"NLP",phase:"entrainement",profil:"TDAH",titre:"Modélisation état de flow (TDAH)",source:"NLP + Csikszentmihalyi — Flow",
    contenu:`OBJECTIF : Reproduire volontairement un état de concentration intense.
 
 1. « Rappelle-toi d'un moment où tu étais totalement absorbé. »
@@ -243,7 +243,7 @@ ADAPTÉ HSP : Ancres discrètes (poignet, lobe de l'oreille) utilisables en publ
 5. Ancrer et tester.
 
 ADAPTÉ TDAH : Le flow arrive quand la tâche est juste assez difficile — calibrer le défi.`},
-  {id:"s1b",cat:"Sophrologie & somatique",profil:"Tous",titre:"Cohérence cardiaque 3-6-5",source:"Dr David O'Hare",
+  {id:"s1b",cat:"Sophrologie & somatique",phase:"entrainement",profil:"Tous",titre:"Cohérence cardiaque 3-6-5",source:"Dr David O'Hare",
    contenu:`OBJECTIF : Réguler le système nerveux en 5 minutes.
 → 3 fois par jour / 6 respirations par minute / 5 minutes
 
@@ -256,7 +256,7 @@ ADAPTÉ TDAH : Le flow arrive quand la tâche est juste assez difficile — cali
 EFFETS : Réduction cortisol, clarté mentale, retour au calme.
 CONSEIL : Matin + avant séance + avant de dormir.
 ADAPTÉ TDAH : Utiliser une app de guidage visuel (RespiRelax).`},
-  {id:"s2b",cat:"Sophrologie & somatique",profil:"HSP",titre:"Protocole de décharge sensorielle",source:"Peter Levine — Somatic Experiencing",
+  {id:"s2b",cat:"Sophrologie & somatique",phase:"entrainement",profil:"HSP",titre:"Protocole de décharge sensorielle",source:"Peter Levine — Somatic Experiencing",
    contenu:`OBJECTIF : Libérer les tensions d'hyperstimulation.
 DURÉE : 15-20 minutes
 
@@ -269,7 +269,7 @@ DURÉE : 15-20 minutes
 4. ANCRAGE (5 min) : S'allonger. Sentir le poids du corps. Nommer 5 choses vues, 4 entendues, 3 touchées.
 
 SIGNAL : Bâillement spontané, chaleur dans les mains.`},
-  {id:"s3b",cat:"Sophrologie & somatique",profil:"HPI",titre:"Scan de désaccélération mentale",source:"Jon Kabat-Zinn — MBSR",
+  {id:"s3b",cat:"Sophrologie & somatique",phase:"entrainement",profil:"HPI",titre:"Scan de désaccélération mentale",source:"Jon Kabat-Zinn — MBSR",
    contenu:`OBJECTIF : Passer de la pensée arborescente à la présence.
 DURÉE : 10 minutes
 
@@ -282,7 +282,7 @@ DURÉE : 10 minutes
 4. QUESTION D'ANCRAGE (2 min) : « Qu'est-ce qui est vrai, là, maintenant ? » Laisser la réponse venir du corps.
 
 ADAPTÉ HPI : Si les pensées s'emballent, les noter avant de commencer.`},
-  {id:"s4b",cat:"Sophrologie & somatique",profil:"TDAH",titre:"Activation physique pré-séance",source:"Dr John Ratey — Spark",
+  {id:"s4b",cat:"Sophrologie & somatique",phase:"entrainement",profil:"TDAH",titre:"Activation physique pré-séance",source:"Dr John Ratey — Spark",
    contenu:`OBJECTIF : Stimuler dopamine et noradrénaline avant un travail cognitif.
 DURÉE : 5-10 minutes
 
@@ -295,7 +295,7 @@ DURÉE : 5-10 minutes
 4. INTENTION (1 min) : « Aujourd'hui je vais travailler sur… et je m'autorise à… »
 
 POURQUOI : L'exercice augmente BDNF et dopamine, essentiels pour l'attention TDAH.`},
-  {id:"b1b",cat:"Protocole burnout",profil:"Tous",titre:"Évaluation initiale burnout (5 axes)",source:"Christina Maslach + modèle CARE",
+  {id:"b1b",cat:"Protocole burnout",phase:"evaluation",profil:"Tous",titre:"Évaluation initiale burnout (5 axes)",source:"Christina Maslach + modèle CARE",
    contenu:`5 AXES À ÉVALUER (de 0 à 10) :
 
 ① ÉPUISEMENT PHYSIQUE
@@ -317,7 +317,7 @@ INTERPRÉTATION :
 ≤ 25 = vigilance
 25-40 = burnout modéré
 > 40 = arrêt recommandé`},
-  {id:"b2b",cat:"Protocole burnout",profil:"HPI",titre:"Reconnecter au sens — post-burnout (HPI)",source:"Cathy Assenheim",
+  {id:"b2b",cat:"Protocole burnout",phase:"entrainement",profil:"HPI",titre:"Reconnecter au sens — post-burnout (HPI)",source:"Cathy Assenheim",
    contenu:`PHASE 1 — PERMISSION DE SE REPOSER (séances 1-2)
 → Déconstruire : "je dois produire pour avoir de la valeur"
 → Exercice : liste de 10 choses que tu ES, sans verbe d'action.
@@ -332,7 +332,7 @@ PHASE 3 — RECONSTRUCTION DU SENS (séances 5-6)
 → Rituels de ressourcement quotidien.
 
 VIGILANCE : Le HPI peut intellectualiser le burnout sans en vivre la guérison. Ancrer dans le corps.`},
-  {id:"b3b",cat:"Protocole burnout",profil:"HSP",titre:"Récupération sensorielle (HSP)",source:"Elaine Aron + Somatic Experiencing",
+  {id:"b3b",cat:"Protocole burnout",phase:"entrainement",profil:"HSP",titre:"Récupération sensorielle (HSP)",source:"Elaine Aron + Somatic Experiencing",
    contenu:`SEMAINE 1-2 : DÉCONNEXION
 → Réduire stimuli, rituels de silence (10 min entre activités)
 → Journal des "voleurs d'énergie"
@@ -348,7 +348,7 @@ SEMAINE 5-6 : RECALIBRATION
 → Script de communication des besoins
 
 QUESTION CLÉ : "Qu'est-ce que tu n'as pas le droit de ressentir selon toi ?"`},
-  {id:"b4b",cat:"Protocole burnout",profil:"TDAH",titre:"Reconstruire un système soutenable post-burnout (TDAH)",source:"Parcours Reconversion après burn-out",
+  {id:"b4b",cat:"Protocole burnout",phase:"entrainement",profil:"TDAH",titre:"Reconstruire un système soutenable post-burnout (TDAH)",source:"Parcours Reconversion après burn-out",
    contenu:`SEMAINE 1-2 : OBSERVER SANS CORRIGER
 → Cartographier une journée type sans jugement, repérer les voleurs de temps réels (oublis, recommencements).
 → Le pic d'énergie du jour : identifier le moment où la concentration est naturellement disponible.
@@ -363,7 +363,7 @@ SEMAINE 5 : TENIR LA CHARGE SANS S'EFFONDRER
 → Version « minimum » du planning prévue pour les jours sans énergie.
 
 REPÈRE COACH : un système qui ne prévoit pas les jours sans énergie n'est pas un vrai système — la flexibilité planifiée fait partie de la structure.`},
-  {id:"pr1",cat:"Parcours 5 semaines (reconversion)",profil:"Tous",titre:"Organisation / gestion du temps",source:"Parcours Reconversion après burn-out",
+  {id:"pr1",cat:"Parcours 5 semaines (reconversion)",phase:"entrainement",profil:"Tous",titre:"Organisation / gestion du temps",source:"Parcours Reconversion après burn-out",
    contenu:`S1 — Observer avant de changer : cartographier une journée type, repérer les voleurs de temps, sans encore rien corriger.
 S2 — Construire un système externe : un support unique, simple, testé 2 semaines avant tout ajout.
 S3 — Découper et cadencer : time-boxing, règle des 2 minutes, un blanc protégé chaque jour.
@@ -371,7 +371,7 @@ S4 — Tenir la charge dans la durée : prioriser en 3 catégories, anticiper l'
 S5 — Ancrer et transmettre : formaliser le système sur une seule page, le partager, prévoir la version « semaine chargée ».
 
 REPÈRE COACH : chaque semaine se termine par un bilan factuel, jamais un jugement de discipline.`},
-  {id:"pr2",cat:"Parcours 5 semaines (reconversion)",profil:"HSP",titre:"Régulation émotionnelle",source:"Parcours Reconversion après burn-out",
+  {id:"pr2",cat:"Parcours 5 semaines (reconversion)",phase:"entrainement",profil:"HSP",titre:"Régulation émotionnelle",source:"Parcours Reconversion après burn-out",
    contenu:`S1 — Observer les vagues : journal d'intensité émotionnelle (1-10), 3 fois/jour, sans intervenir.
 S2 — Nommer et ralentir : verbaliser l'émotion à voix haute, pause de 90 secondes avant de réagir.
 S3 — Repérer les signaux : signal corporel annonciateur (mâchoire, respiration), seuil de bascule.
@@ -379,7 +379,7 @@ S4 — Construire des espaces de régulation : lieu de retrait, personne ressour
 S5 — Consolider un rythme stable : une semaine sans journal pour vérifier que les réflexes tiennent seuls.
 
 EXERCICE COACH (S1) : relecture commentée du journal des vagues en séance (20 min) — questions ouvertes uniquement, sans interpréter à la place du client.`},
-  {id:"pr3",cat:"Parcours 5 semaines (reconversion)",profil:"Tous",titre:"Relations sociales / professionnelles",source:"Parcours Reconversion après burn-out",
+  {id:"pr3",cat:"Parcours 5 semaines (reconversion)",phase:"entrainement",profil:"Tous",titre:"Relations sociales / professionnelles",source:"Parcours Reconversion après burn-out",
    contenu:`S1 — Cartographier les interactions : lesquelles coûtent, lesquelles ressourcent, sans jugement.
 S2 — Clarifier plutôt que deviner : poser la question directe au lieu de supposer une attente implicite.
 S3 — Préparer les échanges à enjeu : 3 points clés écrits à l'avance, scénario de réaction difficile anticipé.
@@ -387,7 +387,7 @@ S4 — Poser des limites : décliner sans justification excessive, limiter la du
 S5 — Construire un réseau soutenant durable : identifier le noyau de 3-5 personnes vraiment soutenantes.
 
 REPÈRE COACH : la culpabilité après un refus posé est normale et attendue — ne signifie pas que la limite était injustifiée.`},
-  {id:"pr4",cat:"Parcours 5 semaines (reconversion)",profil:"HPI",titre:"Confiance en soi / estime de soi",source:"Parcours Reconversion après burn-out",
+  {id:"pr4",cat:"Parcours 5 semaines (reconversion)",phase:"entrainement",profil:"HPI",titre:"Confiance en soi / estime de soi",source:"Parcours Reconversion après burn-out",
    contenu:`S1 — Collecter les faits : 3 réussites notées chaque soir, réussites passées oubliées, retours de tiers.
 S2 — Distinguer fait et jugement : reformuler un échec en fait neutre, repérer les mots absolus (toujours/jamais).
 S3 — Solliciter et intégrer les retours : demander un avis ciblé, accueillir un compliment sans le minimiser.
@@ -395,7 +395,7 @@ S4 — Retravailler le discours intérieur : identifier la voix critique d'origi
 S5 — Ancrer une image de soi stable : une semaine sans relevé pour vérifier la stabilité acquise.
 
 REPÈRE COACH : le but n'est pas la pensée positive mais une base factuelle solide face à une mémoire biaisée vers l'échec.`},
-  {id:"o1b",cat:"Outils pratiques",profil:"Tous",titre:"Roue de vie — version atypiques",source:"Adapté Wheel of Life",
+  {id:"o1b",cat:"Outils pratiques",phase:"evaluation",profil:"Tous",titre:"Roue de vie — version atypiques",source:"Adapté Wheel of Life",
    contenu:`8 DOMAINES (de 0 à 10) :
 
 ① ÉNERGIE & CORPS — Je prends soin de mon corps ?
@@ -412,7 +412,7 @@ UTILISATION :
 2. Domaine le plus bas : "Que se passerait-il si ça montait de 1 ?"
 3. Domaine le plus haut : "Comment cette force peut-elle aider les autres ?"
 4. 1 action concrète pour la semaine.`},
-  {id:"o2b",cat:"Outils pratiques",profil:"HPI",titre:"Journal de décélération (HPI)",source:"Journaling adapté HPI",
+  {id:"o2b",cat:"Outils pratiques",phase:"entrainement",profil:"HPI",titre:"Journal de décélération (HPI)",source:"Journaling adapté HPI",
    contenu:`FORMAT QUOTIDIEN — 10 minutes le soir
 
 ① CE QUI S'EST PASSÉ (2 min) — Faits bruts, sans analyse.
@@ -426,7 +426,7 @@ UTILISATION :
 ⑤ GRATITUDE (2 min) — 1 chose concrète, ressentie dans le corps.
 
 RÈGLE DU JEU : Interdiction d'analyser. Juste décrire et ressentir.`},
-  {id:"o3b",cat:"Outils pratiques",profil:"TDAH",titre:"Système des 3 blocs (TDAH)",source:"Dr Ned Hallowell + Russell Barkley",
+  {id:"o3b",cat:"Outils pratiques",phase:"entrainement",profil:"TDAH",titre:"Système des 3 blocs (TDAH)",source:"Dr Ned Hallowell + Russell Barkley",
    contenu:`MATIN — BLOC COGNITIF (pic dopamine)
 → Tâches de concentration max
 → 90 min max, pauses de 10 min
@@ -444,7 +444,7 @@ RITUELS DE TRANSITION :
 → 10 min de marche entre chaque bloc
 → Début : "Mon intention pour ce bloc est…"
 → Fin : noter ce qui reste (vider la RAM)`},
-  {id:"o4b",cat:"Outils pratiques",profil:"HSP",titre:"Carte des déclencheurs sensoriels",source:"Elaine Aron — The Highly Sensitive Person",
+  {id:"o4b",cat:"Outils pratiques",phase:"evaluation",profil:"HSP",titre:"Carte des déclencheurs sensoriels",source:"Elaine Aron — The Highly Sensitive Person",
    contenu:`À REMPLIR AVEC LE CLIENT :
 
 DÉCLENCHEURS SONORES
@@ -465,7 +465,7 @@ SIGNAUX D'ALERTE
 
 PLAN DE DÉCOMPRESSION
 → En 5 min : _____ En 30 min : _____ En 1 soirée : _____`},
-  {id:"o5b",cat:"Outils pratiques",profil:"Tous",titre:"Bilan de séance structuré",source:"Meta-Coaching + supervision",
+  {id:"o5b",cat:"Outils pratiques",phase:"maintien",profil:"Tous",titre:"Bilan de séance structuré",source:"Meta-Coaching + supervision",
    contenu:`À REMPLIR EN FIN DE SÉANCE (10 min)
 
 POUR LE CLIENT :
@@ -481,7 +481,7 @@ POUR LE COACH :
 ③ Ce qui a bien fonctionné : _____
 ④ Ce que j'aurais pu faire différemment : _____
 ⑤ Points à suivre : _____`},
-  {id:"c1b",cat:"Communication assertive",profil:"Tous",titre:"Script DESC — Poser ses limites",source:"Sharon Bower — DESC + CNV",
+  {id:"c1b",cat:"Communication assertive",phase:"entrainement",profil:"Tous",titre:"Script DESC — Poser ses limites",source:"Sharon Bower — DESC + CNV",
    contenu:`MÉTHODE DESC
 
 D — DÉCRIRE les faits (sans jugement)
@@ -501,7 +501,7 @@ EXEMPLE COMPLET :
 
 ADAPTÉ HSP : Préparer le script à l'écrit avant de le dire.
 ADAPTÉ HPI : Éviter de sur-justifier. Rester simple et direct.`},
-  {id:"c2b",cat:"Communication assertive",profil:"HSP",titre:"Décentrage émotionnel (HSP)",source:"Judith Orloff — The Empath's Survival Guide",
+  {id:"c2b",cat:"Communication assertive",phase:"entrainement",profil:"HSP",titre:"Décentrage émotionnel (HSP)",source:"Judith Orloff — The Empath's Survival Guide",
    contenu:`OBJECTIF : Ne pas absorber les émotions de l'autre.
 
 AVANT :
@@ -518,7 +518,7 @@ APRÈS :
 1. Se laver les mains en imaginant lâcher ce qui n'est pas sien.
 2. Scanner le corps : qu'est-ce qui reste ? À qui ça appartient ?
 3. Expiration longue + secouer les mains.`},
-  {id:"e1b",cat:"Régulation émotionnelle",profil:"Tous",titre:"Protocole STOP (urgence émotionnelle)",source:"Jon Kabat-Zinn — MBSR",
+  {id:"e1b",cat:"Régulation émotionnelle",phase:"entrainement",profil:"Tous",titre:"Protocole STOP (urgence émotionnelle)",source:"Jon Kabat-Zinn — MBSR",
    contenu:`S — STOP
 → Stopper. Mains à plat sur les cuisses.
 
@@ -535,7 +535,7 @@ P — PROCEED
 
 DURÉE : 60-90 secondes.
 EFFET : Activation cortex préfrontal, réduction amygdale.`},
-  {id:"e2b",cat:"Régulation émotionnelle",profil:"HPI+HSP",titre:"Journal des émotions complexes",source:"Susan David — Emotional Agility",
+  {id:"e2b",cat:"Régulation émotionnelle",phase:"entrainement",profil:"HPI+HSP",titre:"Journal des émotions complexes",source:"Susan David — Emotional Agility",
    contenu:`FORMAT HEBDOMADAIRE
 
 LUNDI — INVENTAIRE
@@ -555,7 +555,7 @@ VENDREDI — INTÉGRATION
 DIMANCHE — RESSOURCE
 → Quelle émotion positive cette semaine ?
 → Comment en cultiver plus ?`},
-  {id:"p90-1",cat:"Programme 90 jours",profil:"Tous",titre:"S01 — La citadelle intérieure",source:"Masterclass 90 Jours — Stoïcisme (Épictète)",
+  {id:"p90-1",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S01 — La citadelle intérieure",source:"Masterclass 90 Jours — Stoïcisme (Épictète)",
    contenu:`« Ce qui trouble les hommes, ce ne sont pas les choses, mais les jugements qu'ils portent sur les choses. » — Épictète
 
 Dichotomie du contrôle : séparer ce qui dépend de soi (actes, pensées) de ce qui n'en dépend pas.
@@ -570,7 +570,7 @@ Planning quotidien :
 • Vendredi — Clôture sereine : Traiter et classer vos urgences pour clôturer la semaine sans charge mentale restante.
 • Week-end — Recharge sensorielle : Coupure des notifications et reconnexion au calme en plein air.
 Ancrage quotidien : 5 min de cohérence cardiaque au réveil + question « Est-ce sous mon contrôle direct ? »`},
-  {id:"p90-2",cat:"Programme 90 jours",profil:"Tous",titre:"S02 — L'ancrage dans l'ici et maintenant",source:"Masterclass 90 Jours — Pleine conscience (Eckhart Tolle)",
+  {id:"p90-2",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S02 — L'ancrage dans l'ici et maintenant",source:"Masterclass 90 Jours — Pleine conscience (Eckhart Tolle)",
    contenu:`« Rien ne s'est jamais produit dans le passé, rien ne se produira dans le futur : tout se produit dans le Présent. » — E. Tolle
 
 Rupture de la rumination : empêcher le cerveau de voyager entre regrets et scénarios futurs.
@@ -585,7 +585,7 @@ Planning quotidien :
 • Vendredi — Transition pro/perso : Prendre 5 minutes de silence absolu avant de basculer dans votre soirée.
 • Week-end — Immersion manuelle : Bricolage, jardinage, sport ou activité manuelle avec une présence totale.
 Ancrage quotidien : 10 min de silence au réveil + règle des 3 respirations avant toute nouvelle tâche.`},
-  {id:"p90-3",cat:"Programme 90 jours",profil:"Tous",titre:"S03 — Le dépouillement du superflu",source:"Masterclass 90 Jours — Cynisme & minimalisme (Diogène)",
+  {id:"p90-3",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S03 — Le dépouillement du superflu",source:"Masterclass 90 Jours — Cynisme & minimalisme (Diogène)",
    contenu:`« Je possède tout car je ne désire rien. » — Diogène de Sinope
 
 Dépouillement stratégique : réduire les choix quotidiens pour préserver l'énergie décisionnelle.
@@ -600,7 +600,7 @@ Planning quotidien :
 • Vendredi — Refus constructif : Dire non de façon courtoise mais ferme à une sollicitation non essentielle.
 • Week-end — Tri physique : Épurer, donner ou jeter 5 objets inutiles qui encombrent votre espace de vie.
 Ancrage quotidien : règle de soustraction avant tout nouvel engagement.`},
-  {id:"p90-4",cat:"Programme 90 jours",profil:"Tous",titre:"S04 — L'art du lâcher-prise",source:"Masterclass 90 Jours — Stoïcisme moderne",
+  {id:"p90-4",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S04 — L'art du lâcher-prise",source:"Masterclass 90 Jours — Stoïcisme moderne",
    contenu:`« Vous n'avez pas le contrôle sur ce qui vous arrive, mais vous avez le contrôle absolu sur la façon d'y réagir. »
 
 Sélection des combats : économiser son attention pour l'impact réel.
@@ -615,7 +615,7 @@ Planning quotidien :
 • Vendredi — Clôture sereine : Écrire votre liste du lundi soir pour libérer complètement votre cerveau du week-end.
 • Week-end — Déconnexion totale : Une journée 100% libre de tout objectif de performance.
 Ancrage quotidien : technique du « Et alors ? » face au pire scénario réaliste.`},
-  {id:"p90-5",cat:"Programme 90 jours",profil:"Tous",titre:"S05 — La conversion des passions en joie",source:"Masterclass 90 Jours — Spinoza",
+  {id:"p90-5",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S05 — La conversion des passions en joie",source:"Masterclass 90 Jours — Spinoza",
    contenu:`« La joie est le passage de l'homme d'une moindre à une plus grande perfection. » — Spinoza
 
 Le Conatus : l'énergie vitale qui pousse à se développer.
@@ -630,7 +630,7 @@ Planning quotidien :
 • Vendredi — Partage positif : Exprimer un compliment sincère ou une gratitude à un collaborateur ou proche.
 • Week-end — Projet passion : Consacrer 2h à un projet personnel stimulant sans contrainte de résultat.
 Ancrage quotidien : journal de Spinoza — 3 moments de fierté/élan chaque soir.`},
-  {id:"p90-6",cat:"Programme 90 jours",profil:"Tous",titre:"S06 — La sobriété heureuse & les plaisirs simples",source:"Masterclass 90 Jours — Épicurisme",
+  {id:"p90-6",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S06 — La sobriété heureuse & les plaisirs simples",source:"Masterclass 90 Jours — Épicurisme",
    contenu:`« Ne gâte pas ce que tu as par le désir de ce que tu n'as pas. » — Épicure
 
 Tri des désirs : nécessaire vs superflu anxieux.
@@ -645,7 +645,7 @@ Planning quotidien :
 • Vendredi — Valorisation des acquis : Lister 5 outils ou réussites actuelles dont vous êtes pleinement satisfait.
 • Week-end — Cuisine & Convivialité : Préparer un repas simple et savoureux à partager avec vos proches.
 Ancrage quotidien : « un truc à la fois » — interdire le multitâche pendant un plaisir simple.`},
-  {id:"p90-7",cat:"Programme 90 jours",profil:"Tous",titre:"S07 — L'élan créateur & le mouvement",source:"Masterclass 90 Jours — Bergson",
+  {id:"p90-7",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S07 — L'élan créateur & le mouvement",source:"Masterclass 90 Jours — Bergson",
    contenu:`« Exister consiste à changer, changer à se mûrir, se mûrir à se créer soi-même. » — Henri Bergson
 
 L'Élan créateur : la force de vie dans la création et le renouvellement.
@@ -660,7 +660,7 @@ Planning quotidien :
 • Vendredi — Veille inspirante : Explorer un sujet totalement nouveau hors de votre domaine habituel.
 • Week-end — Création libre : Construire, concevoir, rédiger ou développer quelque chose de personnel.
 Ancrage quotidien : session Flow de 25 min sans interruption ni correction.`},
-  {id:"p90-8",cat:"Programme 90 jours",profil:"Tous",titre:"S08 — La révolte solidaire & l'action",source:"Masterclass 90 Jours — Camus",
+  {id:"p90-8",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S08 — La révolte solidaire & l'action",source:"Masterclass 90 Jours — Camus",
    contenu:`« Je me révolte, donc nous sommes. » — Albert Camus
 
 L'Action vs le Cynisme : donner un sens par des actes engagés.
@@ -675,7 +675,7 @@ Planning quotidien :
 • Vendredi — Alignement éthique : Vérifier que vos projets de la semaine respectent vos valeurs profondes.
 • Week-end — Bilan de mi-parcours : Évaluer le chemin parcouru sur ces 8 premières semaines.
 Ancrage quotidien : remplacer chaque critique par « Voici comment on peut l'améliorer ».`},
-  {id:"p90-9",cat:"Programme 90 jours",profil:"Tous",titre:"S09 — L'action sans effort (Wu Wei)",source:"Masterclass 90 Jours — Taoïsme (Lao Tseu)",
+  {id:"p90-9",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S09 — L'action sans effort (Wu Wei)",source:"Masterclass 90 Jours — Taoïsme (Lao Tseu)",
    contenu:`« Le sage agit sans rien faire et enseigne sans rien dire. » — Lao Tseu
 
 Wu Wei (Non-Forçage) : suivre le courant plutôt que lutter.
@@ -690,7 +690,7 @@ Planning quotidien :
 • Vendredi — Ralentissement mesuré : Effectuer vos tâches avec calme, régularité et précision sans courir.
 • Week-end — Reconnexion nature : Passer du temps au bord de l'eau ou en forêt sans montre ni timing.
 Ancrage quotidien : pause de fluidité — 5 min de respiration neutre dès qu'une résistance bloque.`},
-  {id:"p90-10",cat:"Programme 90 jours",profil:"Tous",titre:"S10 — La boussole du sens & l'Ikigai",source:"Masterclass 90 Jours — Sagesse japonaise",
+  {id:"p90-10",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S10 — La boussole du sens & l'Ikigai",source:"Masterclass 90 Jours — Sagesse japonaise",
    contenu:`« Seul celui qui a un but peut trouver une joie constante dans son activité quotidienne. »
 
 L'Ikigai : intersection entre Passion, Mission, Vocation et Compétences.
@@ -705,7 +705,7 @@ Planning quotidien :
 • Vendredi — Synthèse Ikigai : Réajuster vos projets de la semaine pour les rapprocher du centre de votre boussole.
 • Week-end — Planification stratégique : Sanctuariser un créneau fixe pour votre projet de cœur.
 Ancrage quotidien : au moins une action par jour nourrissant sa passion ou mission.`},
-  {id:"p90-11",cat:"Programme 90 jours",profil:"Tous",titre:"S11 — La parole impeccable & l'éthique",source:"Masterclass 90 Jours — 4 Accords Toltèques (Don Miguel Ruiz)",
+  {id:"p90-11",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S11 — La parole impeccable & l'éthique",source:"Masterclass 90 Jours — 4 Accords Toltèques (Don Miguel Ruiz)",
    contenu:`« Que votre parole soit impeccable. Ne faites aucune supposition. Ne prenez rien personnellement. » — D. M. Ruiz
 
 Parole Impeccable : utiliser ses mots pour construire, pas critiquer.
@@ -720,7 +720,7 @@ Planning quotidien :
 • Vendredi — Nettoyage relationnel : Désamorcer un quiproquo par un message simple et bienveillant.
 • Week-end — Harmonie relationnelle : Pratiquer l'écoute active sans couper la parole ni conseiller sans demande.
 Ancrage quotidien : « Quand tu dis cela, tu veux dire que… ? » avant de réagir.`},
-  {id:"p90-12",cat:"Programme 90 jours",profil:"Tous",titre:"S12 — La sérénité absolue & l'éveil",source:"Masterclass 90 Jours — Brené Brown",
+  {id:"p90-12",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S12 — La sérénité absolue & l'éveil",source:"Masterclass 90 Jours — Brené Brown",
    contenu:`« Le Nirvana est l'extinction complète des feux de la peur, du doute et de l'agitation mentale. »
 
 L'Acceptation Absolue : embrasser pleinement qui l'on est.
@@ -873,6 +873,7 @@ let state = {
   subTab: "fiche",
   bibCat: "Tous",
   bibProfil: "Tous",
+  bibPhase: "Tous",
   bibSearch: "",
   resProfil: "Tous",
   deroulesCat: "Tous",
@@ -3090,6 +3091,7 @@ function stepSeances(c) {
   wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Choisissez un déroulé, menez la séance, puis complétez le compte-rendu — chaque séance validée nourrit le rapport."));
 
   const profilClient = (c.profile||"").toUpperCase();
+  const enReconversion = profilClient.includes("BURNOUT") || profilClient.includes("RECONVERSION");
   const stade = c.protocole.stadeChangement;
   let suggestionId = null;
 
@@ -3098,11 +3100,14 @@ function stepSeances(c) {
     suggestionId = c.protocoleSeances.length ? "d5" : "d1"; // psychoéducation / évaluation, pas d'action
   } else if (stade === "maintien") {
     suggestionId = "d6"; // consolidation
+  } else if (enReconversion && !c.protocoleSeances.length) {
+    suggestionId = "d5"; // bilan burnout systématique en premier quand le motif l'indique
   } else {
     const e = c.evaluation || {};
     if (profilClient.includes("TDAH") && ((e.gestionTemps||0)+(e.dispersion||0)+(e.impulsivite||0))>=6) suggestionId="d2";
     else if (profilClient.includes("HPI") && ((e.syndromeImposteur||0)+(e.questionnement||0))>=6) suggestionId="d3";
     else if ((profilClient.includes("HSP")||profilClient.includes("HPE")) && ((e.intensiteEmo||0)+(e.surchargeSensorielle||0))>=6) suggestionId="d4";
+    else if (enReconversion) suggestionId = "d6"; // check-in reconversion par défaut si rien d'autre ne ressort
   }
   if (!suggestionId && !c.protocoleSeances.length) suggestionId = "d1";
 
@@ -3118,6 +3123,11 @@ function stepSeances(c) {
   if (suggestionId) {
     const stadeTxt = stade ? " (stade : " + STADES_CHANGEMENT.find(s=>s.id===stade).label + ")" : "";
     form.appendChild(h("div",{style:"font-size:11.5px;color:#9C7A2E;margin-bottom:10px"},"💡 Suggéré à partir du profil, du bilan initial et du stade de changement"+stadeTxt+"."));
+  }
+  if (enReconversion) {
+    const bridgeBtn = h("button",{class:"btn-sm",style:"margin-bottom:10px;border-color:#4a9e6a;color:#4a9e6a"},"🌱 Ouvrir le parcours Reconversion/Burnout pour ce client");
+    bridgeBtn.addEventListener("click", () => { state.tab="reconversion"; state.selClientId=null; save(); render(); });
+    form.appendChild(bridgeBtn);
   }
 
   const dateInp = inputEl({type:"date", value:new Date().toISOString().slice(0,10)});
@@ -3714,6 +3724,17 @@ function renderBibliotheque() {
     profRow.appendChild(b);
   });
   fbox.appendChild(profRow);
+
+  // Phase filter
+  const phaseRow = h("div",{style:"display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px"});
+  phaseRow.appendChild(h("span",{style:"color:#6B6355;font-size:13px;margin-right:4px"},"PHASE"));
+  ["Tous",...Object.keys(PHASES_LABELS)].forEach(p => {
+    const b = h("button",{class:"btn-sm"}, p==="Tous"?"Tous":PHASES_LABELS[p]);
+    if ((state.bibPhase||"Tous")===p) { b.style.background="#9C7A2E22"; b.style.color="#9C7A2E"; b.style.borderColor="#9C7A2E55"; }
+    b.addEventListener("click",()=>{ state.bibPhase=p; rebuildList(); });
+    phaseRow.appendChild(b);
+  });
+  fbox.appendChild(phaseRow);
   wrap.appendChild(fbox);
 
   const count = h("div",{style:"color:#6B6355;font-size:12px;margin-bottom:12px"},"");
@@ -3726,8 +3747,9 @@ function renderBibliotheque() {
     const filtered = BIBLIO.filter(r => {
       const mC = state.bibCat==="Tous" || r.cat===state.bibCat;
       const mP = state.bibProfil==="Tous" || r.profil===state.bibProfil || r.profil==="Tous";
+      const mPh = !state.bibPhase || state.bibPhase==="Tous" || r.phase===state.bibPhase;
       const mS = !state.bibSearch || r.titre.toLowerCase().includes(state.bibSearch.toLowerCase()) || r.contenu.toLowerCase().includes(state.bibSearch.toLowerCase());
-      return mC && mP && mS;
+      return mC && mP && mPh && mS;
     });
     count.textContent = `${filtered.length} résultat${filtered.length>1?"s":""}`;
     list.innerHTML="";
@@ -3748,6 +3770,7 @@ function renderBibliotheque() {
         h("div",{style:"color:#2E2A20;font-size:15px;font-weight:600;margin-bottom:6px"},r.titre),
         h("div",{style:"display:flex;gap:6px;flex-wrap:wrap;align-items:center"},
           badgeCat(r.cat), badgeProfil(r.profil),
+          r.phase?h("span",{style:"padding:2px 8px;border-radius:20px;background:#9C7A2E14;color:#9C7A2E;font-size:11px;font-weight:600"}, PHASES_LABELS[r.phase]):null,
           r.source?h("span",{style:"color:#6B6355;font-size:12px;font-style:italic"},"— "+r.source):null
         )
       );

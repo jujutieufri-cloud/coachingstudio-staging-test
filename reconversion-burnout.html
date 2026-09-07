@@ -146,7 +146,7 @@ let tdahMode = false;
 /* ---------------- TRACKS ---------------- */
 /* day = [slug, label, shortTitle, text, tdahTip] */
 const tracks = {
-  a: { slug:"a", accent:"#3E6E68", accentSoft:"#E7EFEC", icon:"compass",
+  a: { slug:"a", accent:"#3E6E68", accentSoft:"#E7EFEC", icon:"compass", stade:"Précontemplation / Contemplation",
     name:"Clarifier le cap",
     tagline:"Passer du flou à 2-3 pistes concrètes, sans pression de trouver LA réponse tout de suite.",
     reason:"Tu as répondu que le cap n'est pas encore clair. Ce parcours commence par explorer largement avant de trancher — sans obligation de cohérence immédiate.",
@@ -188,7 +188,7 @@ const tracks = {
           ["weekend","Week-end","Célébration discrète","Marquer symboliquement ce passage, à sa manière.","Choisis un geste rapide et sensoriel (musique, boisson préférée) plutôt qu'un projet de célébration élaboré."],
         ]},
     ]},
-  d: { slug:"d", accent:"#6B4F73", accentSoft:"#EFE9F0", icon:"fork",
+  d: { slug:"d", accent:"#6B4F73", accentSoft:"#EFE9F0", icon:"fork", stade:"Contemplation",
     name:"Trancher entre les pistes",
     tagline:"Passer de plusieurs pistes concurrentes à un choix assumé, sans regret paralysant.",
     reason:"Tu as plusieurs pistes en tête, mais du mal à choisir. Ce parcours aide à objectiver les options et à trancher sans tout perdre de l'autre côté.",
@@ -230,7 +230,7 @@ const tracks = {
           ["weekend","Week-end","Reconnaissance du choix","Marquer symboliquement ce passage du doute à la décision.","Marque ce passage par un geste concret et rapide (photo, message à un proche) plutôt qu'un rituel élaboré."],
         ]},
     ]},
-  b: { slug:"b", accent:"#A97A4B", accentSoft:"#F3ECE3", icon:"spark",
+  b: { slug:"b", accent:"#A97A4B", accentSoft:"#F3ECE3", icon:"spark", stade:"Préparation",
     name:"Passer à l'action",
     tagline:"Sortir de l'immobilité face à un projet clair, sans retomber dans la surcharge.",
     reason:"Ton projet est clair, mais le démarrage ne se fait pas encore. Ce parcours désamorce le blocage et construit un rythme sans cadre extérieur.",
@@ -272,7 +272,7 @@ const tracks = {
           ["weekend","Week-end","Repos mérité","Reconnaître le pas franchi cette semaine, sans enchaîner immédiatement sur la suite.","Résiste à l'envie de vérifier les retours ou statistiques ce week-end — c'est une autre forme de travail déguisée en curiosité."],
         ]},
     ]},
-  c: { slug:"c", accent:"#47607A", accentSoft:"#E8ECF0", icon:"wave",
+  c: { slug:"c", accent:"#47607A", accentSoft:"#E8ECF0", icon:"wave", stade:"Action",
     name:"Retrouver un rythme soutenable",
     tagline:"Repérer et corriger la reproduction des schémas de surcharge dans le nouveau projet.",
     reason:"Le projet a démarré, mais recommence déjà à peser lourd. Ce parcours repère le schéma de surcharge qui se reproduit et repose un cadre soutenable.",
@@ -361,6 +361,10 @@ function footNavHtml(prevHash, prevLabel, centerHash, centerLabel, nextHash, nex
     <div>${nextHash!==null ? `<button class="link" onclick="go('${nextHash}')">${nextLabel} →</button>` : ""}</div>
   </div>`;
 }
+function safetyCardHtml(){
+  return `<div class="alert"><b>🚦 Repère important</b><p>Ce parcours est un outil d'auto-coaching, pas un substitut à un suivi médical ou psychologique. Si tu ressens des idées noires, un épuisement physique sévère, ou si tu penses avoir besoin d'un avis médical, parles-en à ton coach ou consulte un professionnel de santé en parallèle.</p></div>`;
+}
+
 function footerHtml(){
   return `<footer class="foot">
     ${tdahToggleHtml()}
@@ -1456,7 +1460,9 @@ function renderTrackIntro(track){
     <div class="icon-badge">${icon(track.icon)}</div>
     <h1>${track.name}</h1>
     <p class="subtitle">${track.tagline}</p>
+    ${track.stade ? `<p style="font-size:13px;opacity:.7;margin-top:-8px;">Étape estimée : <b>${track.stade}</b> — ce repère aide à calibrer le rythme, pas à s'y enfermer.</p>` : ""}
     <p class="reason">${track.reason}</p>
+    ${safetyCardHtml()}
     <div class="index-grid">${cards}</div>
   </div>
   ${footerHtml()}`;
