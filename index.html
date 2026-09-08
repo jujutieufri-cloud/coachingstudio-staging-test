@@ -2874,6 +2874,96 @@ const STADES_CHANGEMENT = [
   {id:"maintien", label:"Maintien", desc:"Le changement est installé, l'enjeu est de le stabiliser.", implication:"Prévention de la rechute, kit de survie, espacement des séances."},
 ];
 
+const ROUE_QCM = {
+  energie: [
+    {a:{text:"Je me sens plutôt en forme au quotidien",value:7}, b:{text:"Je suis souvent épuisé(e), même après une nuit de sommeil",value:2}},
+    {a:{text:"Je bouge régulièrement (sport, marche...)",value:7}, b:{text:"Je bouge très peu, mon corps est à l'arrêt",value:2}},
+  ],
+  mental: [
+    {a:{text:"Mon esprit est plutôt clair, je sais où j'en suis",value:7}, b:{text:"J'ai la tête pleine, difficile de faire le tri",value:2}},
+    {a:{text:"Je prends des moments de pause mentale",value:7}, b:{text:"Je suis en sur-régime mental en permanence",value:2}},
+  ],
+  emotions: [
+    {a:{text:"Je reconnais facilement ce que je ressens",value:7}, b:{text:"Je ne sais souvent pas nommer ce que je ressens",value:2}},
+    {a:{text:"J'exprime mes émotions à mon entourage",value:7}, b:{text:"Je garde mes émotions pour moi",value:2}},
+  ],
+  relations: [
+    {a:{text:"Mes relations proches me font du bien",value:7}, b:{text:"Mes relations me pèsent plus qu'elles ne me nourrissent",value:2}},
+    {a:{text:"Je me sens compris(e) par mon entourage",value:7}, b:{text:"Je me sens souvent incompris(e)",value:2}},
+  ],
+  travail: [
+    {a:{text:"Mon activité actuelle a du sens pour moi",value:7}, b:{text:"Je ne vois plus le sens de ce que je fais",value:2}},
+    {a:{text:"Je me sens à ma place dans mon travail",value:7}, b:{text:"Je me sens à côté de la plaque, pas à ma place",value:2}},
+  ],
+  creativite: [
+    {a:{text:"Je prends du temps pour créer/explorer/apprendre",value:7}, b:{text:"Je n'ai plus de place pour ça dans ma vie",value:2}},
+    {a:{text:"J'ai des projets personnels qui me font vibrer",value:7}, b:{text:"Je n'ai plus de projet qui m'enthousiasme",value:2}},
+  ],
+  limites: [
+    {a:{text:"Je sais dire non quand c'est nécessaire",value:7}, b:{text:"Je dis oui même quand je ne le veux pas",value:2}},
+    {a:{text:"Je respecte mon propre rythme",value:7}, b:{text:"Je me mets constamment la pression pour suivre celui des autres",value:2}},
+  ],
+  plaisir: [
+    {a:{text:"Je ris et je m'amuse régulièrement",value:7}, b:{text:"Je ne me souviens plus de la dernière fois où j'ai ri sans réfléchir",value:2}},
+    {a:{text:"Je m'accorde des moments rien que pour le plaisir",value:7}, b:{text:"Le plaisir passe toujours après le reste",value:2}},
+  ],
+};
+
+const DIM_QCM = {
+  chargeMentale: [
+    {a:{text:"Le soir, j'arrive à lâcher les pensées de la journée",value:2}, b:{text:"Je tourne en boucle sur ce qui s'est passé",value:8}},
+    {a:{text:"Je prends une décision et je passe à autre chose",value:2}, b:{text:"Je rejoue mentalement mes choix encore et encore",value:8}},
+  ],
+  perfectionnisme: [
+    {a:{text:"Je peux rendre un travail imparfait sans trop culpabiliser",value:2}, b:{text:"Je préfère ne pas commencer plutôt que rendre un travail imparfait",value:8}},
+    {a:{text:"Je passe à l'action même sans être sûr(e) du résultat",value:2}, b:{text:"Je repousse tant que je n'ai pas la certitude de bien faire",value:8}},
+  ],
+  difficultesRelation: [
+    {a:{text:"Je me sens généralement compris(e) dans mes échanges",value:2}, b:{text:"J'ai souvent le sentiment de ne pas être compris(e)",value:8}},
+    {a:{text:"Les désaccords se règlent plutôt facilement",value:2}, b:{text:"Les conflits s'enveniment ou restent bloqués",value:8}},
+  ],
+  troublesSommeil: [
+    {a:{text:"Je m'endors sans trop de difficulté",value:2}, b:{text:"L'endormissement est souvent long et difficile",value:8}},
+    {a:{text:"Mes nuits sont plutôt continues",value:2}, b:{text:"Je me réveille souvent, l'esprit qui tourne",value:8}},
+  ],
+  syndromeImposteur: [
+    {a:{text:"Je reconnais mes réussites comme le fruit de mes compétences",value:2}, b:{text:"Je mets mes réussites sur le compte de la chance",value:8}},
+    {a:{text:"Je me sens légitime dans ce que je fais",value:2}, b:{text:"J'ai peur qu'on découvre que je ne suis pas à la hauteur",value:8}},
+  ],
+  questionnement: [
+    {a:{text:"Je trouve du sens dans mon quotidien",value:2}, b:{text:"Je me sens souvent vide de sens",value:8}},
+    {a:{text:"Je m'ennuie rarement durablement",value:2}, b:{text:"Un ennui profond et récurrent m'habite",value:8}},
+  ],
+  frustrationCreative: [
+    {a:{text:"J'ai de la place pour créer/explorer dans ma vie",value:2}, b:{text:"Je me sens étouffé(e) par la routine",value:8}},
+    {a:{text:"Mes idées trouvent un terrain pour s'exprimer",value:2}, b:{text:"Mes idées restent bloquées, sans espace pour exister",value:8}},
+  ],
+  gestionTemps: [
+    {a:{text:"J'estime plutôt bien le temps que prennent mes tâches",value:2}, b:{text:"Je suis régulièrement surpris(e) par le temps qui a filé",value:8}},
+    {a:{text:"Je suis à l'heure la plupart du temps",value:2}, b:{text:"Je suis souvent en retard, malgré mes efforts",value:8}},
+  ],
+  impulsivite: [
+    {a:{text:"Je prends le temps de réfléchir avant de décider",value:2}, b:{text:"Je décide sur un coup de tête, puis je réajuste",value:8}},
+    {a:{text:"J'arrive à attendre mon tour sans trop de tension",value:2}, b:{text:"Attendre m'est presque insupportable",value:8}},
+  ],
+  dispersion: [
+    {a:{text:"Je termine généralement ce que je commence",value:2}, b:{text:"J'ai plusieurs choses en cours, peu finies",value:8}},
+    {a:{text:"Je peux changer de tâche sans trop de mal",value:2}, b:{text:"Une fois happé(e) par une tâche, j'oublie tout le reste",value:8}},
+  ],
+  intensiteEmo: [
+    {a:{text:"Mes réactions émotionnelles restent proportionnées",value:2}, b:{text:"Mes émotions montent vite et fort, parfois disproportionnées",value:8}},
+    {a:{text:"Je retrouve mon calme assez rapidement",value:2}, b:{text:"Une émotion forte peut me submerger un long moment",value:8}},
+  ],
+  surchargeSensorielle: [
+    {a:{text:"Le bruit, la lumière, l'agitation ne me dérangent pas trop",value:2}, b:{text:"Je sature vite dans les environnements stimulants",value:8}},
+    {a:{text:"Je peux rester longtemps dans un environnement chargé",value:2}, b:{text:"J'ai besoin de fuir rapidement les lieux surstimulants",value:8}},
+  ],
+  empathieEnvahissante: [
+    {a:{text:"Je fais la différence entre mes émotions et celles des autres",value:2}, b:{text:"J'absorbe facilement les émotions de mon entourage",value:8}},
+    {a:{text:"Je sais poser une limite quand j'en ai besoin",value:2}, b:{text:"Je me sacrifie souvent pour ne pas déranger",value:8}},
+  ],
+};
+
 const DOMAINES_ROUE = [
   {key:"energie",    emoji:"⚡", label:"Énergie & Corps",  question:"Je prends soin de mon corps ?"},
   {key:"mental",     emoji:"🧠", label:"Mental & Clarté",  question:"Mon esprit est clair et apaisé ?"},
@@ -2918,6 +3008,21 @@ function roueDeVieSVG(scores) {
   return svg;
 }
 
+function buildQCMBlock(pairs, answers, onAnswer) {
+  const wrap = h("div",{style:"margin:6px 0 10px"});
+  pairs.forEach((pair, i) => {
+    const row = h("div",{style:"display:flex;flex-direction:column;gap:6px;margin-bottom:8px"});
+    [["a",pair.a],["b",pair.b]].forEach(([side,opt]) => {
+      const selected = answers[i] === opt.value;
+      const btn = h("button",{style:"text-align:left;padding:8px 12px;border-radius:8px;border:1.5px solid "+(selected?"#9C7A2E":"#D8CBA8")+";background:"+(selected?"#9C7A2E14":"transparent")+";color:#2E2A20;font-size:12.5px;cursor:pointer"}, opt.text);
+      btn.addEventListener("click", () => onAnswer(i, opt.value));
+      row.appendChild(btn);
+    });
+    wrap.appendChild(row);
+  });
+  return wrap;
+}
+
 function buildRoueDeVie(c) {
   c.roueDeVie = c.roueDeVie || { scores:{}, date:"", planAction:"" };
   const rv = c.roueDeVie;
@@ -2929,23 +3034,45 @@ function buildRoueDeVie(c) {
   svgWrap.innerHTML = roueDeVieSVG(rv.scores);
   box.appendChild(svgWrap);
 
+  rv.qcmAnswers = rv.qcmAnswers || {};
+  rv.qcmMode = rv.qcmMode || {};
+
   const slidersWrap = h("div",{style:"margin-top:14px"});
   DOMAINES_ROUE.forEach(d => {
-    const row = h("div",{style:"margin-bottom:12px"});
+    const rowBox = h("div",{style:"margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #E4DAC0"});
     const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(rv.scores[d.key]||0));
-    row.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:3px"},
+    const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"},
       h("div",{style:"font-size:13px;color:#2E2A20"}, d.emoji+" "+d.label+" — "+d.question), valSpan
-    ));
-    const slider = h("input",{type:"range",min:"0",max:"10",value:String(rv.scores[d.key]||0),style:"width:100%"});
-    slider.addEventListener("input", () => {
-      rv.scores[d.key] = Number(slider.value);
-      valSpan.textContent = slider.value;
-      svgWrap.innerHTML = roueDeVieSVG(rv.scores);
-      updateSynthese();
-      save();
-    });
-    row.appendChild(slider);
-    slidersWrap.appendChild(row);
+    );
+    rowBox.appendChild(hdr);
+
+    const modeToggle = h("button",{style:"background:transparent;border:none;color:#9C7A2E;font-size:11px;text-decoration:underline;cursor:pointer;padding:0;margin-bottom:6px"},
+      rv.qcmMode[d.key] ? "↔ Repasser en curseur manuel" : "📋 Questionnaire guidé (choix A/B)"
+    );
+    modeToggle.addEventListener("click", () => { rv.qcmMode[d.key] = !rv.qcmMode[d.key]; save(); render(); });
+    rowBox.appendChild(modeToggle);
+
+    if (rv.qcmMode[d.key]) {
+      rv.qcmAnswers[d.key] = rv.qcmAnswers[d.key] || [null,null];
+      const ans = rv.qcmAnswers[d.key];
+      rowBox.appendChild(buildQCMBlock(ROUE_QCM[d.key], ans, (i,val) => {
+        ans[i] = val;
+        const answered = ans.filter(v=>v!==null);
+        if (answered.length) rv.scores[d.key] = Math.round(answered.reduce((s,v)=>s+v,0)/answered.length);
+        save(); render();
+      }));
+    } else {
+      const slider = h("input",{type:"range",min:"0",max:"10",value:String(rv.scores[d.key]||0),style:"width:100%"});
+      slider.addEventListener("input", () => {
+        rv.scores[d.key] = Number(slider.value);
+        valSpan.textContent = slider.value;
+        svgWrap.innerHTML = roueDeVieSVG(rv.scores);
+        updateSynthese();
+        save();
+      });
+      rowBox.appendChild(slider);
+    }
+    slidersWrap.appendChild(rowBox);
   });
   box.appendChild(slidersWrap);
 
@@ -3141,14 +3268,35 @@ function stepBilanInitial(c) {
   }
   renderScore(); wrap.appendChild(scoreBox);
 
+  c.evaluationQcmAnswers = c.evaluationQcmAnswers || {};
+  c.evaluationQcmMode = c.evaluationQcmMode || {};
+
   dims.forEach(d => {
     const card = h("div",{class:"card",style:"padding:16px 18px;margin-bottom:10px"});
     const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(c.evaluation[d.key]||0));
     card.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:4px"}, h("div",{style:"color:#2E2A20;font-weight:600;font-size:14.5px"}, d.label), valSpan));
     card.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-bottom:10px"}, d.desc));
-    const slider = h("input",{type:"range",min:"0",max:"10",value:String(c.evaluation[d.key]||0),style:"width:100%"});
-    slider.addEventListener("input", () => { c.evaluation[d.key]=Number(slider.value); valSpan.textContent=slider.value; renderScore(); save(); });
-    card.appendChild(slider);
+
+    const modeToggle = h("button",{style:"background:transparent;border:none;color:#9C7A2E;font-size:11px;text-decoration:underline;cursor:pointer;padding:0;margin-bottom:8px;display:block"},
+      c.evaluationQcmMode[d.key] ? "↔ Repasser en curseur manuel" : "📋 Questionnaire guidé (choix A/B)"
+    );
+    modeToggle.addEventListener("click", () => { c.evaluationQcmMode[d.key] = !c.evaluationQcmMode[d.key]; save(); render(); });
+    card.appendChild(modeToggle);
+
+    if (c.evaluationQcmMode[d.key] && DIM_QCM[d.key]) {
+      c.evaluationQcmAnswers[d.key] = c.evaluationQcmAnswers[d.key] || [null,null];
+      const ans = c.evaluationQcmAnswers[d.key];
+      card.appendChild(buildQCMBlock(DIM_QCM[d.key], ans, (i,val) => {
+        ans[i] = val;
+        const answered = ans.filter(v=>v!==null);
+        if (answered.length) c.evaluation[d.key] = Math.round(answered.reduce((s,v)=>s+v,0)/answered.length);
+        save(); render();
+      }));
+    } else {
+      const slider = h("input",{type:"range",min:"0",max:"10",value:String(c.evaluation[d.key]||0),style:"width:100%"});
+      slider.addEventListener("input", () => { c.evaluation[d.key]=Number(slider.value); valSpan.textContent=slider.value; renderScore(); save(); });
+      card.appendChild(slider);
+    }
     wrap.appendChild(card);
   });
 
