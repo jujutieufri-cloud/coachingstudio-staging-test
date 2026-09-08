@@ -2420,12 +2420,6 @@ function avatar(name, profile, size) {
   return h("div",{class:"avatar",style:`width:${size}px;height:${size}px;background:${col}25;color:${col};font-size:${size*0.4}px`}, (name||"?")[0]);
 }
 
-function divider() { return h("div",{class:"divider"}); }
-
-function card(...children) {
-  return h("div",{class:"card"}, ...children);
-}
-
 function lbl(text) { return h("label",{class:"lbl"}, text); }
 
 function inputEl(opts) {
@@ -2829,10 +2823,20 @@ function buildProtocole(c) {
   wrap.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px;margin-bottom:10px"},"Un seul protocole, étape par étape — de l'objectif initial au rapport final."));
 
   const stepBar = h("div",{style:"display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap"});
+  function stepRempli(id) {
+    if (id==="objectif") return !!(pr.demandeInitiale || pr.objectifFormule || (c.objectifs&&c.objectifs.length));
+    if (id==="bilan") return !!(c.evaluation && Object.values(c.evaluation).some(v=>v>0));
+    if (id==="seances") return !!(c.protocoleSeances && c.protocoleSeances.length);
+    if (id==="miparcours") return !!(c.bilanMiParcours && c.bilanMiParcours.date);
+    if (id==="survie") return !!(c.kitSurvie && (c.kitSurvie.profilCoache || (c.kitSurvie.signaux||[]).some(Boolean)));
+    if (id==="cloture") return !!(pr.cloture && pr.cloture.date);
+    return false;
+  }
   PROTOCOLE_STEPS.forEach(s => {
     const active = pr.step === s.id;
-    const btn = h("button",{style:"flex:1;min-width:88px;padding:8px 4px;border-radius:8px;border:1.5px solid "+(active?"#9C7A2E":"#D8CBA8")+";background:"+(active?"#9C7A2E":"transparent")+";color:"+(active?"#fff":"#6B6355")+";font-size:11px;font-weight:700;cursor:pointer"},
-      s.icon + " " + s.num + ". " + s.label
+    const rempli = stepRempli(s.id);
+    const btn = h("button",{style:"position:relative;flex:1;min-width:88px;padding:8px 4px;border-radius:8px;border:1.5px solid "+(active?"#9C7A2E":rempli?"#4a9e6a88":"#D8CBA8")+";background:"+(active?"#9C7A2E":"transparent")+";color:"+(active?"#fff":"#6B6355")+";font-size:11px;font-weight:700;cursor:pointer"},
+      (rempli && !active ? "✓ " : "") + s.icon + " " + s.num + ". " + s.label
     );
     btn.addEventListener("click", () => { pr.step = s.id; save(); render(); });
     stepBar.appendChild(btn);
@@ -3087,8 +3091,42 @@ function buildRoueDeVie(c) {
   updateSynthese();
   box.appendChild(synthese);
 
+  // Choix explicite du domaine à prioriser — pas juste une suggestion, un vrai choix qui sert ensuite
+  const choixBox = h("div",{style:"margin-top:14px"});
+  choixBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13px;margin-bottom:8px"},"❓ Dans quel domaine as-tu/avez-vous envie de progresser en priorité ?"));
+  const chipsWrap = h("div",{style:"display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"});
+  function renderChips() {
+    chipsWrap.innerHTML = "";
+    DOMAINES_ROUE.forEach(d => {
+      const score = rv.scores[d.key]||0;
+      const active = rv.domainePriorite === d.key;
+      const chip = h("button",{style:"padding:7px 12px;border-radius:20px;border:1.5px solid "+(active?"#9C7A2E":"#D8CBA8")+";background:"+(active?"#9C7A2E":"transparent")+";color:"+(active?"#fff":"#2E2A20")+";font-size:12.5px;cursor:pointer"},
+        d.emoji+" "+d.label+" ("+score+"/10)"
+      );
+      chip.addEventListener("click", () => {
+        rv.domainePriorite = active ? null : d.key;
+        save(); render();
+      });
+      chipsWrap.appendChild(chip);
+    });
+  }
+  renderChips();
+  choixBox.appendChild(chipsWrap);
+
+  if (rv.domainePriorite) {
+    const dSel = DOMAINES_ROUE.find(d=>d.key===rv.domainePriorite);
+    const useBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E;color:#9C7A2E"},"→ Utiliser ce domaine pour formuler l'objectif");
+    useBtn.addEventListener("click", () => {
+      c.protocole.objectifFormule = "Progresser sur « "+dSel.label+" » (parti de "+(rv.scores[dSel.key]||0)+"/10 sur la Roue de la vie).";
+      save(); render();
+      notifCoach("Objectif pré-rempli à partir de la Roue de la vie.");
+    });
+    choixBox.appendChild(useBtn);
+  }
+  box.appendChild(choixBox);
+
   const planBox = h("div",{style:"margin-top:12px"});
-  planBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13px;margin-bottom:6px"},"❓ Une action concrète pour la semaine, sur le domaine le plus bas"));
+  planBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13px;margin-bottom:6px"},"❓ Une action concrète pour la semaine, sur le domaine choisi"));
   planBox.appendChild(textareaEl({value:rv.planAction, placeholder:"Une seule action, testable et concrète.", height:"50px", onInput:v=>{rv.planAction=v; save();}}));
   box.appendChild(planBox);
 
@@ -3161,9 +3199,12 @@ function buildParcoursIkigai(c) {
   if (rv && Object.values(rv.scores||{}).some(v=>v>0)) {
     const entries = DOMAINES_ROUE.map(d=>({...d,score:rv.scores[d.key]||0}));
     const bas = entries.reduce((a,b)=>b.score<a.score?b:a);
-    box.appendChild(h("div",{style:"padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355;margin-bottom:14px"},
-      "📌 Sur la Roue de la vie, le domaine le plus bas est "+bas.emoji+" "+bas.label+" ("+bas.score+"/10) — bon point d'entrée pour cette exploration."
-    ));
+    const choisi = rv.domainePriorite ? entries.find(e=>e.key===rv.domainePriorite) : null;
+    const ref = choisi || bas;
+    const texte = choisi
+      ? "📌 Domaine choisi sur la Roue de la vie : "+ref.emoji+" "+ref.label+" ("+ref.score+"/10) — c'est le fil pour cette exploration."
+      : "📌 Sur la Roue de la vie, le domaine le plus bas est "+ref.emoji+" "+ref.label+" ("+ref.score+"/10) — bon point d'entrée pour cette exploration (choisis-le ci-dessus pour le fixer).";
+    box.appendChild(h("div",{style:"padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355;margin-bottom:14px"}, texte));
   } else {
     box.appendChild(h("div",{style:"padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355;margin-bottom:14px"},
       "💡 Remplis la Roue de la vie ci-dessus en premier pour repérer le domaine à explorer en priorité."
@@ -3706,6 +3747,10 @@ function genererRapport(c) {
     rep += `<h2>🎡 Roue de la vie</h2>`;
     if (c.roueDeVie.date) rep += `<p><b>Date :</b> ${esc(c.roueDeVie.date)}</p>`;
     rep += `<ul>` + DOMAINES_ROUE.map(d=>`<li>${d.emoji} ${esc(d.label)} : ${c.roueDeVie.scores[d.key]||0}/10</li>`).join("") + `</ul>`;
+    if (c.roueDeVie.domainePriorite) {
+      const dp = DOMAINES_ROUE.find(d=>d.key===c.roueDeVie.domainePriorite);
+      if (dp) rep += `<p><b>Domaine prioritaire choisi :</b> ${dp.emoji} ${esc(dp.label)}</p>`;
+    }
     if (c.roueDeVie.planAction) rep += `<p><b>Action décidée :</b> ${esc(c.roueDeVie.planAction)}</p>`;
   }
 
