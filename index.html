@@ -3102,6 +3102,91 @@ function buildRoueDeVie(c) {
   return box;
 }
 
+function ikigaiSVG() {
+  return `<svg viewBox="0 0 400 400" style="width:100%;max-width:320px;display:block;margin:0 auto">
+    <circle cx="200" cy="140" r="105" fill="#d07070" opacity="0.3"/>
+    <circle cx="260" cy="200" r="105" fill="#5aaec8" opacity="0.3"/>
+    <circle cx="200" cy="260" r="105" fill="#c8a042" opacity="0.3"/>
+    <circle cx="140" cy="200" r="105" fill="#4a9e6a" opacity="0.3"/>
+    <text x="200" y="45" text-anchor="middle" font-size="12" font-weight="700" fill="#a04545">CE QUE J'AIME</text>
+    <text x="355" y="196" text-anchor="middle" font-size="12" font-weight="700" fill="#2f7086">CE EN QUOI<tspan x="355" dy="14">JE SUIS DOUÉ(E)</tspan></text>
+    <text x="200" y="368" text-anchor="middle" font-size="12" font-weight="700" fill="#8a6b1f">CE POUR QUOI<tspan x="200" dy="14">JE PEUX ÊTRE PAYÉ(E)</tspan></text>
+    <text x="45" y="196" text-anchor="middle" font-size="12" font-weight="700" fill="#357a52">CE DONT LE<tspan x="45" dy="14">MONDE A BESOIN</tspan></text>
+    <text x="238" y="163" text-anchor="middle" font-size="10.5" fill="#4A4030" font-style="italic">Passion</text>
+    <text x="238" y="245" text-anchor="middle" font-size="10.5" fill="#4A4030" font-style="italic">Profession</text>
+    <text x="162" y="245" text-anchor="middle" font-size="10.5" fill="#4A4030" font-style="italic">Vocation</text>
+    <text x="162" y="163" text-anchor="middle" font-size="10.5" fill="#4A4030" font-style="italic">Mission</text>
+    <text x="200" y="204" text-anchor="middle" font-size="15" font-weight="800" fill="#3a352a">IKIGAI</text>
+  </svg>`;
+}
+
+function ikigaiListe(titre, color, arr, placeholder, question) {
+  const box = h("div",{class:"card",style:"padding:14px;margin-bottom:10px;border-left:4px solid "+color});
+  box.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13.5px;margin-bottom:2px"},titre));
+  box.appendChild(h("div",{style:"color:#8B7355;font-size:11.5px;margin-bottom:8px"},question));
+  const list = h("div",{});
+  function renderList() {
+    list.innerHTML = "";
+    arr.forEach((val,i) => {
+      const row = h("div",{style:"display:flex;gap:8px;margin-bottom:6px"});
+      const inp = inputEl({value:val, placeholder, onInput:v=>{arr[i]=v; save();}});
+      const del = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:16px"},"×");
+      del.addEventListener("click",()=>{ arr.splice(i,1); save(); renderList(); });
+      row.appendChild(inp); row.appendChild(del);
+      list.appendChild(row);
+    });
+  }
+  renderList();
+  box.appendChild(list);
+  const addBtn = h("button",{class:"btn-sm",style:"margin-top:4px"},"+ Ajouter");
+  addBtn.addEventListener("click",()=>{ arr.push(""); save(); renderList(); });
+  box.appendChild(addBtn);
+  return box;
+}
+
+function buildParcoursIkigai(c) {
+  c.ikigai = c.ikigai || { aime:[], doue:[], mondeBesoin:[], payer:[], synthese:"", open:false };
+  const ik = c.ikigai;
+  const box = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
+
+  const toggleBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E;color:#9C7A2E"}, ik.open?"▲ Fermer le parcours Ikigaï":"🎯 Ajouter un parcours Ikigaï (utile en reconversion)");
+  toggleBtn.addEventListener("click",()=>{ ik.open = !ik.open; save(); render(); });
+  box.appendChild(toggleBtn);
+  if (!ik.open) return box;
+
+  box.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:14px 0 4px"},"🎯 Parcours Ikigaï"));
+  box.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-bottom:12px"},"La raison d'être, à la croisée de 4 cercles. Utile quand la Roue de la vie révèle un manque de sens côté travail."));
+
+  const rv = c.roueDeVie;
+  if (rv && Object.values(rv.scores||{}).some(v=>v>0)) {
+    const entries = DOMAINES_ROUE.map(d=>({...d,score:rv.scores[d.key]||0}));
+    const bas = entries.reduce((a,b)=>b.score<a.score?b:a);
+    box.appendChild(h("div",{style:"padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355;margin-bottom:14px"},
+      "📌 Sur la Roue de la vie, le domaine le plus bas est "+bas.emoji+" "+bas.label+" ("+bas.score+"/10) — bon point d'entrée pour cette exploration."
+    ));
+  } else {
+    box.appendChild(h("div",{style:"padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355;margin-bottom:14px"},
+      "💡 Remplis la Roue de la vie ci-dessus en premier pour repérer le domaine à explorer en priorité."
+    ));
+  }
+
+  const svgWrap = h("div",{style:"margin-bottom:14px"});
+  svgWrap.innerHTML = ikigaiSVG();
+  box.appendChild(svgWrap);
+
+  box.appendChild(ikigaiListe("❤️ Ce que j'aime", "#d07070", ik.aime, "Ex: créer, transmettre, être dehors...", "Qu'est-ce qui te fait vibrer, même sans contrepartie ?"));
+  box.appendChild(ikigaiListe("⭐ Ce en quoi je suis doué(e)", "#5aaec8", ik.doue, "Ex: écouter, organiser, résoudre...", "Qu'est-ce que les autres reconnaissent chez toi comme une force ?"));
+  box.appendChild(ikigaiListe("🌍 Ce dont le monde a besoin", "#4a9e6a", ik.mondeBesoin, "Ex: accompagner, simplifier, réparer...", "Quel problème as-tu envie de résoudre autour de toi ?"));
+  box.appendChild(ikigaiListe("💰 Ce pour quoi je peux être payé(e)", "#c8a042", ik.payer, "Ex: conseil, artisanat, enseignement...", "Quelles compétences ont une valeur marchande aujourd'hui ?"));
+
+  const syn = h("div",{class:"card",style:"padding:14px;margin-top:4px;border-color:#9C7A2E44"});
+  syn.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13.5px;margin-bottom:8px"},"❓ En croisant les 4 cercles avec le client, quelle direction se dessine ?"));
+  syn.appendChild(textareaEl({value:ik.synthese, placeholder:"Synthèse co-écrite avec le client — pas besoin d'une réponse parfaite, juste une direction à tester.", height:"70px", onInput:v=>{ik.synthese=v; save();}}));
+  box.appendChild(syn);
+
+  return box;
+}
+
 function stepObjectif(c) {
   const wrap = h("div",{});
   const pr = c.protocole;
@@ -3133,6 +3218,7 @@ function stepObjectif(c) {
   wrap.appendChild(q1);
 
   wrap.appendChild(buildRoueDeVie(c));
+  wrap.appendChild(buildParcoursIkigai(c));
 
   const q2 = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
   q2.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Quel est l'objectif reformulé et partagé avec le client ?"));
@@ -3621,6 +3707,16 @@ function genererRapport(c) {
     if (c.roueDeVie.date) rep += `<p><b>Date :</b> ${esc(c.roueDeVie.date)}</p>`;
     rep += `<ul>` + DOMAINES_ROUE.map(d=>`<li>${d.emoji} ${esc(d.label)} : ${c.roueDeVie.scores[d.key]||0}/10</li>`).join("") + `</ul>`;
     if (c.roueDeVie.planAction) rep += `<p><b>Action décidée :</b> ${esc(c.roueDeVie.planAction)}</p>`;
+  }
+
+  if (c.ikigai && (c.ikigai.aime.filter(Boolean).length || c.ikigai.doue.filter(Boolean).length || c.ikigai.mondeBesoin.filter(Boolean).length || c.ikigai.payer.filter(Boolean).length)) {
+    const ik = c.ikigai;
+    rep += `<h2>🎯 Parcours Ikigaï</h2>`;
+    if (ik.aime.filter(Boolean).length) rep += `<p><b>❤️ Ce que j'aime :</b> ${ik.aime.filter(Boolean).map(esc).join(", ")}</p>`;
+    if (ik.doue.filter(Boolean).length) rep += `<p><b>⭐ Ce en quoi je suis doué(e) :</b> ${ik.doue.filter(Boolean).map(esc).join(", ")}</p>`;
+    if (ik.mondeBesoin.filter(Boolean).length) rep += `<p><b>🌍 Ce dont le monde a besoin :</b> ${ik.mondeBesoin.filter(Boolean).map(esc).join(", ")}</p>`;
+    if (ik.payer.filter(Boolean).length) rep += `<p><b>💰 Ce pour quoi je peux être payé(e) :</b> ${ik.payer.filter(Boolean).map(esc).join(", ")}</p>`;
+    if (ik.synthese) rep += `<p><b>Synthèse / direction :</b> ${esc(ik.synthese)}</p>`;
   }
 
   rep += `<h2>📊 Bilan initial</h2>`;
