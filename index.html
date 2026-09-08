@@ -2874,6 +2874,107 @@ const STADES_CHANGEMENT = [
   {id:"maintien", label:"Maintien", desc:"Le changement est installé, l'enjeu est de le stabiliser.", implication:"Prévention de la rechute, kit de survie, espacement des séances."},
 ];
 
+const DOMAINES_ROUE = [
+  {key:"energie",    emoji:"⚡", label:"Énergie & Corps",  question:"Je prends soin de mon corps ?"},
+  {key:"mental",     emoji:"🧠", label:"Mental & Clarté",  question:"Mon esprit est clair et apaisé ?"},
+  {key:"emotions",   emoji:"💗", label:"Émotions",         question:"Je reconnais et exprime mes émotions ?"},
+  {key:"relations",  emoji:"🤝", label:"Relations",        question:"Mes relations me nourrissent ?"},
+  {key:"travail",    emoji:"💼", label:"Travail & Sens",   question:"Mon travail a du sens ?"},
+  {key:"creativite", emoji:"🎨", label:"Créativité",       question:"J'explore, je crée, j'apprends ?"},
+  {key:"limites",    emoji:"🛡️", label:"Limites",          question:"Je sais dire non ?"},
+  {key:"plaisir",    emoji:"🎉", label:"Plaisir",          question:"Je ris, je joue, je savoure ?"},
+];
+
+function roueDeVieSVG(scores) {
+  const cx=150, cy=150, maxR=105, n=DOMAINES_ROUE.length;
+  const angle = i => (Math.PI*2*i/n) - Math.PI/2;
+  let svg = `<svg viewBox="0 0 300 300" style="width:100%;max-width:300px;display:block;margin:0 auto">`;
+  [0.2,0.4,0.6,0.8,1].forEach(lv => {
+    const pts = DOMAINES_ROUE.map((d,i) => {
+      const a=angle(i), r=maxR*lv;
+      return (cx+r*Math.cos(a)).toFixed(1)+","+(cy+r*Math.sin(a)).toFixed(1);
+    }).join(" ");
+    svg += `<polygon points="${pts}" fill="none" stroke="#D8CBA8" stroke-width="1"/>`;
+  });
+  DOMAINES_ROUE.forEach((d,i) => {
+    const a=angle(i), x=cx+maxR*Math.cos(a), y=cy+maxR*Math.sin(a);
+    svg += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#D8CBA8" stroke-width="1"/>`;
+  });
+  const dataPts = DOMAINES_ROUE.map((d,i) => {
+    const a=angle(i), r=maxR*((scores[d.key]||0)/10);
+    return (cx+r*Math.cos(a)).toFixed(1)+","+(cy+r*Math.sin(a)).toFixed(1);
+  }).join(" ");
+  svg += `<polygon points="${dataPts}" fill="#9C7A2E33" stroke="#9C7A2E" stroke-width="2"/>`;
+  DOMAINES_ROUE.forEach((d,i) => {
+    const a=angle(i), r=maxR*((scores[d.key]||0)/10);
+    const x=cx+r*Math.cos(a), y=cy+r*Math.sin(a);
+    svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="#9C7A2E"/>`;
+  });
+  DOMAINES_ROUE.forEach((d,i) => {
+    const a=angle(i), lx=cx+(maxR+20)*Math.cos(a), ly=cy+(maxR+20)*Math.sin(a);
+    svg += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="15" text-anchor="middle" dominant-baseline="middle">${d.emoji}</text>`;
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+function buildRoueDeVie(c) {
+  c.roueDeVie = c.roueDeVie || { scores:{}, date:"", planAction:"" };
+  const rv = c.roueDeVie;
+  const box = h("div",{class:"card",style:"padding:18px;margin-bottom:12px"});
+  box.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:2px"},"🎡 Roue de la vie"));
+  box.appendChild(h("div",{style:"color:#8B7355;font-size:11.5px;margin-bottom:12px"},"8 domaines, notés de 0 à 10 avec le client — un bon point de départ pour repérer où porter l'attention en premier."));
+
+  const svgWrap = h("div",{});
+  svgWrap.innerHTML = roueDeVieSVG(rv.scores);
+  box.appendChild(svgWrap);
+
+  const slidersWrap = h("div",{style:"margin-top:14px"});
+  DOMAINES_ROUE.forEach(d => {
+    const row = h("div",{style:"margin-bottom:12px"});
+    const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(rv.scores[d.key]||0));
+    row.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:3px"},
+      h("div",{style:"font-size:13px;color:#2E2A20"}, d.emoji+" "+d.label+" — "+d.question), valSpan
+    ));
+    const slider = h("input",{type:"range",min:"0",max:"10",value:String(rv.scores[d.key]||0),style:"width:100%"});
+    slider.addEventListener("input", () => {
+      rv.scores[d.key] = Number(slider.value);
+      valSpan.textContent = slider.value;
+      svgWrap.innerHTML = roueDeVieSVG(rv.scores);
+      updateSynthese();
+      save();
+    });
+    row.appendChild(slider);
+    slidersWrap.appendChild(row);
+  });
+  box.appendChild(slidersWrap);
+
+  const synthese = h("div",{style:"margin-top:6px;padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355"});
+  function updateSynthese() {
+    const entries = DOMAINES_ROUE.map(d => ({...d, score: rv.scores[d.key]||0}));
+    if (!entries.some(e=>e.score>0)) { synthese.textContent = "Note les 8 domaines pour voir apparaître les priorités."; return; }
+    const bas = entries.reduce((a,b)=>b.score<a.score?b:a);
+    const haut = entries.reduce((a,b)=>b.score>a.score?b:a);
+    synthese.innerHTML = `<b>Domaine le plus bas :</b> ${bas.emoji} ${bas.label} (${bas.score}/10) — « Que se passerait-il si ça montait de 1 ? »<br><b>Domaine le plus haut :</b> ${haut.emoji} ${haut.label} (${haut.score}/10) — « Comment cette force peut-elle aider les autres ? »`;
+  }
+  updateSynthese();
+  box.appendChild(synthese);
+
+  const planBox = h("div",{style:"margin-top:12px"});
+  planBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13px;margin-bottom:6px"},"❓ Une action concrète pour la semaine, sur le domaine le plus bas"));
+  planBox.appendChild(textareaEl({value:rv.planAction, placeholder:"Une seule action, testable et concrète.", height:"50px", onInput:v=>{rv.planAction=v; save();}}));
+  box.appendChild(planBox);
+
+  const dateRow = h("div",{style:"margin-top:10px"});
+  const dateInp = h("input",{type:"date",value:rv.date||""});
+  dateInp.addEventListener("change", () => { rv.date = dateInp.value; save(); });
+  dateRow.appendChild(h("label",{style:"font-size:11px;color:#6B6355;display:block;margin-bottom:3px"},"Date de cette roue"));
+  dateRow.appendChild(dateInp);
+  box.appendChild(dateRow);
+
+  return box;
+}
+
 function stepObjectif(c) {
   const wrap = h("div",{});
   const pr = c.protocole;
@@ -2903,6 +3004,8 @@ function stepObjectif(c) {
   q1.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Qu'est-ce qui vous amène aujourd'hui ?"));
   q1.appendChild(textareaEl({value:pr.demandeInitiale, placeholder:"Demande du client, dans ses mots.", height:"70px", onInput:v=>{pr.demandeInitiale=v; save();}}));
   wrap.appendChild(q1);
+
+  wrap.appendChild(buildRoueDeVie(c));
 
   const q2 = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
   q2.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Quel est l'objectif reformulé et partagé avec le client ?"));
@@ -3363,6 +3466,13 @@ function genererRapport(c) {
   }
   if (c.objectifs && c.objectifs.length) {
     rep += `<ul>` + c.objectifs.map(o=>`<li>${esc(o.titre)} — <i>${esc(o.statut)}</i></li>`).join("") + `</ul>`;
+  }
+
+  if (c.roueDeVie && Object.values(c.roueDeVie.scores||{}).some(v=>v>0)) {
+    rep += `<h2>🎡 Roue de la vie</h2>`;
+    if (c.roueDeVie.date) rep += `<p><b>Date :</b> ${esc(c.roueDeVie.date)}</p>`;
+    rep += `<ul>` + DOMAINES_ROUE.map(d=>`<li>${d.emoji} ${esc(d.label)} : ${c.roueDeVie.scores[d.key]||0}/10</li>`).join("") + `</ul>`;
+    if (c.roueDeVie.planAction) rep += `<p><b>Action décidée :</b> ${esc(c.roueDeVie.planAction)}</p>`;
   }
 
   rep += `<h2>📊 Bilan initial</h2>`;
