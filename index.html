@@ -892,6 +892,25 @@ let notesTimer = null;
 
 function setState(patch) {
   Object.assign(state, patch);
+  
+  // Gestion spéciale INTAKE + EN LIVE
+  if (patch.tab === "intake") {
+    if (!state.selClientId) {
+      document.getElementById("main").innerHTML = `<h2>📋 INTAKE</h2><p style="padding:20px;color:#999;">Sélectionner un client</p>`;
+    } else {
+      showIntakeTab(state.selClientId);
+    }
+    return;
+  }
+  if (patch.tab === "live") {
+    if (!state.selClientId) {
+      document.getElementById("main").innerHTML = `<h2>🧠 EN LIVE</h2><p style="padding:20px;color:#999;">Sélectionner un client</p>`;
+    } else {
+      showLiveTab(state.selClientId);
+    }
+    return;
+  }
+  
   render();
 }
 
@@ -4357,6 +4376,8 @@ function renderNow() {
   let content;
   if (state.tab==="dashboard")    content = renderDashboard();
   else if (state.tab==="clients") content = renderClients();
+  else if (state.tab==="intake") content = renderIntakeTab();
+  else if (state.tab==="live") content = renderLiveTab();
   else if (state.tab==="agenda") content = renderAgendaTab();
   else if (state.tab==="finances") content = renderFinancesTab();
   else if (state.tab==="clairiere") content = renderClairiereTab();
