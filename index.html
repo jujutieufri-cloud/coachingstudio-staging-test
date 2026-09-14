@@ -4409,5 +4409,509 @@ render();
   });
 })();
 </script>
+
+<!-- === INTAKE + LIVE INTEGRATION === -->
+<script>
+// ═══════════════════════════════════════════════════════════════
+// 🎯 SYSTÈME D'INTAKE + NEURO-COACHING EN LIVE
+// À ajouter dans index.html avant </body>
+// ═══════════════════════════════════════════════════════════════
+
+// === CONSTANTES INTAKE ===
+const ASRS_QUESTIONS = [
+  "Difficulté à finir les détails d'un projet après la phase stimulante",
+  "Difficulté à organiser des tâches sans structure fournie",
+  "Difficulté à garder l'attention en lisant ou en écoutant",
+  "Difficulté à vous concentrer, même quand quelqu'un parle directement",
+  "Tendance à être facilement distrait(e)",
+  "Difficulté à remettre au point les choses si vous devez organiser"
+];
+
+const HPI_TRAITS = [
+  "Vois/captes des nuances que les autres ratent",
+  "Standards très élevés pour toi-même",
+  "Procrastine souvent avant de te lancer (perfectionnisme)",
+  "Besoin de comprendre le 'pourquoi' avant d'agir"
+];
+
+const HSP_TRAITS = [
+  "Affecté(e) par atmosphères, lumière, bruit, émotions",
+  "Besoin de calme/espace après les interactions",
+  "Sursaut facile",
+  "Sensible aux saveurs, textures, odeurs"
+];
+
+// === CONSTANTES LIVE COACHING ===
+const LIVE_BRANCHES = {
+  A: {
+    id: 'A',
+    emoji: '🔴',
+    label: 'Surcharge cognitive & émotionnelle',
+    science: 'Réduction de la suractivation amygdale par expression neutre + Brain Dump',
+    options: [
+      { id: 'A1', name: 'CNV/OSBD + Brain Dump', fields: ['observation', 'emotion'] },
+      { id: 'A2', name: 'Sophrologie + Grounding', fields: ['saturatedBy', 'needFor'] },
+      { id: 'A3', name: 'Co-régulation émotionnelle', fields: ['emotionalState', 'support'] }
+    ]
+  },
+  B: {
+    id: 'B',
+    emoji: '🟠',
+    label: 'Hyperfocalisation & Surrégime d\'idées',
+    science: 'Alignement énergie créative sur priorité vs tangentes hyperstimulantes',
+    options: [
+      { id: 'B1', name: 'Recadrage d\'alignement', fields: ['idea', 'priority'] },
+      { id: 'B2', name: 'Priorité vs Tangente', fields: ['stimulus', 'mainGoal'] },
+      { id: 'B3', name: 'Réorientation dopaminergique', fields: ['idea', 'reward'] }
+    ]
+  },
+  C: {
+    id: 'C',
+    emoji: '🟢',
+    label: 'Blocage, Procrastination & Ennui',
+    science: 'Activation système récompense par micro-pas dérisoire + co-validation',
+    options: [
+      { id: 'C1', name: 'Procrastination inversée (2-min)', fields: ['blockedTask', 'fear'] },
+      { id: 'C2', name: 'Micro-pas dérisoire (4/10)', fields: ['blockedTask', 'firstStep'] },
+      { id: 'C3', name: 'Activation ressource ancienne', fields: ['blockedTask', 'resource'] }
+    ]
+  }
+};
+
+const SCRIPTS_TEMPLATES = {
+  A1: (v) => `Observons les faits objectifs : <b>${v.observation || '[observation]'}</b>.<br><br>Émotion dominante : <b>${v.emotion || '[émotion]'}</b>.<br><br><i>De quoi ton cerveau a-t-il besoin immédiatement?</i>`,
+  B1: (v) => `Énergie pour : <b>${v.idea || '[idée]'}</b>.<br><br>Alignement : <i>Cela sert-il directement ton objectif prioritaire ou est-ce une tangente?</i><br><br>Priorité : <b>${v.priority || '[À clarifier]'}</b>`,
+  C1: (v) => `Tu bloques sur : <b>${v.blockedTask || '[tâche]'}</b><br>Frein : <b>${v.fear || '[peur]'}</b><br><br><i>Si on faisait une version volontairement bâclée (4/10), quel serait le premier pas de 2 minutes?</i>`
+};
+
+// === STATE LIVE ===
+let liveSession = {
+  clientId: null,
+  step: 'welcome',
+  branch: null,
+  option: null,
+  values: {},
+  script: '',
+  microAction: '',
+  ideaBox: '',
+  followUp: 'J+2',
+  clientEnergy: 5,
+  notes: ''
+};
+
+// === FUNCTIONS INTAKE ===
+
+function showIntakeTab(clientId) {
+  const client = state.clients[clientId];
+  
+  let html = `<h2>📋 INTAKE — Profil et Timing Recommandé</h2>`;
+  
+  if (client.intake) {
+    // Afficher résumé
+    html += `
+      <div class="intake-summary" style="background:#ecfdf5;border-left:4px solid #059669;padding:15px;border-radius:6px;margin:20px 0;">
+        <h3 style="margin-top:0;">✅ Profil calculé</h3>
+        <div><strong>Profil:</strong> ${client.intake.profile} (${client.intake.severity})</div>
+        <div style="margin-top:10px;"><strong>Timing recommandé:</strong> <span style="background:#e0e7ff;padding:6px 12px;border-radius:4px;font-size:14px;">${client.intake.timing.duration} min × ${client.intake.timing.frequency}x/semaine</span></div>
+        <div style="margin-top:12px;">
+          <button class="btn" onclick="editIntake('${clientId}')" style="font-size:12px;padding:6px 12px;">✏️ Modifier</button>
+        </div>
+      </div>
+    `;
+  } else {
+    // Afficher formulaire
+    html += `<form id="intakeForm" onsubmit="submitIntake(event, '${clientId}')">`;
+    
+    // ASRS-6
+    html += `<div class="qform" style="margin-top:20px;">
+      <h4>📊 ASRS-6 (Dépistage TDAH)</h4>
+      <p style="font-size:12px;color:#6B6355;">Répondez sur l'échelle: Jamais (0) → Très souvent (4)</p>`;
+    
+    ASRS_QUESTIONS.forEach((q, i) => {
+      html += `<div style="margin-bottom:15px;">
+        <label style="font-size:13px;margin-bottom:6px;display:block;">${i+1}. ${q}</label>
+        <div style="display:flex;gap:6px;">
+          ${[0,1,2,3,4].map(v => `<button type="button" class="btn-sm asrs-btn" data-q="asrs${i}" data-v="${v}" onclick="selectASRS(this)" style="flex:1;padding:6px;">${v}</button>`).join('')}
+        </div>
+      </div>`;
+    });
+    
+    html += `</div>`;
+    
+    // HPI
+    html += `<div class="qform">
+      <h4>🧠 Traits HPI</h4>`;
+    HPI_TRAITS.forEach((t, i) => {
+      html += `<label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <input type="checkbox" class="hpi-check" data-i="${i}" style="width:18px;height:18px;cursor:pointer;">
+        <span>${t}</span>
+      </label>`;
+    });
+    html += `</div>`;
+    
+    // HSP
+    html += `<div class="qform">
+      <h4>✨ Traits HSP</h4>`;
+    HSP_TRAITS.forEach((t, i) => {
+      html += `<label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <input type="checkbox" class="hsp-check" data-i="${i}" style="width:18px;height:18px;cursor:pointer;">
+        <span>${t}</span>
+      </label>`;
+    });
+    html += `</div>`;
+    
+    // Burnout
+    html += `<div class="qform">
+      <h4>📉 Niveau d'épuisement (0-10)</h4>
+      <input type="range" id="burnoutSlider" min="0" max="10" value="5" style="width:100%;margin:10px 0;">
+      <div style="text-align:center;font-weight:bold;color:#9C7A2E;" id="burnoutValue">5/10</div>
+    </div>`;
+    
+    html += `<button type="submit" class="btn" style="width:100%;margin-top:20px;">✨ Calculer mon profil</button>`;
+    html += `</form>`;
+  }
+  
+  document.getElementById('main').innerHTML = html;
+  
+  // Listeners
+  document.querySelectorAll('#burnoutSlider').forEach(el => {
+    el.addEventListener('input', (e) => {
+      document.getElementById('burnoutValue').textContent = e.target.value + '/10';
+    });
+  });
+}
+
+function submitIntake(e, clientId) {
+  e.preventDefault();
+  
+  // Calculer scores
+  const asrsAnswers = document.querySelectorAll('.asrs-btn.selected');
+  const asrsScore = Array.from(asrsAnswers).reduce((sum, el) => sum + parseInt(el.dataset.v), 0);
+  
+  const hpiChecks = document.querySelectorAll('.hpi-check:checked');
+  const hpiScore = hpiChecks.length;
+  
+  const hspChecks = document.querySelectorAll('.hsp-check:checked');
+  const hspScore = hspChecks.length;
+  
+  const burnout = parseInt(document.getElementById('burnoutSlider').value);
+  
+  // Déterminer profil
+  let profile = [];
+  if (asrsScore >= 13) profile.push('TDAH');
+  if (hpiScore >= 3) profile.push('HPI');
+  if (hspScore >= 3) profile.push('HSP');
+  
+  profile = profile.length > 0 ? profile.join('+') : 'Autres';
+  
+  // Déterminer sévérité
+  const severity = (asrsScore / 24 + burnout / 10) / 2;
+  let severityLabel = severity > 0.67 ? 'SÉVÈRE' : (severity > 0.33 ? 'MODÉRÉ' : 'LÉGER');
+  
+  // Recommander timing (simplifié)
+  const timingMap = {
+    'TDAH-LÉGER': {duration: 45, freq: 1.5},
+    'TDAH-MODÉRÉ': {duration: 45, freq: 2},
+    'TDAH-SÉVÈRE': {duration: 30, freq: 2.5},
+    'HPI-LÉGER': {duration: 75, freq: 1},
+    'HPI-MODÉRÉ': {duration: 60, freq: 1.5},
+    'HPI+TDAH': {duration: 45, freq: 2},
+  };
+  
+  let timing = {duration: 45, frequency: 1.5};
+  if (profile === 'TDAH') {
+    timing = timingMap[`TDAH-${severityLabel}`] || timing;
+  } else if (profile === 'HPI') {
+    timing = timingMap[`HPI-${severityLabel}`] || timing;
+  } else if (profile === 'HPI+TDAH') {
+    timing = timingMap['HPI+TDAH'];
+  }
+  
+  const intakeData = {
+    profile,
+    severity: severityLabel,
+    asrsScore,
+    hpiScore,
+    hspScore,
+    burnout,
+    timing: {duration: timing.duration, frequency: timing.freq},
+    date: new Date().toISOString()
+  };
+  
+  // Sauver
+  state.clients[clientId].intake = intakeData;
+  localStorage.setItem('coaching_state', JSON.stringify(state));
+  
+  if (db) {
+    db.collection('clients').doc(clientId).update({
+      intake: intakeData,
+      intakeDate: new Date()
+    }).catch(err => console.warn('Firebase offline'));
+  }
+  
+  showIntakeTab(clientId);
+}
+
+function editIntake(clientId) {
+  state.clients[clientId].intake = null;
+  showIntakeTab(clientId);
+}
+
+function selectASRS(btn) {
+  const q = btn.dataset.q;
+  document.querySelectorAll(`[data-q="${q}"]`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// === FUNCTIONS LIVE ===
+
+function showLiveTab(clientId) {
+  const client = state.clients[clientId];
+  
+  if (!client.intake) {
+    alert('❌ Compléter l\'INTAKE d\'abord');
+    return;
+  }
+  
+  liveSession.clientId = clientId;
+  liveSession.step = 'welcome';
+  renderLiveWelcome(client);
+}
+
+function renderLiveWelcome(client) {
+  let html = `
+    <h2>🧠 Séance de Neuro-Coaching En Live</h2>
+    <div class="qform" style="background:#e6f1fb;border-left:4px solid #378add;">
+      <h3>${client.name}</h3>
+      <div><strong>Profil:</strong> <span style="background:#${PC[client.profile] || '#ccc'};color:white;padding:3px 8px;border-radius:3px;font-size:12px;">${client.profile}</span></div>
+      <div style="margin-top:8px;"><strong>Timing:</strong> ${client.intake.timing.duration} min × ${client.intake.timing.frequency}x/sem</div>
+    </div>
+    
+    <div class="qform">
+      <label class="lbl">Niveau d'énergie/charge immédiat (1-10)</label>
+      <input type="range" id="liveEnergy" min="1" max="10" value="5" style="margin:10px 0;">
+      <div style="text-align:center;font-weight:bold;color:#9C7A2E;" id="liveEnergyValue">5/10</div>
+    </div>
+    
+    <div class="qform">
+      <label class="lbl">Notes contexte</label>
+      <textarea id="liveNotes" placeholder="Observations préalables..." style="height:80px;"></textarea>
+    </div>
+    
+    <button class="btn" onclick="goToLiveBranch()" style="width:100%;margin-top:20px;">➔ Diagnostic branche</button>
+  `;
+  
+  document.getElementById('main').innerHTML = html;
+  
+  document.getElementById('liveEnergy').addEventListener('input', (e) => {
+    liveSession.clientEnergy = e.target.value;
+    document.getElementById('liveEnergyValue').textContent = e.target.value + '/10';
+  });
+  
+  document.getElementById('liveNotes').addEventListener('input', (e) => {
+    liveSession.notes = e.target.value;
+  });
+}
+
+function goToLiveBranch() {
+  liveSession.step = 'branch';
+  let html = `<h2>🧠 Étape 1: État neuro-fonctionnel immédiat</h2>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin:20px 0;">`;
+  
+  Object.entries(LIVE_BRANCHES).forEach(([key, branch]) => {
+    html += `
+      <div onclick="selectLiveBranch('${key}')" style="border:2px solid #ddd;padding:20px;border-radius:8px;cursor:pointer;text-align:center;transition:all .2s;">
+        <div style="font-size:2.5rem;margin-bottom:10px;">${branch.emoji}</div>
+        <div style="font-weight:600;margin-bottom:6px;">${branch.label}</div>
+        <div style="font-size:13px;color:#6B6355;">${branch.options.length} options</div>
+      </div>
+    `;
+  });
+  
+  html += `</div>`;
+  document.getElementById('main').innerHTML = html;
+}
+
+function selectLiveBranch(branchId) {
+  liveSession.branch = LIVE_BRANCHES[branchId];
+  liveSession.step = 'option';
+  
+  let html = `<h2>${liveSession.branch.emoji} Étape 2: Approche</h2>`;
+  html += `<div class="qform" style="background:#ecfdf5;border-left:4px solid #059669;margin-bottom:20px;font-size:13px;">${liveSession.branch.science}</div>`;
+  html += `<div style="display:flex;flex-direction:column;gap:10px;">`;
+  
+  liveSession.branch.options.forEach(opt => {
+    html += `
+      <button onclick="selectLiveOption('${opt.id}')" class="btn-g" style="text-align:left;padding:15px;font-weight:600;">
+        ${opt.name}
+        <div style="font-size:12px;color:#6B6355;font-weight:400;margin-top:4px;">Champs: ${opt.fields.join(', ')}</div>
+      </button>
+    `;
+  });
+  
+  html += `</div><button class="btn-g" onclick="goToLiveBranch()" style="margin-top:20px;">← Retour</button>`;
+  document.getElementById('main').innerHTML = html;
+}
+
+function selectLiveOption(optionId) {
+  liveSession.option = LIVE_BRANCHES[liveSession.branch.id].options.find(o => o.id === optionId);
+  liveSession.step = 'form';
+  
+  let html = `<h2>${liveSession.branch.emoji} ${liveSession.branch.id} — ${liveSession.option.name}</h2>`;
+  html += `<form id="liveForm" onsubmit="generateLiveScript(event)">`;
+  
+  liveSession.option.fields.forEach(field => {
+    let label = {
+      observation: 'Observation neutre (OSBD)',
+      emotion: 'Émotion dominante',
+      idea: 'Idée/Projet en hyperfocus',
+      priority: 'Objectif prioritaire',
+      blockedTask: 'Tâche bloquée',
+      fear: 'Peur/Frein identifié',
+      firstStep: 'Premier pas (2 min max)',
+      resource: 'Ressource à activer',
+      saturatedBy: 'Saturé par...',
+      needFor: 'Besoin de...',
+      stimulus: 'Stimulus excitant',
+      mainGoal: 'Objectif principal',
+      reward: 'Source dopaminergique'
+    }[field] || field;
+    
+    html += `<div class="qform">
+      <label class="lbl">${label}</label>
+      <textarea id="field_${field}" data-field="${field}" placeholder="..." style="height:60px;"></textarea>
+    </div>`;
+  });
+  
+  html += `<button type="submit" class="btn" style="width:100%;">🗣️ Générer script</button>`;
+  html += `</form>`;
+  
+  document.getElementById('main').innerHTML = html;
+}
+
+function generateLiveScript(e) {
+  e.preventDefault();
+  
+  liveSession.values = {};
+  liveSession.option.fields.forEach(field => {
+    liveSession.values[field] = document.getElementById(`field_${field}`).value;
+  });
+  
+  const template = SCRIPTS_TEMPLATES[liveSession.option.id];
+  liveSession.script = template ? template(liveSession.values) : "Script template non trouvé";
+  
+  liveSession.step = 'action';
+  renderLiveAction();
+}
+
+function renderLiveAction() {
+  let html = `<h2>🎯 Synthèse & Engagements</h2>`;
+  
+  html += `<div class="qform" style="background:#f3e8ff;border-left:4px solid #7c3aed;">
+    <h4>🗣️ Script coaching (éditable)</h4>
+    <div id="scriptBox" contenteditable="true" style="background:#ffffff;border:1px solid #c084fc;border-radius:6px;padding:15px;min-height:100px;font-size:14px;line-height:1.6;outline:none;" onblur="liveSession.script = this.innerHTML">${liveSession.script}</div>
+  </div>`;
+  
+  html += `<div class="qform">
+    <label class="lbl">💡 Boîte à idées (tangentes)</label>
+    <textarea id="liveIdeaBox" placeholder="Idées à explorer plus tard..." style="height:60px;"></textarea>
+  </div>`;
+  
+  html += `<div class="qform">
+    <label class="lbl">🎯 Micro-action engagée (<48h)</label>
+    <input type="text" id="liveMicroAction" placeholder="Action spécifique et mesurable..." style="height:auto;">
+  </div>`;
+  
+  html += `<div class="qform">
+    <label class="lbl">📅 Suivi inter-séance</label>
+    <select id="liveFollowUp" style="height:auto;">
+      <option value="J+2">Message flash à J+2</option>
+      <option value="J+7">Bilan complet à J+7</option>
+      <option value="next">Prochaine séance</option>
+    </select>
+  </div>`;
+  
+  html += `<button class="btn" onclick="saveLiveSession()" style="width:100%;margin-top:20px;">💾 Enregistrer la séance</button>`;
+  html += `<button class="btn-g" onclick="goToLiveBranch()" style="width:100%;margin-top:8px;">← Retour</button>`;
+  
+  document.getElementById('main').innerHTML = html;
+  
+  document.getElementById('liveIdeaBox').value = liveSession.ideaBox;
+  document.getElementById('liveMicroAction').value = liveSession.microAction;
+  document.getElementById('liveFollowUp').value = liveSession.followUp;
+  
+  document.getElementById('liveIdeaBox').addEventListener('input', (e) => {
+    liveSession.ideaBox = e.target.value;
+  });
+  
+  document.getElementById('liveMicroAction').addEventListener('input', (e) => {
+    liveSession.microAction = e.target.value;
+  });
+  
+  document.getElementById('liveFollowUp').addEventListener('change', (e) => {
+    liveSession.followUp = e.target.value;
+  });
+}
+
+function saveLiveSession() {
+  liveSession.script = document.getElementById('scriptBox').innerHTML;
+  
+  const sessionData = {
+    clientId: liveSession.clientId,
+    date: new Date().toISOString(),
+    energy: liveSession.clientEnergy,
+    notes: liveSession.notes,
+    branch: liveSession.branch.id,
+    branchLabel: liveSession.branch.label,
+    option: liveSession.option.id,
+    optionName: liveSession.option.name,
+    values: liveSession.values,
+    script: liveSession.script,
+    microAction: liveSession.microAction,
+    ideaBox: liveSession.ideaBox,
+    followUp: liveSession.followUp,
+    intake: state.clients[liveSession.clientId].intake
+  };
+  
+  // Sauver localStorage
+  if (!state.sessions) state.sessions = {};
+  if (!state.sessions[liveSession.clientId]) state.sessions[liveSession.clientId] = [];
+  state.sessions[liveSession.clientId].unshift(sessionData);
+  localStorage.setItem('coaching_state', JSON.stringify(state));
+  
+  // Sauver Firebase
+  if (db) {
+    db.collection('sessions').add(sessionData).catch(err => console.warn('Firebase offline'));
+  }
+  
+  alert('✅ Séance enregistrée!');
+  
+  // Rafraîchir affichage fiche client
+  showClientFiche(liveSession.clientId);
+}
+
+// === CSS À AJOUTER DANS <style> ===
+// .selected { background: #9C7A2E; color: white; }
+// .asrs-btn.selected { background: #9C7A2E; color: white; }
+
+
+// === ONGLETS INTAKE + EN LIVE (Injected) ===
+(function() {
+  setTimeout(() => {
+    const nav = document.getElementById('nav');
+    if (nav) {
+      const newButtons = `
+        <div style="margin-top:20px;border-top:1px solid #ccc;padding-top:15px;">
+          <div class="nav-pole-label" style="font-size:11px;text-transform:uppercase;color:#9C7A2E;margin-bottom:10px;">🧠 Neuro-Coaching</div>
+          <button class="nav-item" onclick="if(currentClientId) showIntakeTab(currentClientId); else alert('Sélectionner un client')" title="INTAKE - Profil et Timing">📋 INTAKE</button>
+          <button class="nav-item" onclick="if(currentClientId) showLiveTab(currentClientId); else alert('Sélectionner un client')" title="EN LIVE - Séance structurée">🧠 EN LIVE</button>
+        </div>
+      `;
+      nav.innerHTML += newButtons;
+    }
+  }, 100);
+})();
+
+</script>
 </body>
 </html>
