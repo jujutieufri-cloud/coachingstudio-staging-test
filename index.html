@@ -866,6 +866,7 @@ let state = {
   ressources: JSON.parse(localStorage.getItem("cs4-ressources") || "[]"),
   notes: localStorage.getItem("cs4-notes") || "",
   appointments: JSON.parse(localStorage.getItem("cs4-appointments") || "[]"),
+  sessions: JSON.parse(localStorage.getItem("cs4-sessions") || "{}"),
   agendaView: "liste",
   agendaRef: (() => { const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); })(),
   agendaSelectedDay: null,
@@ -886,31 +887,13 @@ function save() {
   localStorage.setItem("cs4-ressources", JSON.stringify(state.ressources));
   localStorage.setItem("cs4-notes", state.notes);
   localStorage.setItem("cs4-appointments", JSON.stringify(state.appointments));
+  localStorage.setItem("cs4-sessions", JSON.stringify(state.sessions || {}));
 }
 
 let notesTimer = null;
 
 function setState(patch) {
   Object.assign(state, patch);
-  
-  // Gestion spéciale INTAKE + EN LIVE
-  if (patch.tab === "intake") {
-    if (!state.selClientId) {
-      document.getElementById("main").innerHTML = `<h2>📋 INTAKE</h2><p style="padding:20px;color:#999;">Sélectionner un client</p>`;
-    } else {
-      showIntakeTab(state.selClientId);
-    }
-    return;
-  }
-  if (patch.tab === "live") {
-    if (!state.selClientId) {
-      document.getElementById("main").innerHTML = `<h2>🧠 EN LIVE</h2><p style="padding:20px;color:#999;">Sélectionner un client</p>`;
-    } else {
-      showLiveTab(state.selClientId);
-    }
-    return;
-  }
-  
   render();
 }
 
@@ -2778,6 +2761,14 @@ function renderClientDetail() {
   );
   box.appendChild(hdr);
 
+  const neuroBtns = h("div",{style:"display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap"});
+  const intakeBtn = h("button",{class:"btn-g"},"📋 INTAKE");
+  intakeBtn.addEventListener("click",()=>setState({tab:"intake"}));
+  const liveBtn = h("button",{class:"btn-g"},"🧠 EN LIVE");
+  liveBtn.addEventListener("click",()=>setState({tab:"live"}));
+  neuroBtns.appendChild(intakeBtn); neuroBtns.appendChild(liveBtn);
+  box.appendChild(neuroBtns);
+
   // Subtabs
   const stabs = h("div",{class:"subtabs"});
   [["fiche","◈ Fiche"],["protocole","🧭 Protocole"],["paiements","€ Paiements"],["notes-c","◻ Notes"]].forEach(([id,lbl])=>{
@@ -4524,8 +4515,43 @@ let liveSession = {
 
 // === FUNCTIONS INTAKE ===
 
+function renderIntakeTab() {
+  const clientId = state.selClientId;
+  const client = clientId ? state.clients.find(c => c.id === clientId) : null;
+  const ph = document.createElement("div");
+  if (!client) {
+    const options = state.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    ph.innerHTML = `<h2>📋 INTAKE — Profil et Timing Recommandé</h2>
+      <p style="padding:10px 0;color:#6B6355;">Choisir un client :</p>
+      <select onchange="if(this.value) setState({selClientId:this.value})" style="padding:8px;border-radius:6px;border:1px solid #ccc;min-width:220px;">
+        <option value="">— Sélectionner —</option>${options}
+      </select>`;
+    return ph;
+  }
+  showIntakeTab(clientId);
+  return ph;
+}
+
+function renderLiveTab() {
+  const clientId = state.selClientId;
+  const client = clientId ? state.clients.find(c => c.id === clientId) : null;
+  const ph = document.createElement("div");
+  if (!client) {
+    const options = state.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    ph.innerHTML = `<h2>🧠 EN LIVE — Séance de Neuro-Coaching</h2>
+      <p style="padding:10px 0;color:#6B6355;">Choisir un client :</p>
+      <select onchange="if(this.value) setState({selClientId:this.value})" style="padding:8px;border-radius:6px;border:1px solid #ccc;min-width:220px;">
+        <option value="">— Sélectionner —</option>${options}
+      </select>`;
+    return ph;
+  }
+  showLiveTab(clientId);
+  return ph;
+}
+
 function showIntakeTab(clientId) {
-  const client = state.clients[clientId];
+  const client = state.clients.find(c => c.id === clientId);
+  if (!client) { document.getElementById('main').innerHTML = '<p style="padding:20px;color:#e11d48;">Client introuvable.</p>'; return; }
   
   let html = `<h2>📋 INTAKE — Profil et Timing Recommandé</h2>`;
   
@@ -4662,21 +4688,22 @@ function submitIntake(e, clientId) {
   };
   
   // Sauver
-  state.clients[clientId].intake = intakeData;
-  localStorage.setItem('coaching_state', JSON.stringify(state));
+  const clientToUpdate = state.clients.find(c => c.id === clientId);
+  if (clientToUpdate) clientToUpdate.intake = intakeData;
+  save();
   
-  if (db) {
-    db.collection('clients').doc(clientId).update({
-      intake: intakeData,
-      intakeDate: new Date()
-    }).catch(err => console.warn('Firebase offline'));
-  }
+  firebase.firestore().collection('clients').doc(clientId).update({
+    intake: intakeData,
+    intakeDate: new Date()
+  }).catch(err => console.warn('Firebase offline'));
   
   showIntakeTab(clientId);
 }
 
 function editIntake(clientId) {
-  state.clients[clientId].intake = null;
+  const clientToEdit = state.clients.find(c => c.id === clientId);
+  if (clientToEdit) clientToEdit.intake = null;
+  save();
   showIntakeTab(clientId);
 }
 
@@ -4689,7 +4716,8 @@ function selectASRS(btn) {
 // === FUNCTIONS LIVE ===
 
 function showLiveTab(clientId) {
-  const client = state.clients[clientId];
+  const client = state.clients.find(c => c.id === clientId);
+  if (!client) { document.getElementById('main').innerHTML = '<p style="padding:20px;color:#e11d48;">Client introuvable.</p>'; return; }
   
   if (!client.intake) {
     alert('❌ Compléter l\'INTAKE d\'abord');
@@ -4879,6 +4907,8 @@ function renderLiveAction() {
 function saveLiveSession() {
   liveSession.script = document.getElementById('scriptBox').innerHTML;
   
+  const liveClientRef = state.clients.find(c => c.id === liveSession.clientId);
+  
   const sessionData = {
     clientId: liveSession.clientId,
     date: new Date().toISOString(),
@@ -4893,47 +4923,28 @@ function saveLiveSession() {
     microAction: liveSession.microAction,
     ideaBox: liveSession.ideaBox,
     followUp: liveSession.followUp,
-    intake: state.clients[liveSession.clientId].intake
+    intake: liveClientRef ? liveClientRef.intake : null
   };
   
   // Sauver localStorage
   if (!state.sessions) state.sessions = {};
   if (!state.sessions[liveSession.clientId]) state.sessions[liveSession.clientId] = [];
   state.sessions[liveSession.clientId].unshift(sessionData);
-  localStorage.setItem('coaching_state', JSON.stringify(state));
+  save();
   
   // Sauver Firebase
-  if (db) {
-    db.collection('sessions').add(sessionData).catch(err => console.warn('Firebase offline'));
-  }
+  firebase.firestore().collection('sessions').add(sessionData).catch(err => console.warn('Firebase offline'));
   
   alert('✅ Séance enregistrée!');
   
   // Rafraîchir affichage fiche client
-  showClientFiche(liveSession.clientId);
+  setState({tab:"clients", selClientId: liveSession.clientId});
 }
 
 // === CSS À AJOUTER DANS <style> ===
 // .selected { background: #9C7A2E; color: white; }
 // .asrs-btn.selected { background: #9C7A2E; color: white; }
 
-
-// === ONGLETS INTAKE + EN LIVE (Injected) ===
-(function() {
-  setTimeout(() => {
-    const nav = document.getElementById('nav');
-    if (nav) {
-      const newButtons = `
-        <div style="margin-top:20px;border-top:1px solid #ccc;padding-top:15px;">
-          <div class="nav-pole-label" style="font-size:11px;text-transform:uppercase;color:#9C7A2E;margin-bottom:10px;">🧠 Neuro-Coaching</div>
-          <button class="nav-item" onclick="if(currentClientId) showIntakeTab(currentClientId); else alert('Sélectionner un client')" title="INTAKE - Profil et Timing">📋 INTAKE</button>
-          <button class="nav-item" onclick="if(currentClientId) showLiveTab(currentClientId); else alert('Sélectionner un client')" title="EN LIVE - Séance structurée">🧠 EN LIVE</button>
-        </div>
-      `;
-      nav.innerHTML += newButtons;
-    }
-  }, 100);
-})();
 
 </script>
 </body>
