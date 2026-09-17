@@ -1385,6 +1385,11 @@ const DEFAULT_SETTINGS = {
   tarifs: { decouverte:0, unite:70, declic:190, codeChaine:520, famille:340, club:20 },
   messageInfo: { actif:false, texte:"" },
   conges: [],
+  forfaits: [
+    { nom: "Forfait Déclic", seances: 3, prix: 190 },
+    { nom: "Programme Sérénité", seances: 8, prix: 520 },
+    { nom: "Forfait Famille Hérisson", seances: 4, prix: 340 }
+  ],
   contenuSite: {
     hero: {
       subtitle: "Le Coaching TDAH",
@@ -1443,6 +1448,7 @@ const CoachSettings = {
         tarifs: { ...DEFAULT_SETTINGS.tarifs, ...(raw.tarifs||{}) },
         messageInfo: { ...DEFAULT_SETTINGS.messageInfo, ...(raw.messageInfo||{}) },
         conges: raw.conges || [],
+        forfaits: raw.forfaits || DEFAULT_SETTINGS.forfaits,
         contenuSite: {
           hero: { ...DEFAULT_SETTINGS.contenuSite.hero, ...((raw.contenuSite||{}).hero||{}) },
           quiSuisJe: { ...DEFAULT_SETTINGS.contenuSite.quiSuisJe, ...((raw.contenuSite||{}).quiSuisJe||{}) },
@@ -1580,6 +1586,60 @@ function renderReglagesTab() {
   saveTarBtn.addEventListener("click", () => CoachSettings.save({ tarifs: newTarifs }));
   tarBox.appendChild(saveTarBtn);
   wrap.appendChild(tarBox);
+
+  // --- Forfaits (packages de séances) ---
+  const forfBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
+  forfBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:4px"},"📦 Forfaits proposés"));
+  forfBox.appendChild(h("div",{style:"font-size:12px;color:#5A5648;margin-bottom:12px"},"Ces forfaits apparaissent dans le menu \"Motif\" de l'agenda et pilotent le décompte automatique des séances restantes."));
+
+  const forfaits = (s.forfaits || []).map(f => ({...f}));
+  const forfListBox = h("div",{id:"forfaitsList"});
+  forfBox.appendChild(forfListBox);
+
+  function renderForfaitsList() {
+    forfListBox.innerHTML = "";
+    if (!forfaits.length) {
+      forfListBox.appendChild(h("p",{style:"font-size:12.5px;color:#5A5648;padding:8px 0"},"Aucun forfait défini."));
+    }
+    forfaits.forEach((f, idx) => {
+      const row = h("div",{style:"display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #D8CBA8;flex-wrap:wrap"});
+      const nomInp = h("input",{type:"text",style:"flex:1;min-width:140px;font-size:13px"}); nomInp.value = f.nom;
+      nomInp.addEventListener("change", () => { f.nom = nomInp.value.trim(); CoachSettings.save({ forfaits: forfaits }); });
+      const seancesInp = h("input",{type:"number",min:"1",max:"99",style:"width:64px;font-size:13px"}); seancesInp.value = f.seances;
+      seancesInp.addEventListener("change", () => { f.seances = clampNum(seancesInp.value, 1, 99, f.seances); CoachSettings.save({ forfaits: forfaits }); });
+      const prixInp = h("input",{type:"number",min:"0",max:"9999",style:"width:80px;font-size:13px"}); prixInp.value = f.prix;
+      prixInp.addEventListener("change", () => { f.prix = clampNum(prixInp.value, 0, 9999, f.prix); CoachSettings.save({ forfaits: forfaits }); });
+      const delBtn = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:18px"},"×");
+      delBtn.addEventListener("click", () => { forfaits.splice(idx,1); renderForfaitsList(); CoachSettings.save({ forfaits: forfaits }); });
+      row.appendChild(nomInp);
+      row.appendChild(h("span",{style:"font-size:11.5px;color:#5A5648"},"séances"));
+      row.appendChild(seancesInp);
+      row.appendChild(h("span",{style:"font-size:11.5px;color:#5A5648"},"prix"));
+      row.appendChild(prixInp);
+      row.appendChild(h("span",{style:"font-size:12px;color:#5A5648"},"€"));
+      row.appendChild(delBtn);
+      forfListBox.appendChild(row);
+    });
+  }
+  renderForfaitsList();
+
+  const forfAddRow = h("div",{style:"display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"});
+  const nomAddInp = h("input",{type:"text",placeholder:"Ex: Forfait Découverte",style:"flex:1;min-width:140px"});
+  const seancesAddInp = h("input",{type:"number",min:"1",max:"99",placeholder:"Séances",style:"width:90px"});
+  const prixAddInp = h("input",{type:"number",min:"0",max:"9999",placeholder:"Prix €",style:"width:90px"});
+  const forfAddBtn = h("button",{class:"btn-sm"},"+ Ajouter et enregistrer");
+  forfAddBtn.addEventListener("click", () => {
+    const nom = nomAddInp.value.trim();
+    if (!nom) { notifCoach("Merci d'indiquer un nom de forfait."); return; }
+    if (!seancesAddInp.value) { notifCoach("Merci d'indiquer le nombre de séances."); return; }
+    forfaits.push({ nom: nom, seances: clampNum(seancesAddInp.value, 1, 99, 1), prix: clampNum(prixAddInp.value, 0, 9999, 0) });
+    nomAddInp.value = ""; seancesAddInp.value = ""; prixAddInp.value = "";
+    renderForfaitsList();
+    CoachSettings.save({ forfaits: forfaits });
+  });
+  forfAddRow.appendChild(nomAddInp); forfAddRow.appendChild(seancesAddInp); forfAddRow.appendChild(prixAddInp); forfAddRow.appendChild(forfAddBtn);
+  forfBox.appendChild(forfAddRow);
+  wrap.appendChild(forfBox);
 
   // --- Message d'info (fermeture estivale, etc.) ---
   const msgBox = h("div",{class:"card",style:"padding:18px"});
@@ -1739,11 +1799,6 @@ const RdvRequests = {
   }
 };
 
-const FORFAIT_SEANCES = {
-  "Forfait Déclic": 3,
-  "Programme Sérénité": 8,
-  "Forfait Famille Hérisson": 4
-};
 const MOTIF_TARIF_KEY = {
   "Séance Découverte (gratuite)": "decouverte",
   "Forfait Déclic": "declic",
@@ -1752,6 +1807,9 @@ const MOTIF_TARIF_KEY = {
 };
 
 function montantPourMotif(motif) {
+  const forfaitsDef = (CoachSettings.data && CoachSettings.data.forfaits) || DEFAULT_SETTINGS.forfaits;
+  const fMatch = forfaitsDef.find(f => f.nom === motif);
+  if (fMatch) return Number(fMatch.prix) || 0;
   const key = MOTIF_TARIF_KEY[motif];
   if (key && CoachSettings.data && CoachSettings.data.tarifs && CoachSettings.data.tarifs[key] != null) {
     return Number(CoachSettings.data.tarifs[key]);
@@ -1760,8 +1818,10 @@ function montantPourMotif(motif) {
 }
 
 function appliquerForfait(client, motif) {
-  const total = FORFAIT_SEANCES[motif];
-  if (!total) return; // séance à l'unité / découverte / autre : pas de suivi de forfait
+  const forfaitsDef = (CoachSettings.data && CoachSettings.data.forfaits) || DEFAULT_SETTINGS.forfaits;
+  const fMatch = forfaitsDef.find(f => f.nom === motif);
+  const total = fMatch ? Number(fMatch.seances) : 0;
+  if (!total) return; // séance à l'unité / découverte / autre / club : pas de suivi de forfait
   if (client.forfaitNom !== motif || !client.forfaitTotal) {
     client.forfaitNom = motif;
     client.forfaitTotal = total;
@@ -2099,7 +2159,8 @@ function buildAgendaForm() {
   const g2 = h("div",{class:"grid2",style:"margin-bottom:12px"});
   const heureInp = inputEl({ type:"time", onChange: v => fd.heure = v });
   g2.appendChild(field("HEURE", heureInp));
-  const MOTIFS_AGENDA = ["Séance Découverte (gratuite)","Séance à l'unité","Forfait Déclic","Programme Sérénité","Forfait Famille Hérisson","Autre"];
+  const forfaitsDispo = (CoachSettings.data && CoachSettings.data.forfaits) || DEFAULT_SETTINGS.forfaits;
+  const MOTIFS_AGENDA = ["Séance Découverte (gratuite)","Séance à l'unité", ...forfaitsDispo.map(f => f.nom), "Autre"];
   fd.motif = MOTIFS_AGENDA[0];
   const motifInp = selectEl({ options: MOTIFS_AGENDA, value: MOTIFS_AGENDA[0], onChange: v => fd.motif = v });
   g2.appendChild(field("MOTIF", motifInp));
