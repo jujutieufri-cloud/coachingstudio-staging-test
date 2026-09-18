@@ -2879,1028 +2879,155 @@ function dimensionsPourProfil(profilClient) {
   );
 }
 
-const PROTOCOLE_STEPS = [
-  {id:"objectif",   num:1, label:"Objectif",      icon:"🎯"},
-  {id:"bilan",      num:2, label:"Bilan initial",  icon:"📊"},
-  {id:"seances",    num:3, label:"Séances",        icon:"📖"},
-  {id:"miparcours", num:4, label:"Mi-parcours",    icon:"🧭"},
-  {id:"survie",     num:5, label:"Kit de survie",  icon:"🎒"},
-  {id:"cloture",    num:6, label:"Clôture",        icon:"✅"},
-];
+const ENTRETIEN_TYPES = {
+  objectif: {
+    label: "Entretien d'objectif",
+    icon: "🎯",
+    intro: "Quand il y a un écart entre situation réelle et situation souhaitée.",
+    sections: [
+      { titre: "1. Objectif", questions: [
+        "Sur quel objectif veux-tu travailler ?",
+        "Qu'est-ce que tu veux vraiment ?"
+      ]},
+      { titre: "2. Réalité", questions: [
+        "Où en es-tu par rapport à cela aujourd'hui ?"
+      ]},
+      { titre: "3. Options", questions: [
+        "Trouve 5 options qui te permettront d'atteindre ton objectif (dont 2 farfelues).",
+        "Laquelle te paraît la plus facile à mettre en place et sur laquelle tu pourrais t'engager maintenant ?",
+        "À quoi saurais-tu que tu avances dans la bonne direction ?",
+        "Quelles difficultés pourrais-tu rencontrer, personnelles ou extérieures ?",
+        "À combien évalues-tu ta détermination à mettre en place cette action (échelle 1 à 10) ?",
+        "De quoi as-tu besoin pour une évaluation plus haute ?"
+      ]},
+      { titre: "4. Saut", questions: [
+        "Quand vas-tu le faire ?",
+        "Qu'auras-tu accompli d'ici notre prochain rendez-vous ?",
+        "(Penser au verrouillage : tél, mail, etc.)"
+      ]}
+    ]
+  },
+  motivation: {
+    label: "Entretien de motivation",
+    icon: "💬",
+    intro: "",
+    sections: [
+      { titre: "Situation", questions: [
+        "Quelle est la situation actuellement dans ton travail, ta famille, ta vie… ? Que voudrais-tu améliorer ? Tu vois autre chose ?"
+      ]},
+      { titre: "Problème", questions: [
+        "En quoi le fait de … (le problème) … est un problème pour toi ?"
+      ]},
+      { titre: "Implication", questions: [
+        "Quelles vont être les conséquences pour toi si tu ne règles pas ce problème à court terme ?"
+      ]},
+      { titre: "Résultat espéré", questions: [
+        "Quelle serait la situation idéale pour toi ?"
+      ]}
+    ]
+  },
+  resolution: {
+    label: "Résolution de problème (les 5S)",
+    icon: "🧩",
+    intro: "",
+    sections: [
+      { titre: "Symptôme", questions: [
+        "Quel est le problème ? Qu'est-ce qui te freine actuellement ? Qu'est-ce qui te soucie ? Quelles difficultés rencontres-tu en ce moment ?"
+      ]},
+      { titre: "Source", questions: [
+        "Selon toi, qu'est-ce qui est à l'origine de ça ?"
+      ]},
+      { titre: "Situation", questions: [
+        "Si j'ai bien compris… ton problème c'est… et ce qui est à l'origine c'est… c'est bien ça ?"
+      ]},
+      { titre: "Solution", questions: [
+        "Quelles possibilités as-tu maintenant pour résoudre ce problème ?",
+        "(Ou) Trouve 5 solutions qui pourraient te permettre de commencer à résoudre ton problème maintenant, dont 2 farfelues.",
+        "Parmi ces solutions, quelle est la plus facile à mettre en œuvre et sur laquelle tu pourrais t'engager ?"
+      ]},
+      { titre: "Saut", questions: [
+        "Que dois-tu faire ou/et qui dois-tu être pour ne plus jamais avoir à faire face à cette situation ?"
+      ]}
+    ]
+  }
+};
 
 function buildProtocole(c) {
-  c.protocole = c.protocole || { step:"objectif", demandeInitiale:"", objectifFormule:"", adhesion:0 };
-  c.protocoleSeances = c.protocoleSeances || [];
-  const pr = c.protocole;
+  c.entretiens = c.entretiens || [];
   const wrap = h("div",{});
 
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px;margin-bottom:10px"},"Un seul protocole, étape par étape — de l'objectif initial au rapport final."));
+  if (c.protocoleEnCours) {
+    const en = c.protocoleEnCours;
+    const def = ENTRETIEN_TYPES[en.type];
+    wrap.appendChild(h("div",{style:"font-weight:700;font-size:16px;color:#2E2A20;margin-bottom:4px"}, def.icon + " " + def.label));
+    if (def.intro) wrap.appendChild(h("div",{style:"font-size:12.5px;color:#5A5648;margin-bottom:14px;font-style:italic"}, def.intro));
 
-  const stepBar = h("div",{style:"display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap"});
-  function stepRempli(id) {
-    if (id==="objectif") return !!(pr.demandeInitiale || pr.objectifFormule || (c.objectifs&&c.objectifs.length));
-    if (id==="bilan") return !!(c.evaluation && Object.values(c.evaluation).some(v=>v>0));
-    if (id==="seances") return !!(c.protocoleSeances && c.protocoleSeances.length);
-    if (id==="miparcours") return !!(c.bilanMiParcours && c.bilanMiParcours.date);
-    if (id==="survie") return !!(c.kitSurvie && (c.kitSurvie.profilCoache || (c.kitSurvie.signaux||[]).some(Boolean)));
-    if (id==="cloture") return !!(pr.cloture && pr.cloture.date);
-    return false;
-  }
-  PROTOCOLE_STEPS.forEach(s => {
-    const active = pr.step === s.id;
-    const rempli = stepRempli(s.id);
-    const btn = h("button",{style:"position:relative;flex:1;min-width:88px;padding:8px 4px;border-radius:8px;border:1.5px solid "+(active?"#9C7A2E":rempli?"#4a9e6a88":"#D8CBA8")+";background:"+(active?"#9C7A2E":"transparent")+";color:"+(active?"#fff":"#6B6355")+";font-size:11px;font-weight:700;cursor:pointer"},
-      (rempli && !active ? "✓ " : "") + s.icon + " " + s.num + ". " + s.label
-    );
-    btn.addEventListener("click", () => { pr.step = s.id; save(); render(); });
-    stepBar.appendChild(btn);
-  });
-  wrap.appendChild(stepBar);
-
-  const rapportBtn = h("button",{class:"btn-sm",style:"margin-bottom:16px;border-color:#9C7A2E;color:#9C7A2E"},"🖨️ Générer le rapport complet");
-  rapportBtn.addEventListener("click", () => genererRapport(c));
-  wrap.appendChild(rapportBtn);
-
-  const body = h("div",{});
-  if (pr.step === "objectif")   body.appendChild(stepObjectif(c));
-  if (pr.step === "bilan")      body.appendChild(stepBilanInitial(c));
-  if (pr.step === "seances")    body.appendChild(stepSeances(c));
-  if (pr.step === "miparcours") body.appendChild(stepMiParcours(c));
-  if (pr.step === "survie")     body.appendChild(stepKitSurvie(c));
-  if (pr.step === "cloture")    body.appendChild(stepCloture(c));
-  wrap.appendChild(body);
-
-  const idx = PROTOCOLE_STEPS.findIndex(s=>s.id===pr.step);
-  const navRow = h("div",{style:"display:flex;justify-content:space-between;gap:10px;margin-top:20px"});
-  const prevBtn = h("button",{class:"btn-g"}, "← Précédent");
-  if (idx<=0) prevBtn.disabled = true;
-  else prevBtn.addEventListener("click", () => { pr.step = PROTOCOLE_STEPS[idx-1].id; save(); render(); });
-  const nextBtn = h("button",{class:"btn"}, idx<PROTOCOLE_STEPS.length-1 ? "Suivant →" : "🖨️ Terminer & générer le rapport");
-  if (idx<PROTOCOLE_STEPS.length-1) nextBtn.addEventListener("click", () => { pr.step = PROTOCOLE_STEPS[idx+1].id; save(); render(); });
-  else nextBtn.addEventListener("click", () => genererRapport(c));
-  navRow.appendChild(prevBtn); navRow.appendChild(nextBtn);
-  wrap.appendChild(navRow);
-
-  return wrap;
-}
-
-const STADES_CHANGEMENT = [
-  {id:"precontemplation", label:"Précontemplation", desc:"Le client ne perçoit pas encore de problème à changer.", implication:"Rester en psychoéducation et observation, ne pas pousser vers l'action — risque d'abandon si on va trop vite."},
-  {id:"contemplation", label:"Contemplation", desc:"Le client envisage le changement mais reste ambivalent.", implication:"Travailler la balance bénéfices/coûts du changement, explorer les freins sans les juger."},
-  {id:"preparation", label:"Préparation", desc:"Le client a l'intention d'agir prochainement.", implication:"Co-construire un plan concret et réaliste, premières actions de faible ampleur."},
-  {id:"action", label:"Action", desc:"Le client modifie activement son comportement.", implication:"Les déroulés orientés compétences (organisation, régulation) sont pertinents maintenant."},
-  {id:"maintien", label:"Maintien", desc:"Le changement est installé, l'enjeu est de le stabiliser.", implication:"Prévention de la rechute, kit de survie, espacement des séances."},
-];
-
-const ROUE_QCM = {
-  energie: [
-    {a:{text:"Je me sens plutôt en forme au quotidien",value:7}, b:{text:"Je suis souvent épuisé(e), même après une nuit de sommeil",value:2}},
-    {a:{text:"Je bouge régulièrement (sport, marche...)",value:7}, b:{text:"Je bouge très peu, mon corps est à l'arrêt",value:2}},
-  ],
-  mental: [
-    {a:{text:"Mon esprit est plutôt clair, je sais où j'en suis",value:7}, b:{text:"J'ai la tête pleine, difficile de faire le tri",value:2}},
-    {a:{text:"Je prends des moments de pause mentale",value:7}, b:{text:"Je suis en sur-régime mental en permanence",value:2}},
-  ],
-  emotions: [
-    {a:{text:"Je reconnais facilement ce que je ressens",value:7}, b:{text:"Je ne sais souvent pas nommer ce que je ressens",value:2}},
-    {a:{text:"J'exprime mes émotions à mon entourage",value:7}, b:{text:"Je garde mes émotions pour moi",value:2}},
-  ],
-  relations: [
-    {a:{text:"Mes relations proches me font du bien",value:7}, b:{text:"Mes relations me pèsent plus qu'elles ne me nourrissent",value:2}},
-    {a:{text:"Je me sens compris(e) par mon entourage",value:7}, b:{text:"Je me sens souvent incompris(e)",value:2}},
-  ],
-  travail: [
-    {a:{text:"Mon activité actuelle a du sens pour moi",value:7}, b:{text:"Je ne vois plus le sens de ce que je fais",value:2}},
-    {a:{text:"Je me sens à ma place dans mon travail",value:7}, b:{text:"Je me sens à côté de la plaque, pas à ma place",value:2}},
-  ],
-  creativite: [
-    {a:{text:"Je prends du temps pour créer/explorer/apprendre",value:7}, b:{text:"Je n'ai plus de place pour ça dans ma vie",value:2}},
-    {a:{text:"J'ai des projets personnels qui me font vibrer",value:7}, b:{text:"Je n'ai plus de projet qui m'enthousiasme",value:2}},
-  ],
-  limites: [
-    {a:{text:"Je sais dire non quand c'est nécessaire",value:7}, b:{text:"Je dis oui même quand je ne le veux pas",value:2}},
-    {a:{text:"Je respecte mon propre rythme",value:7}, b:{text:"Je me mets constamment la pression pour suivre celui des autres",value:2}},
-  ],
-  plaisir: [
-    {a:{text:"Je ris et je m'amuse régulièrement",value:7}, b:{text:"Je ne me souviens plus de la dernière fois où j'ai ri sans réfléchir",value:2}},
-    {a:{text:"Je m'accorde des moments rien que pour le plaisir",value:7}, b:{text:"Le plaisir passe toujours après le reste",value:2}},
-  ],
-};
-
-const DIM_QCM = {
-  chargeMentale: [
-    {a:{text:"Le soir, j'arrive à lâcher les pensées de la journée",value:2}, b:{text:"Je tourne en boucle sur ce qui s'est passé",value:8}},
-    {a:{text:"Je prends une décision et je passe à autre chose",value:2}, b:{text:"Je rejoue mentalement mes choix encore et encore",value:8}},
-  ],
-  perfectionnisme: [
-    {a:{text:"Je peux rendre un travail imparfait sans trop culpabiliser",value:2}, b:{text:"Je préfère ne pas commencer plutôt que rendre un travail imparfait",value:8}},
-    {a:{text:"Je passe à l'action même sans être sûr(e) du résultat",value:2}, b:{text:"Je repousse tant que je n'ai pas la certitude de bien faire",value:8}},
-  ],
-  difficultesRelation: [
-    {a:{text:"Je me sens généralement compris(e) dans mes échanges",value:2}, b:{text:"J'ai souvent le sentiment de ne pas être compris(e)",value:8}},
-    {a:{text:"Les désaccords se règlent plutôt facilement",value:2}, b:{text:"Les conflits s'enveniment ou restent bloqués",value:8}},
-  ],
-  troublesSommeil: [
-    {a:{text:"Je m'endors sans trop de difficulté",value:2}, b:{text:"L'endormissement est souvent long et difficile",value:8}},
-    {a:{text:"Mes nuits sont plutôt continues",value:2}, b:{text:"Je me réveille souvent, l'esprit qui tourne",value:8}},
-  ],
-  syndromeImposteur: [
-    {a:{text:"Je reconnais mes réussites comme le fruit de mes compétences",value:2}, b:{text:"Je mets mes réussites sur le compte de la chance",value:8}},
-    {a:{text:"Je me sens légitime dans ce que je fais",value:2}, b:{text:"J'ai peur qu'on découvre que je ne suis pas à la hauteur",value:8}},
-  ],
-  questionnement: [
-    {a:{text:"Je trouve du sens dans mon quotidien",value:2}, b:{text:"Je me sens souvent vide de sens",value:8}},
-    {a:{text:"Je m'ennuie rarement durablement",value:2}, b:{text:"Un ennui profond et récurrent m'habite",value:8}},
-  ],
-  frustrationCreative: [
-    {a:{text:"J'ai de la place pour créer/explorer dans ma vie",value:2}, b:{text:"Je me sens étouffé(e) par la routine",value:8}},
-    {a:{text:"Mes idées trouvent un terrain pour s'exprimer",value:2}, b:{text:"Mes idées restent bloquées, sans espace pour exister",value:8}},
-  ],
-  gestionTemps: [
-    {a:{text:"J'estime plutôt bien le temps que prennent mes tâches",value:2}, b:{text:"Je suis régulièrement surpris(e) par le temps qui a filé",value:8}},
-    {a:{text:"Je suis à l'heure la plupart du temps",value:2}, b:{text:"Je suis souvent en retard, malgré mes efforts",value:8}},
-  ],
-  impulsivite: [
-    {a:{text:"Je prends le temps de réfléchir avant de décider",value:2}, b:{text:"Je décide sur un coup de tête, puis je réajuste",value:8}},
-    {a:{text:"J'arrive à attendre mon tour sans trop de tension",value:2}, b:{text:"Attendre m'est presque insupportable",value:8}},
-  ],
-  dispersion: [
-    {a:{text:"Je termine généralement ce que je commence",value:2}, b:{text:"J'ai plusieurs choses en cours, peu finies",value:8}},
-    {a:{text:"Je peux changer de tâche sans trop de mal",value:2}, b:{text:"Une fois happé(e) par une tâche, j'oublie tout le reste",value:8}},
-  ],
-  intensiteEmo: [
-    {a:{text:"Mes réactions émotionnelles restent proportionnées",value:2}, b:{text:"Mes émotions montent vite et fort, parfois disproportionnées",value:8}},
-    {a:{text:"Je retrouve mon calme assez rapidement",value:2}, b:{text:"Une émotion forte peut me submerger un long moment",value:8}},
-  ],
-  surchargeSensorielle: [
-    {a:{text:"Le bruit, la lumière, l'agitation ne me dérangent pas trop",value:2}, b:{text:"Je sature vite dans les environnements stimulants",value:8}},
-    {a:{text:"Je peux rester longtemps dans un environnement chargé",value:2}, b:{text:"J'ai besoin de fuir rapidement les lieux surstimulants",value:8}},
-  ],
-  empathieEnvahissante: [
-    {a:{text:"Je fais la différence entre mes émotions et celles des autres",value:2}, b:{text:"J'absorbe facilement les émotions de mon entourage",value:8}},
-    {a:{text:"Je sais poser une limite quand j'en ai besoin",value:2}, b:{text:"Je me sacrifie souvent pour ne pas déranger",value:8}},
-  ],
-};
-
-const DOMAINES_ROUE = [
-  {key:"energie",    emoji:"⚡", label:"Énergie & Corps",  question:"Je prends soin de mon corps ?"},
-  {key:"mental",     emoji:"🧠", label:"Mental & Clarté",  question:"Mon esprit est clair et apaisé ?"},
-  {key:"emotions",   emoji:"💗", label:"Émotions",         question:"Je reconnais et exprime mes émotions ?"},
-  {key:"relations",  emoji:"🤝", label:"Relations",        question:"Mes relations me nourrissent ?"},
-  {key:"travail",    emoji:"💼", label:"Travail & Sens",   question:"Mon travail a du sens ?"},
-  {key:"creativite", emoji:"🎨", label:"Créativité",       question:"J'explore, je crée, j'apprends ?"},
-  {key:"limites",    emoji:"🛡️", label:"Limites",          question:"Je sais dire non ?"},
-  {key:"plaisir",    emoji:"🎉", label:"Plaisir",          question:"Je ris, je joue, je savoure ?"},
-];
-
-function roueDeVieSVG(scores) {
-  const cx=150, cy=150, maxR=105, n=DOMAINES_ROUE.length;
-  const angle = i => (Math.PI*2*i/n) - Math.PI/2;
-  let svg = `<svg viewBox="0 0 300 300" style="width:100%;max-width:300px;display:block;margin:0 auto">`;
-  [0.2,0.4,0.6,0.8,1].forEach(lv => {
-    const pts = DOMAINES_ROUE.map((d,i) => {
-      const a=angle(i), r=maxR*lv;
-      return (cx+r*Math.cos(a)).toFixed(1)+","+(cy+r*Math.sin(a)).toFixed(1);
-    }).join(" ");
-    svg += `<polygon points="${pts}" fill="none" stroke="#D8CBA8" stroke-width="1"/>`;
-  });
-  DOMAINES_ROUE.forEach((d,i) => {
-    const a=angle(i), x=cx+maxR*Math.cos(a), y=cy+maxR*Math.sin(a);
-    svg += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#D8CBA8" stroke-width="1"/>`;
-  });
-  const dataPts = DOMAINES_ROUE.map((d,i) => {
-    const a=angle(i), r=maxR*((scores[d.key]||0)/10);
-    return (cx+r*Math.cos(a)).toFixed(1)+","+(cy+r*Math.sin(a)).toFixed(1);
-  }).join(" ");
-  svg += `<polygon points="${dataPts}" fill="#9C7A2E33" stroke="#9C7A2E" stroke-width="2"/>`;
-  DOMAINES_ROUE.forEach((d,i) => {
-    const a=angle(i), r=maxR*((scores[d.key]||0)/10);
-    const x=cx+r*Math.cos(a), y=cy+r*Math.sin(a);
-    svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="#9C7A2E"/>`;
-  });
-  DOMAINES_ROUE.forEach((d,i) => {
-    const a=angle(i), lx=cx+(maxR+20)*Math.cos(a), ly=cy+(maxR+20)*Math.sin(a);
-    svg += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="15" text-anchor="middle" dominant-baseline="middle">${d.emoji}</text>`;
-  });
-  svg += `</svg>`;
-  return svg;
-}
-
-function buildQCMBlock(pairs, answers, onAnswer) {
-  const wrap = h("div",{style:"margin:6px 0 10px"});
-  pairs.forEach((pair, i) => {
-    const row = h("div",{style:"display:flex;flex-direction:column;gap:6px;margin-bottom:8px"});
-    [["a",pair.a],["b",pair.b]].forEach(([side,opt]) => {
-      const selected = answers[i] === opt.value;
-      const btn = h("button",{style:"text-align:left;padding:8px 12px;border-radius:8px;border:1.5px solid "+(selected?"#9C7A2E":"#D8CBA8")+";background:"+(selected?"#9C7A2E14":"transparent")+";color:#2E2A20;font-size:12.5px;cursor:pointer"}, opt.text);
-      btn.addEventListener("click", () => onAnswer(i, opt.value));
-      row.appendChild(btn);
-    });
-    wrap.appendChild(row);
-  });
-  return wrap;
-}
-
-function buildRoueDeVie(c) {
-  c.roueDeVie = c.roueDeVie || { scores:{}, date:"", planAction:"" };
-  const rv = c.roueDeVie;
-  const box = h("div",{class:"card",style:"padding:18px;margin-bottom:12px"});
-  box.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:2px"},"🎡 Roue de la vie"));
-  box.appendChild(h("div",{style:"color:#8B7355;font-size:11.5px;margin-bottom:12px"},"8 domaines, notés de 0 à 10 avec le client — un bon point de départ pour repérer où porter l'attention en premier."));
-
-  const svgWrap = h("div",{});
-  svgWrap.innerHTML = roueDeVieSVG(rv.scores);
-  box.appendChild(svgWrap);
-
-  rv.qcmAnswers = rv.qcmAnswers || {};
-  rv.qcmMode = rv.qcmMode || {};
-
-  const slidersWrap = h("div",{style:"margin-top:14px"});
-  DOMAINES_ROUE.forEach(d => {
-    const rowBox = h("div",{style:"margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #E4DAC0"});
-    const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(rv.scores[d.key]||0));
-    const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"},
-      h("div",{style:"font-size:13px;color:#2E2A20"}, d.emoji+" "+d.label+" — "+d.question), valSpan
-    );
-    rowBox.appendChild(hdr);
-
-    const modeToggle = h("button",{style:"background:transparent;border:none;color:#9C7A2E;font-size:11px;text-decoration:underline;cursor:pointer;padding:0;margin-bottom:6px"},
-      rv.qcmMode[d.key] ? "↔ Repasser en curseur manuel" : "📋 Questionnaire guidé (choix A/B)"
-    );
-    modeToggle.addEventListener("click", () => { rv.qcmMode[d.key] = !rv.qcmMode[d.key]; save(); render(); });
-    rowBox.appendChild(modeToggle);
-
-    if (rv.qcmMode[d.key]) {
-      rv.qcmAnswers[d.key] = rv.qcmAnswers[d.key] || [null,null];
-      const ans = rv.qcmAnswers[d.key];
-      rowBox.appendChild(buildQCMBlock(ROUE_QCM[d.key], ans, (i,val) => {
-        ans[i] = val;
-        const answered = ans.filter(v=>v!==null);
-        if (answered.length) rv.scores[d.key] = Math.round(answered.reduce((s,v)=>s+v,0)/answered.length);
-        save(); render();
-      }));
-    } else {
-      const slider = h("input",{type:"range",min:"0",max:"10",value:String(rv.scores[d.key]||0),style:"width:100%"});
-      slider.addEventListener("input", () => {
-        rv.scores[d.key] = Number(slider.value);
-        valSpan.textContent = slider.value;
-        svgWrap.innerHTML = roueDeVieSVG(rv.scores);
-        updateSynthese();
-        save();
+    def.sections.forEach((sec, sIdx) => {
+      wrap.appendChild(h("div",{style:"font-weight:700;font-size:12.5px;color:#9C7A2E;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.03em"}, sec.titre));
+      sec.questions.forEach((q, qIdx) => {
+        const key = "s"+sIdx+"q"+qIdx;
+        const row = h("div",{style:"margin-bottom:10px"});
+        row.appendChild(h("div",{style:"font-size:13px;color:#2E2A20;margin-bottom:4px"}, q));
+        const ta = h("textarea",{style:"width:100%;min-height:50px;font-size:13.5px"});
+        ta.value = en.reponses[key] || "";
+        ta.addEventListener("change", () => { en.reponses[key] = ta.value; save(); });
+        row.appendChild(ta);
+        wrap.appendChild(row);
       });
-      rowBox.appendChild(slider);
-    }
-    slidersWrap.appendChild(rowBox);
-  });
-  box.appendChild(slidersWrap);
-
-  const synthese = h("div",{style:"margin-top:6px;padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355"});
-  function updateSynthese() {
-    const entries = DOMAINES_ROUE.map(d => ({...d, score: rv.scores[d.key]||0}));
-    if (!entries.some(e=>e.score>0)) { synthese.textContent = "Note les 8 domaines pour voir apparaître les priorités."; return; }
-    const bas = entries.reduce((a,b)=>b.score<a.score?b:a);
-    const haut = entries.reduce((a,b)=>b.score>a.score?b:a);
-    synthese.innerHTML = `<b>Domaine le plus bas :</b> ${bas.emoji} ${bas.label} (${bas.score}/10) — « Que se passerait-il si ça montait de 1 ? »<br><b>Domaine le plus haut :</b> ${haut.emoji} ${haut.label} (${haut.score}/10) — « Comment cette force peut-elle aider les autres ? »`;
-  }
-  updateSynthese();
-  box.appendChild(synthese);
-
-  // Choix explicite du domaine à prioriser — pas juste une suggestion, un vrai choix qui sert ensuite
-  const choixBox = h("div",{style:"margin-top:14px"});
-  choixBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13px;margin-bottom:8px"},"❓ Dans quel domaine as-tu/avez-vous envie de progresser en priorité ?"));
-  const chipsWrap = h("div",{style:"display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"});
-  function renderChips() {
-    chipsWrap.innerHTML = "";
-    DOMAINES_ROUE.forEach(d => {
-      const score = rv.scores[d.key]||0;
-      const active = rv.domainePriorite === d.key;
-      const chip = h("button",{style:"padding:7px 12px;border-radius:20px;border:1.5px solid "+(active?"#9C7A2E":"#D8CBA8")+";background:"+(active?"#9C7A2E":"transparent")+";color:"+(active?"#fff":"#2E2A20")+";font-size:12.5px;cursor:pointer"},
-        d.emoji+" "+d.label+" ("+score+"/10)"
-      );
-      chip.addEventListener("click", () => {
-        rv.domainePriorite = active ? null : d.key;
-        save(); render();
-      });
-      chipsWrap.appendChild(chip);
     });
-  }
-  renderChips();
-  choixBox.appendChild(chipsWrap);
 
-  if (rv.domainePriorite) {
-    const dSel = DOMAINES_ROUE.find(d=>d.key===rv.domainePriorite);
-    const useBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E;color:#9C7A2E"},"→ Utiliser ce domaine pour formuler l'objectif");
-    useBtn.addEventListener("click", () => {
-      c.protocole.objectifFormule = "Progresser sur « "+dSel.label+" » (parti de "+(rv.scores[dSel.key]||0)+"/10 sur la Roue de la vie).";
+    const btnRow = h("div",{style:"display:flex;gap:10px;margin-top:16px"});
+    const finBtn = h("button",{class:"btn"},"✅ Terminer et archiver");
+    finBtn.addEventListener("click", () => {
+      c.entretiens.unshift({ id: Date.now()+"", type: en.type, date: new Date().toISOString().slice(0,10), reponses: en.reponses });
+      c.protocoleEnCours = null;
       save(); render();
-      notifCoach("Objectif pré-rempli à partir de la Roue de la vie.");
     });
-    choixBox.appendChild(useBtn);
+    const annulerBtn = h("button",{class:"btn-g"},"Annuler");
+    annulerBtn.addEventListener("click", () => { c.protocoleEnCours = null; save(); render(); });
+    btnRow.appendChild(finBtn); btnRow.appendChild(annulerBtn);
+    wrap.appendChild(btnRow);
+    return wrap;
   }
-  box.appendChild(choixBox);
 
-  const planBox = h("div",{style:"margin-top:12px"});
-  planBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13px;margin-bottom:6px"},"❓ Une action concrète pour la semaine, sur le domaine choisi"));
-  planBox.appendChild(textareaEl({value:rv.planAction, placeholder:"Une seule action, testable et concrète.", height:"50px", onInput:v=>{rv.planAction=v; save();}}));
-  box.appendChild(planBox);
+  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px;margin-bottom:14px"},"Choisis un entretien à mener avec "+c.name+"."));
+  const choixRow = h("div",{style:"display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap"});
+  Object.keys(ENTRETIEN_TYPES).forEach(typeKey => {
+    const def = ENTRETIEN_TYPES[typeKey];
+    const btn = h("button",{class:"btn-g",style:"flex:1;min-width:150px"}, def.icon + " " + def.label);
+    btn.addEventListener("click", () => { c.protocoleEnCours = { type: typeKey, reponses: {} }; save(); render(); });
+    choixRow.appendChild(btn);
+  });
+  wrap.appendChild(choixRow);
 
-  const dateRow = h("div",{style:"margin-top:10px"});
-  const dateInp = h("input",{type:"date",value:rv.date||""});
-  dateInp.addEventListener("change", () => { rv.date = dateInp.value; save(); });
-  dateRow.appendChild(h("label",{style:"font-size:11px;color:#6B6355;display:block;margin-bottom:3px"},"Date de cette roue"));
-  dateRow.appendChild(dateInp);
-  box.appendChild(dateRow);
-
-  return box;
-}
-
-function ikigaiSVG() {
-  return `<svg viewBox="0 0 400 400" style="width:100%;max-width:320px;display:block;margin:0 auto">
-    <circle cx="200" cy="140" r="105" fill="#d07070" opacity="0.3"/>
-    <circle cx="260" cy="200" r="105" fill="#5aaec8" opacity="0.3"/>
-    <circle cx="200" cy="260" r="105" fill="#c8a042" opacity="0.3"/>
-    <circle cx="140" cy="200" r="105" fill="#4a9e6a" opacity="0.3"/>
-    <text x="200" y="45" text-anchor="middle" font-size="12" font-weight="700" fill="#a04545">CE QUE J'AIME</text>
-    <text x="355" y="196" text-anchor="middle" font-size="12" font-weight="700" fill="#2f7086">CE EN QUOI<tspan x="355" dy="14">JE SUIS DOUÉ(E)</tspan></text>
-    <text x="200" y="368" text-anchor="middle" font-size="12" font-weight="700" fill="#8a6b1f">CE POUR QUOI<tspan x="200" dy="14">JE PEUX ÊTRE PAYÉ(E)</tspan></text>
-    <text x="45" y="196" text-anchor="middle" font-size="12" font-weight="700" fill="#357a52">CE DONT LE<tspan x="45" dy="14">MONDE A BESOIN</tspan></text>
-    <text x="238" y="163" text-anchor="middle" font-size="10.5" fill="#4A4030" font-style="italic">Passion</text>
-    <text x="238" y="245" text-anchor="middle" font-size="10.5" fill="#4A4030" font-style="italic">Profession</text>
-    <text x="162" y="245" text-anchor="middle" font-size="10.5" fill="#4A4030" font-style="italic">Vocation</text>
-    <text x="162" y="163" text-anchor="middle" font-size="10.5" fill="#4A4030" font-style="italic">Mission</text>
-    <text x="200" y="204" text-anchor="middle" font-size="15" font-weight="800" fill="#3a352a">IKIGAI</text>
-  </svg>`;
-}
-
-function ikigaiListe(titre, color, arr, placeholder, question) {
-  const box = h("div",{class:"card",style:"padding:14px;margin-bottom:10px;border-left:4px solid "+color});
-  box.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13.5px;margin-bottom:2px"},titre));
-  box.appendChild(h("div",{style:"color:#8B7355;font-size:11.5px;margin-bottom:8px"},question));
-  const list = h("div",{});
-  function renderList() {
-    list.innerHTML = "";
-    arr.forEach((val,i) => {
-      const row = h("div",{style:"display:flex;gap:8px;margin-bottom:6px"});
-      const inp = inputEl({value:val, placeholder, onInput:v=>{arr[i]=v; save();}});
-      const del = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:16px"},"×");
-      del.addEventListener("click",()=>{ arr.splice(i,1); save(); renderList(); });
-      row.appendChild(inp); row.appendChild(del);
-      list.appendChild(row);
-    });
-  }
-  renderList();
-  box.appendChild(list);
-  const addBtn = h("button",{class:"btn-sm",style:"margin-top:4px"},"+ Ajouter");
-  addBtn.addEventListener("click",()=>{ arr.push(""); save(); renderList(); });
-  box.appendChild(addBtn);
-  return box;
-}
-
-function buildParcoursIkigai(c) {
-  c.ikigai = c.ikigai || { aime:[], doue:[], mondeBesoin:[], payer:[], synthese:"", open:false };
-  const ik = c.ikigai;
-  const box = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
-
-  const toggleBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E;color:#9C7A2E"}, ik.open?"▲ Fermer le parcours Ikigaï":"🎯 Ajouter un parcours Ikigaï (utile en reconversion)");
-  toggleBtn.addEventListener("click",()=>{ ik.open = !ik.open; save(); render(); });
-  box.appendChild(toggleBtn);
-  if (!ik.open) return box;
-
-  box.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:14px 0 4px"},"🎯 Parcours Ikigaï"));
-  box.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-bottom:12px"},"La raison d'être, à la croisée de 4 cercles. Utile quand la Roue de la vie révèle un manque de sens côté travail."));
-
-  const rv = c.roueDeVie;
-  if (rv && Object.values(rv.scores||{}).some(v=>v>0)) {
-    const entries = DOMAINES_ROUE.map(d=>({...d,score:rv.scores[d.key]||0}));
-    const bas = entries.reduce((a,b)=>b.score<a.score?b:a);
-    const choisi = rv.domainePriorite ? entries.find(e=>e.key===rv.domainePriorite) : null;
-    const ref = choisi || bas;
-    const texte = choisi
-      ? "📌 Domaine choisi sur la Roue de la vie : "+ref.emoji+" "+ref.label+" ("+ref.score+"/10) — c'est le fil pour cette exploration."
-      : "📌 Sur la Roue de la vie, le domaine le plus bas est "+ref.emoji+" "+ref.label+" ("+ref.score+"/10) — bon point d'entrée pour cette exploration (choisis-le ci-dessus pour le fixer).";
-    box.appendChild(h("div",{style:"padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355;margin-bottom:14px"}, texte));
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#2E2A20;margin-bottom:10px;border-top:1px solid #D8CBA8;padding-top:14px"},"📚 Historique des entretiens"));
+  if (!c.entretiens.length) {
+    wrap.appendChild(h("p",{style:"font-size:12.5px;color:#5A5648"},"Aucun entretien enregistré pour le moment."));
   } else {
-    box.appendChild(h("div",{style:"padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355;margin-bottom:14px"},
-      "💡 Remplis la Roue de la vie ci-dessus en premier pour repérer le domaine à explorer en priorité."
-    ));
-  }
-
-  const svgWrap = h("div",{style:"margin-bottom:14px"});
-  svgWrap.innerHTML = ikigaiSVG();
-  box.appendChild(svgWrap);
-
-  box.appendChild(ikigaiListe("❤️ Ce que j'aime", "#d07070", ik.aime, "Ex: créer, transmettre, être dehors...", "Qu'est-ce qui te fait vibrer, même sans contrepartie ?"));
-  box.appendChild(ikigaiListe("⭐ Ce en quoi je suis doué(e)", "#5aaec8", ik.doue, "Ex: écouter, organiser, résoudre...", "Qu'est-ce que les autres reconnaissent chez toi comme une force ?"));
-  box.appendChild(ikigaiListe("🌍 Ce dont le monde a besoin", "#4a9e6a", ik.mondeBesoin, "Ex: accompagner, simplifier, réparer...", "Quel problème as-tu envie de résoudre autour de toi ?"));
-  box.appendChild(ikigaiListe("💰 Ce pour quoi je peux être payé(e)", "#c8a042", ik.payer, "Ex: conseil, artisanat, enseignement...", "Quelles compétences ont une valeur marchande aujourd'hui ?"));
-
-  const syn = h("div",{class:"card",style:"padding:14px;margin-top:4px;border-color:#9C7A2E44"});
-  syn.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13.5px;margin-bottom:8px"},"❓ En croisant les 4 cercles avec le client, quelle direction se dessine ?"));
-  syn.appendChild(textareaEl({value:ik.synthese, placeholder:"Synthèse co-écrite avec le client — pas besoin d'une réponse parfaite, juste une direction à tester.", height:"70px", onInput:v=>{ik.synthese=v; save();}}));
-  box.appendChild(syn);
-
-  return box;
-}
-
-function stepObjectif(c) {
-  const wrap = h("div",{});
-  const pr = c.protocole;
-  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"🎯 Étape 1 — Objectif & demande initiale"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Poser le cadre avant d'aller plus loin."));
-
-  const themeBox = h("div",{class:"card",style:"padding:16px;margin-bottom:16px"});
-  themeBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:10px;font-size:13px"},"📚 Démarrer depuis une thématique (optionnel)"));
-  const themeGrid = h("div",{style:"display:grid;grid-template-columns:repeat(2,1fr);gap:8px"});
-  FICHES_THEMES.forEach(ft => {
-    const btn = h("button",{class:"btn-sm",style:"text-align:left;padding:8px 10px"}, ft.icon+" "+ft.theme);
-    btn.addEventListener("click", () => {
-      c.objectifs = c.objectifs || [];
-      ft.objectifs.forEach(titre => {
-        if (!c.objectifs.some(o=>o.titre===titre)) c.objectifs.push({id:Date.now()+""+Math.random().toString(36).slice(2,5), titre, echeance:"", statut:"en cours"});
-      });
-      if (!pr.objectifFormule) pr.objectifFormule = ft.objectifs[0];
-      save(); render();
-      notifCoach("Thématique « "+ft.theme+" » chargée.");
-    });
-    themeGrid.appendChild(btn);
-  });
-  themeBox.appendChild(themeGrid);
-  wrap.appendChild(themeBox);
-
-  const q1 = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
-  q1.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Qu'est-ce qui vous amène aujourd'hui ?"));
-  q1.appendChild(textareaEl({value:pr.demandeInitiale, placeholder:"Demande du client, dans ses mots.", height:"70px", onInput:v=>{pr.demandeInitiale=v; save();}}));
-  wrap.appendChild(q1);
-
-  wrap.appendChild(buildRoueDeVie(c));
-  wrap.appendChild(buildParcoursIkigai(c));
-
-  const q2 = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
-  q2.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Quel est l'objectif reformulé et partagé avec le client ?"));
-  q2.appendChild(textareaEl({value:pr.objectifFormule, placeholder:"Objectif SMART, formulé avec le client.", height:"70px", onInput:v=>{pr.objectifFormule=v; save();}}));
-  wrap.appendChild(q2);
-
-  const q3 = h("div",{class:"card",style:"padding:16px;margin-bottom:16px"});
-  const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(pr.adhesion||0));
-  q3.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:8px"},
-    h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px"},"❓ Sur 10, à quel point c'est vraiment le client qui veut cet objectif ?"), valSpan));
-  const slider = h("input",{type:"range",min:"0",max:"10",value:String(pr.adhesion||0),style:"width:100%"});
-  slider.addEventListener("input", () => { pr.adhesion=Number(slider.value); valSpan.textContent=slider.value; save(); });
-  q3.appendChild(slider); wrap.appendChild(q3);
-
-  const q4 = h("div",{class:"card",style:"padding:16px;margin-bottom:16px"});
-  q4.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:4px"},"❓ À quel stade de changement se situe le client ?"));
-  q4.appendChild(h("div",{style:"color:#8B7355;font-size:11.5px;margin-bottom:10px"},"Modèle transthéorique de Prochaska & DiClemente — calibre le rythme et le type d'intervention."));
-  const stadeGrid = h("div",{style:"display:flex;flex-direction:column;gap:6px"});
-  STADES_CHANGEMENT.forEach(s => {
-    const active = pr.stadeChangement === s.id;
-    const card = h("div",{style:"padding:10px 12px;border-radius:8px;border:1.5px solid "+(active?"#9C7A2E":"#D8CBA8")+";background:"+(active?"#9C7A2E14":"transparent")+";cursor:pointer"});
-    card.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:13px"}, s.label));
-    card.appendChild(h("div",{style:"color:#5A5648;font-size:12px;margin-top:2px"}, s.desc));
-    card.addEventListener("click", () => { pr.stadeChangement = s.id; save(); render(); });
-    stadeGrid.appendChild(card);
-  });
-  q4.appendChild(stadeGrid);
-  if (pr.stadeChangement) {
-    const s = STADES_CHANGEMENT.find(x=>x.id===pr.stadeChangement);
-    q4.appendChild(h("div",{style:"margin-top:10px;padding:10px 12px;background:#E4DAC055;border-radius:8px;font-size:12.5px;color:#6B6355"}, "💡 Implication coaching : " + s.implication));
-  }
-  wrap.appendChild(q4);
-
-  wrap.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:16px 0 8px"},"Objectifs concrets suivis"));
-  wrap.appendChild(buildObjectifsListe(c));
-
-  return wrap;
-}
-
-function buildObjectifsListe(c) {
-  const wrap = h("div",{});
-  c.objectifs = c.objectifs || [];
-  let showForm = false;
-  let newObj = {titre:"",echeance:"",statut:"en cours"};
-
-  function render2() {
-    wrap.innerHTML="";
-    const atteints = c.objectifs.filter(o=>o.statut==="atteint").length;
-    const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"},
-      h("span",{style:"color:#5A5648;font-size:13px"},`${atteints}/${c.objectifs.length} atteint(s)`)
-    );
-    const addBtn = h("button",{class:"btn-sm",style:"border-color:#9C7A2E44;color:#9C7A2E"},showForm?"✕ Annuler":"+ Ajouter");
-    addBtn.addEventListener("click",()=>{ showForm=!showForm; newObj={titre:"",echeance:"",statut:"en cours"}; render2(); });
-    hdr.appendChild(addBtn);
-    wrap.appendChild(hdr);
-
-    if (showForm) {
-      const box = h("div",{class:"card",style:"padding:14px;margin-bottom:12px;border-color:#9C7A2E33"});
-      const g = h("div",{class:"grid2",style:"margin-bottom:10px"});
-      const ti = inputEl({placeholder:"Ex: Poser des limites claires",onInput:v=>newObj.titre=v});
-      g.appendChild(h("div",{class:"span2"},field("OBJECTIF",ti)));
-      const da = inputEl({type:"date",onChange:v=>newObj.echeance=v});
-      g.appendChild(field("ÉCHÉANCE",da));
-      const st = selectEl({options:["en cours","atteint","suspendu"],value:"en cours",onChange:v=>newObj.statut=v});
-      g.appendChild(field("STATUT",st));
-      box.appendChild(g);
-      const sv = h("button",{class:"btn",style:"padding:8px 18px;font-size:13px"},"Ajouter");
-      sv.addEventListener("click",()=>{
-        if (!newObj.titre.trim()) return;
-        c.objectifs.push({...newObj,id:Date.now()+""});
-        save(); showForm=false; render2();
-      });
-      box.appendChild(sv);
-      wrap.appendChild(box);
-    }
-
-    if (!c.objectifs.length) {
-      wrap.appendChild(h("p",{style:"color:#6B6355;font-size:13px;padding:8px 0"},"Aucun objectif défini."));
-    } else {
-      c.objectifs.forEach(o => {
-        const col = o.statut==="atteint"?"#4a9e6a":o.statut==="suspendu"?"#6B6355":"#5aaec8";
-        const chk = h("div",{class:"obj-check",style:`border-color:${col};background:${o.statut==="atteint"?col:"transparent"};color:#F7F2E7`}, o.statut==="atteint"?"✓":"");
-        chk.addEventListener("click",()=>{ o.statut = o.statut==="atteint"?"en cours":"atteint"; save(); render2(); });
-        const sbadge = h("span",{style:`padding:2px 8px;border-radius:20px;background:${col}18;color:${col};font-size:12px;font-weight:600`},o.statut);
-        const del = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#6B6355;font-size:18px;padding:0 4px"},"×");
-        del.addEventListener("click",()=>{ c.objectifs = c.objectifs.filter(x=>x.id!==o.id); save(); render2(); });
-        wrap.appendChild(h("div",{class:"obj-row"}, chk,
-          h("div",{style:"flex:1"},
-            h("div",{style:`color:${o.statut==="atteint"?"#6B6355":"#2E2A20"};font-size:14px;text-decoration:${o.statut==="atteint"?"line-through":"none"}`},o.titre),
-            o.echeance?h("div",{style:"color:#6B6355;font-size:13px;margin-top:2px"},"Échéance : "+o.echeance):null
-          ), sbadge, del
-        ));
-      });
-    }
-  }
-  render2();
-  return wrap;
-}
-
-const SIGNAUX_ALERTE = [
-  {id:"idees_noires", label:"Idées noires, désespoir exprimé"},
-  {id:"depression", label:"Syndrome dépressif marqué (tristesse envahissante, perte d'intérêt généralisée)"},
-  {id:"consommation", label:"Consommation problématique (alcool, médicaments, substances)"},
-  {id:"decompensation", label:"Perte de contact avec la réalité, propos très désorganisés"},
-  {id:"violence", label:"Violence envers soi ou autrui, mise en danger"},
-  {id:"comorbidite", label:"Suspicion de trouble non diagnostiqué nécessitant un avis médical"},
-];
-
-function stepBilanInitial(c) {
-  const wrap = h("div",{});
-  c.evaluation = c.evaluation || {};
-  const dims = dimensionsPourProfil(c.profile);
-  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"📊 Étape 2 — Bilan initial"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:4px"},"❓ Notez chaque dimension de 0 (aucune difficulté) à 10 (difficulté majeure)."));
-  wrap.appendChild(h("p",{style:"color:#9C7A2E;font-size:12px;margin-bottom:16px;font-weight:600"},"Dimensions adaptées au profil : "+(c.profile||"non défini")));
-
-  const scoreBox = h("div",{class:"card",style:"padding:20px;margin-bottom:16px;text-align:center"});
-  function scoreTotal(){ return dims.reduce((s,d)=>s+(c.evaluation[d.key]||0),0); }
-  function zone(score){
-    const max=dims.length*10; const pct=max?score/max:0;
-    if (pct<0.33) return {label:"Zone verte",color:"#4a9e6a",txt:"Fonctionnement sain — Prévention et optimisation"};
-    if (pct<0.66) return {label:"Zone orange",color:"#c8a042",txt:"Signaux à surveiller — Ajuster le rythme"};
-    return {label:"Zone rouge",color:"#d07070",txt:"Épuisement marqué — Prioriser le repos et le soutien"};
-  }
-  function renderScore(){
-    scoreBox.innerHTML="";
-    const max=dims.length*10, s=scoreTotal(), z=zone(s);
-    scoreBox.appendChild(h("div",{style:"display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:8px"},
-      h("div",{style:"font-size:34px;font-weight:800;color:"+z.color}, String(s)+" / "+max),
-      h("span",{style:"background:"+z.color+"22;color:"+z.color+";padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700"}, z.label)
-    ));
-    scoreBox.appendChild(h("div",{style:"color:#5A5648;font-size:13px"}, z.txt));
-  }
-  renderScore(); wrap.appendChild(scoreBox);
-
-  c.evaluationQcmAnswers = c.evaluationQcmAnswers || {};
-  c.evaluationQcmMode = c.evaluationQcmMode || {};
-
-  dims.forEach(d => {
-    const card = h("div",{class:"card",style:"padding:16px 18px;margin-bottom:10px"});
-    const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(c.evaluation[d.key]||0));
-    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:4px"}, h("div",{style:"color:#2E2A20;font-weight:600;font-size:14.5px"}, d.label), valSpan));
-    card.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-bottom:10px"}, d.desc));
-
-    const modeToggle = h("button",{style:"background:transparent;border:none;color:#9C7A2E;font-size:11px;text-decoration:underline;cursor:pointer;padding:0;margin-bottom:8px;display:block"},
-      c.evaluationQcmMode[d.key] ? "↔ Repasser en curseur manuel" : "📋 Questionnaire guidé (choix A/B)"
-    );
-    modeToggle.addEventListener("click", () => { c.evaluationQcmMode[d.key] = !c.evaluationQcmMode[d.key]; save(); render(); });
-    card.appendChild(modeToggle);
-
-    if (c.evaluationQcmMode[d.key] && DIM_QCM[d.key]) {
-      c.evaluationQcmAnswers[d.key] = c.evaluationQcmAnswers[d.key] || [null,null];
-      const ans = c.evaluationQcmAnswers[d.key];
-      card.appendChild(buildQCMBlock(DIM_QCM[d.key], ans, (i,val) => {
-        ans[i] = val;
-        const answered = ans.filter(v=>v!==null);
-        if (answered.length) c.evaluation[d.key] = Math.round(answered.reduce((s,v)=>s+v,0)/answered.length);
-        save(); render();
-      }));
-    } else {
-      const slider = h("input",{type:"range",min:"0",max:"10",value:String(c.evaluation[d.key]||0),style:"width:100%"});
-      slider.addEventListener("input", () => { c.evaluation[d.key]=Number(slider.value); valSpan.textContent=slider.value; renderScore(); save(); });
-      card.appendChild(slider);
-    }
-    wrap.appendChild(card);
-  });
-
-  // Garde-fou déontologique — le coaching n'est pas un soin, il oriente vers un professionnel si besoin
-  c.protocole.signauxAlerte = c.protocole.signauxAlerte || [];
-  const sa = c.protocole.signauxAlerte;
-  const gfBox = h("div",{class:"card",style:"padding:16px;margin-top:8px;border-color:#d0707044"});
-  gfBox.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:2px"},"🚦 Garde-fou déontologique"));
-  gfBox.appendChild(h("div",{style:"color:#8B7355;font-size:11.5px;margin-bottom:10px"},"Le coach agit dans son champ de compétence et oriente vers un professionnel de santé si l'un de ces signaux est présent — norme reprise des standards de coaching TDAH (NBEFC)."));
-  const flagsList = h("div",{});
-  function renderFlags() {
-    flagsList.innerHTML = "";
-    SIGNAUX_ALERTE.forEach(f => {
-      const checked = sa.includes(f.id);
-      const row = h("label",{style:"display:flex;align-items:flex-start;gap:8px;padding:5px 0;cursor:pointer;font-size:13px;color:#2E2A20"});
-      const cb = h("input",{type:"checkbox"});
-      cb.checked = checked;
-      cb.addEventListener("change", () => {
-        if (cb.checked) { if (!sa.includes(f.id)) sa.push(f.id); }
-        else { c.protocole.signauxAlerte = sa.filter(x=>x!==f.id); }
-        save(); render();
-      });
-      row.appendChild(cb);
-      row.appendChild(h("span",{}, f.label));
-      flagsList.appendChild(row);
-    });
-  }
-  renderFlags();
-  gfBox.appendChild(flagsList);
-  if (sa.length) {
-    gfBox.appendChild(h("div",{style:"margin-top:10px;padding:10px 12px;background:#d0707018;border-radius:8px;font-size:12.5px;color:#a04545;font-weight:600"},
-      "⚠️ Signal(aux) coché(s) — orienter vers un médecin, psychologue ou psychiatre en parallèle du coaching. Le coaching ne remplace pas un suivi médical ou psychologique."));
-  }
-  wrap.appendChild(gfBox);
-
-  return wrap;
-}
-
-function stepSeances(c) {
-  const wrap = h("div",{});
-  c.protocoleSeances = c.protocoleSeances || [];
-  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"📖 Étape 3 — Séances de travail"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Choisissez un déroulé, menez la séance, puis complétez le compte-rendu — chaque séance validée nourrit le rapport."));
-
-  const profilClient = (c.profile||"").toUpperCase();
-  const enReconversion = profilClient.includes("BURNOUT") || profilClient.includes("RECONVERSION");
-  const stade = c.protocole.stadeChangement;
-  let suggestionId = null;
-
-  // Le stade de changement prime : pas d'entraînement aux compétences si le client n'est pas prêt à agir
-  if (stade === "precontemplation" || stade === "contemplation") {
-    suggestionId = c.protocoleSeances.length ? "d5" : "d1"; // psychoéducation / évaluation, pas d'action
-  } else if (stade === "maintien") {
-    suggestionId = "d6"; // consolidation
-  } else if (enReconversion && !c.protocoleSeances.length) {
-    suggestionId = "d5"; // bilan burnout systématique en premier quand le motif l'indique
-  } else {
-    const e = c.evaluation || {};
-    if (profilClient.includes("TDAH") && ((e.gestionTemps||0)+(e.dispersion||0)+(e.impulsivite||0))>=6) suggestionId="d2";
-    else if (profilClient.includes("HPI") && ((e.syndromeImposteur||0)+(e.questionnement||0))>=6) suggestionId="d3";
-    else if ((profilClient.includes("HSP")||profilClient.includes("HPE")) && ((e.intensiteEmo||0)+(e.surchargeSensorielle||0))>=6) suggestionId="d4";
-    else if (enReconversion) suggestionId = "d6"; // check-in reconversion par défaut si rien d'autre ne ressort
-  }
-  if (!suggestionId && !c.protocoleSeances.length) suggestionId = "d1";
-
-  const form = h("div",{class:"card",style:"padding:16px;margin-bottom:16px;border-color:#9C7A2E44"});
-  form.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Quel déroulé pour cette séance ?"));
-  const sel = h("select",{style:"width:100%;margin-bottom:6px"});
-  DEROULES.forEach(d => {
-    const opt = h("option",{value:d.id}, d.titre + " · " + PHASES_LABELS[d.phase] + (d.id===suggestionId?" — suggéré":""));
-    if (d.id===(suggestionId||DEROULES[0].id)) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  form.appendChild(sel);
-  if (suggestionId) {
-    const stadeTxt = stade ? " (stade : " + STADES_CHANGEMENT.find(s=>s.id===stade).label + ")" : "";
-    form.appendChild(h("div",{style:"font-size:11.5px;color:#9C7A2E;margin-bottom:10px"},"💡 Suggéré à partir du profil, du bilan initial et du stade de changement"+stadeTxt+"."));
-  }
-  if (enReconversion) {
-    const bridgeBtn = h("button",{class:"btn-sm",style:"margin-bottom:10px;border-color:#4a9e6a;color:#4a9e6a"},"🌱 Ouvrir le parcours Reconversion/Burnout pour ce client");
-    bridgeBtn.addEventListener("click", () => { state.tab="reconversion"; state.selClientId=null; save(); render(); });
-    form.appendChild(bridgeBtn);
-  }
-
-  const dateInp = inputEl({type:"date", value:new Date().toISOString().slice(0,10)});
-  form.appendChild(h("div",{style:"margin:10px 0"}, field("DATE", dateInp)));
-
-  form.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:14px 0 8px"},"❓ Résumé de la séance (une fois menée)"));
-  const resumeTa = textareaEl({placeholder:"Points abordés, avancées, réactions du client...", height:"70px"});
-  form.appendChild(resumeTa);
-
-  form.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:14px 0 8px"},"❓ Devoir donné"));
-  const devoirTa = textareaEl({placeholder:"Reprend le devoir du déroulé, à ajuster si besoin.", height:"50px"});
-  const initT = DEROULES.find(d=>d.id===(suggestionId||DEROULES[0].id));
-  if (initT) devoirTa.value = initT.devoirs;
-  sel.addEventListener("change", () => {
-    const t = DEROULES.find(d=>d.id===sel.value);
-    if (t) devoirTa.value = t.devoirs;
-  });
-  form.appendChild(devoirTa);
-
-  const validBtn = h("button",{class:"btn",style:"margin-top:12px"},"✅ Valider cette séance");
-  validBtn.addEventListener("click", () => {
-    const t = DEROULES.find(d=>d.id===sel.value);
-    if (!t) return;
-    c.protocoleSeances.push({
-      date: dateInp.value || new Date().toISOString().slice(0,10),
-      derouleId: t.id, derouleNom: t.titre,
-      resume: resumeTa.value.trim(), devoir: devoirTa.value.trim()
-    });
-    c.sessions = (c.sessions||0)+1;
-    c.sessionHistory = c.sessionHistory || [];
-    c.sessionHistory.push(`Séance ${c.sessions} — [${t.titre}] ${resumeTa.value.trim()}`);
-    state.clients = state.clients.map(x=>x.id===c.id?c:x);
-    save(); render();
-    notifCoach("Séance enregistrée — le rapport est à jour.");
-  });
-  form.appendChild(validBtn);
-  wrap.appendChild(form);
-
-  wrap.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin:18px 0 10px"},"Historique des séances (" + c.protocoleSeances.length + ")"));
-  if (!c.protocoleSeances.length) {
-    wrap.appendChild(h("p",{style:"color:#6B6355;font-size:13px"},"Aucune séance enregistrée pour l'instant."));
-  } else {
-    [...c.protocoleSeances].reverse().forEach(s => {
-      const card = h("div",{class:"card",style:"padding:14px 16px;margin-bottom:8px"});
-      card.appendChild(h("div",{style:"display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"},
-        h("div",{style:"font-weight:700;color:#2E2A20;font-size:13px"}, s.derouleNom),
-        h("div",{style:"color:#8B7355;font-size:12px"}, s.date)
-      ));
-      if (s.resume) card.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-top:6px"}, s.resume));
-      if (s.devoir) card.appendChild(h("div",{style:"color:#6B6355;font-size:12px;margin-top:4px;font-style:italic"}, "📝 "+s.devoir));
+    c.entretiens.forEach((en, idx) => {
+      const def = ENTRETIEN_TYPES[en.type];
+      const card = h("div",{class:"card",style:"padding:14px 16px;margin-bottom:10px"});
+      const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"});
+      hdr.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#2E2A20"}, def ? (def.icon+" "+def.label) : en.type));
+      const right = h("div",{style:"display:flex;align-items:center;gap:10px"});
+      right.appendChild(h("span",{style:"font-size:11.5px;color:#5A5648"}, en.date));
+      const delBtn = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:16px"},"×");
+      delBtn.addEventListener("click", () => { c.entretiens.splice(idx,1); save(); render(); });
+      right.appendChild(delBtn);
+      hdr.appendChild(right);
+      card.appendChild(hdr);
+      if (def) {
+        def.sections.forEach((sec, sIdx) => {
+          sec.questions.forEach((q, qIdx) => {
+            const val = (en.reponses||{})["s"+sIdx+"q"+qIdx];
+            if (val) card.appendChild(h("div",{style:"font-size:12px;color:#5A5648;margin-top:4px"}, h("span",{style:"color:#9C7A2E;font-weight:600"}, sec.titre+" : "), val));
+          });
+        });
+      }
       wrap.appendChild(card);
     });
   }
-
   return wrap;
-}
-
-function stepMiParcours(c) {
-  const wrap = h("div",{});
-  c.bilanMiParcours = c.bilanMiParcours || { date:"", scores:{organisation:0,emotions:0,relations:0,confiance:0}, progres:"", difficile:"", prochaineEtape:"" };
-  const b = c.bilanMiParcours;
-
-  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"🧭 Étape 4 — Bilan mi-parcours"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Point d'étape factuel. Objectif : objectiver les progrès réels, pas mesurer une performance."));
-
-  if (c.evaluation && Object.keys(c.evaluation).length) {
-    const dims0 = dimensionsPourProfil(c.profile);
-    const score0 = dims0.reduce((s,d)=>s+(c.evaluation[d.key]||0),0);
-    wrap.appendChild(h("div",{style:"font-size:12.5px;color:#8B7355;margin-bottom:16px;padding:10px 14px;background:#E4DAC055;border-radius:10px"}, "📌 Score à l'évaluation initiale : " + score0 + " / " + (dims0.length*10) + " — sert de point de comparaison."));
-  }
-
-  const dateRow = h("div",{style:"margin-bottom:16px"});
-  dateRow.appendChild(h("label",{style:"font-size:12px;color:#6B6355;display:block;margin-bottom:4px"},"Date du bilan"));
-  const dateInp = h("input",{type:"date",value:b.date||""});
-  dateInp.addEventListener("change", () => { b.date = dateInp.value; save(); });
-  dateRow.appendChild(dateInp);
-  wrap.appendChild(dateRow);
-
-  const DIMS_MP = [
-    {key:"organisation", label:"Organisation / gestion du temps", desc:"Capacité à tenir un système soutenable au quotidien"},
-    {key:"emotions",      label:"Régulation émotionnelle",        desc:"Capacité à repérer et réguler les vagues émotionnelles"},
-    {key:"relations",     label:"Relations sociales / pro",       desc:"Qualité et clarté des interactions, limites posées"},
-    {key:"confiance",     label:"Confiance / estime de soi",      desc:"Stabilité de l'image de soi face aux difficultés"},
-  ];
-
-  const scoreBox = h("div",{class:"card",style:"padding:20px;margin-bottom:16px;text-align:center"});
-  function totalMp() { return DIMS_MP.reduce((s,d)=>s+(b.scores[d.key]||0),0); }
-  function renderScoreMp() {
-    scoreBox.innerHTML = "";
-    scoreBox.appendChild(h("div",{style:"font-size:30px;font-weight:800;color:#9C7A2E"}, String(totalMp())+" / 40"));
-    scoreBox.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-top:4px"},"Somme des 4 dimensions — à comparer au prochain bilan."));
-  }
-  renderScoreMp();
-  wrap.appendChild(scoreBox);
-
-  DIMS_MP.forEach(d => {
-    const card = h("div",{class:"card",style:"padding:16px 18px;margin-bottom:10px"});
-    const valSpan = h("span",{style:"color:#9C7A2E;font-weight:700"}, String(b.scores[d.key]||0));
-    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;margin-bottom:4px"}, h("div",{style:"color:#2E2A20;font-weight:600;font-size:14.5px"}, d.label), valSpan));
-    card.appendChild(h("div",{style:"color:#5A5648;font-size:12.5px;margin-bottom:10px"}, d.desc));
-    const slider = h("input",{type:"range",min:"0",max:"10",value:String(b.scores[d.key]||0),style:"width:100%"});
-    slider.addEventListener("input", () => { b.scores[d.key]=Number(slider.value); valSpan.textContent=slider.value; renderScoreMp(); save(); });
-    card.appendChild(slider);
-    wrap.appendChild(card);
-  });
-
-  function textBlock(label, key, placeholder) {
-    const box = h("div",{class:"card",style:"padding:16px 18px;margin-bottom:10px"});
-    box.appendChild(h("div",{style:"color:#2E2A20;font-weight:600;font-size:14px;margin-bottom:8px"}, label));
-    const ta = h("textarea",{style:"width:100%;min-height:70px;font-size:13.5px",placeholder:placeholder});
-    ta.value = b[key] || "";
-    ta.addEventListener("change", () => { b[key]=ta.value; save(); });
-    box.appendChild(ta);
-    wrap.appendChild(box);
-  }
-  textBlock("❓ Progrès observés (faits, pas ressentis)", "progres", "Ex : tient le système d'organisation 5 jours sur 7 depuis 3 semaines...");
-  textBlock("❓ Ce qui reste difficile", "difficile", "Ex : les fins de semaine chargées font toujours dérailler le rythme...");
-  textBlock("❓ Prochaine étape choisie par le client", "prochaineEtape", "Ex : tester la version allégée du planning le vendredi...");
-
-  return wrap;
-}
-
-function stepKitSurvie(c) {
-  c.kitSurvie = c.kitSurvie || {profilCoache:"", signaux:[], outils:[], croyanceLimitante:"", croyanceRessource:"", mantras:[]};
-  const k = c.kitSurvie;
-  const wrap = h("div",{});
-  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"🎒 Étape 5 — Kit de survie"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Co-construisez un plan personnalisé avec le client."));
-
-  wrap.appendChild(h("div",{class:"card",style:"padding:16px;margin-bottom:14px"},
-    h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:10px"},"❓ Profil du client — particularités, forces, sensibilités"),
-    textareaEl({value:k.profilCoache, placeholder:"Particularités, forces, sensibilités...", height:"64px", onInput:v=>{k.profilCoache=v; save();}})
-  ));
-
-  function listeEditable(titre, arr, placeholder) {
-    const box = h("div",{class:"card",style:"padding:16px;margin-bottom:14px"});
-    const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"},
-      h("div",{style:"font-weight:700;color:#2E2A20"},titre),
-      h("button",{class:"btn-sm"},"+ Ajouter")
-    );
-    const list = h("div",{});
-    function renderList() {
-      list.innerHTML = "";
-      arr.forEach((val,i) => {
-        const row = h("div",{style:"display:flex;gap:8px;margin-bottom:8px"});
-        const inp = inputEl({value:val, placeholder, onInput:v=>{arr[i]=v; save();}});
-        const del = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:16px"},"×");
-        del.addEventListener("click",()=>{ arr.splice(i,1); save(); renderList(); });
-        row.appendChild(inp); row.appendChild(del);
-        list.appendChild(row);
-      });
-    }
-    hdr.querySelector("button").addEventListener("click", () => { arr.push(""); save(); renderList(); });
-    renderList();
-    box.appendChild(hdr); box.appendChild(list);
-    return box;
-  }
-  wrap.appendChild(listeEditable("❓ Signaux d'alerte à surveiller", k.signaux, "Ex: irritabilité, isolement..."));
-  wrap.appendChild(listeEditable("❓ Outils préférés du client", k.outils, "Ex: respiration, marche..."));
-
-  wrap.appendChild(h("div",{class:"card",style:"padding:16px;margin-bottom:14px"},
-    h("div",{style:"font-weight:700;color:#2E2A20;margin-bottom:10px"},"❓ Croyance limitante → croyance ressource"),
-    field("Croyance limitante", inputEl({value:k.croyanceLimitante, placeholder:"Ex: Je dois être parfait", onInput:v=>{k.croyanceLimitante=v; save();}})),
-    h("div",{style:"height:10px"}),
-    field("Croyance ressource", inputEl({value:k.croyanceRessource, placeholder:"Ex: Le progrès vaut mieux que la perfection", onInput:v=>{k.croyanceRessource=v; save();}}))
-  ));
-
-  wrap.appendChild(listeEditable("❓ Mantras / affirmations à retenir", k.mantras, "Ex: J'avance à mon rythme"));
-
-  return wrap;
-}
-
-function stepCloture(c) {
-  const wrap = h("div",{});
-  c.protocole.cloture = c.protocole.cloture || {date:"", statutObjectif:"partiellement", changements:"", recommandations:""};
-  const cl = c.protocole.cloture;
-  wrap.appendChild(h("h3",{style:"font-size:19px;color:#2E2A20;font-weight:600;margin-bottom:4px;font-style:italic"},"✅ Étape 6 — Bilan final & clôture"));
-  wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;margin-bottom:16px"},"Dernier point avant de générer le rapport complet."));
-
-  const dateInp = inputEl({type:"date", value:cl.date, onChange:v=>{cl.date=v; save();}});
-  wrap.appendChild(h("div",{class:"card",style:"padding:16px;margin-bottom:12px"}, field("DATE DE CLÔTURE", dateInp)));
-
-  const q1 = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
-  q1.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ L'objectif initial est-il atteint ?"));
-  q1.appendChild(selectEl({options:["atteint","partiellement","non atteint"], value:cl.statutObjectif, onChange:v=>{cl.statutObjectif=v; save();}}));
-  wrap.appendChild(q1);
-
-  const q2 = h("div",{class:"card",style:"padding:16px;margin-bottom:12px"});
-  q2.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Qu'est-ce qui a changé depuis le début de l'accompagnement ?"));
-  q2.appendChild(textareaEl({value:cl.changements, placeholder:"Faits observés, pas ressentis.", height:"70px", onInput:v=>{cl.changements=v; save();}}));
-  wrap.appendChild(q2);
-
-  const q3 = h("div",{class:"card",style:"padding:16px;margin-bottom:16px"});
-  q3.appendChild(h("div",{style:"font-weight:700;color:#2E2A20;font-size:14px;margin-bottom:8px"},"❓ Recommandations pour la suite"));
-  q3.appendChild(textareaEl({value:cl.recommandations, placeholder:"Suivi, ressources, points de vigilance.", height:"70px", onInput:v=>{cl.recommandations=v; save();}}));
-  wrap.appendChild(q3);
-
-  const rapportBtn = h("button",{class:"btn",style:"width:100%;padding:14px"},"🖨️ Générer le rapport complet");
-  rapportBtn.addEventListener("click", () => genererRapport(c));
-  wrap.appendChild(rapportBtn);
-
-  return wrap;
-}
-
-function escHtmlRapport(s) {
-  const d = document.createElement("div");
-  d.textContent = String(s||"");
-  return d.innerHTML;
-}
-
-function genererRapport(c) {
-  const pr = c.protocole || {};
-  const dims = dimensionsPourProfil(c.profile);
-  const scoreEval = (c.evaluation && Object.keys(c.evaluation).length) ? dims.reduce((s,d)=>s+(c.evaluation[d.key]||0),0) : null;
-  const maxEval = dims.length*10;
-  const bmp = c.bilanMiParcours;
-  const kit = c.kitSurvie;
-  const cl = pr.cloture || {};
-  const seances = c.protocoleSeances || [];
-  const esc = escHtmlRapport;
-
-  let rep = "";
-  rep += `<h1>Rapport de suivi — ${esc(c.name||"")}</h1>`;
-  rep += `<div class="meta">Profil : ${esc(c.profile||"—")} · Généré le ${new Date().toLocaleDateString('fr-FR')}</div>`;
-
-  rep += `<h2>🎯 Objectif</h2>`;
-  rep += `<p><b>Demande initiale :</b> ${esc(pr.demandeInitiale||"—")}</p>`;
-  rep += `<p><b>Objectif reformulé :</b> ${esc(pr.objectifFormule||"—")}</p>`;
-  rep += `<p><b>Adhésion du client :</b> ${pr.adhesion||0}/10</p>`;
-  if (pr.stadeChangement) {
-    const st = STADES_CHANGEMENT.find(s=>s.id===pr.stadeChangement);
-    rep += `<p><b>Stade de changement (Prochaska & DiClemente) :</b> ${esc(st?st.label:pr.stadeChangement)}</p>`;
-  }
-  if (c.objectifs && c.objectifs.length) {
-    rep += `<ul>` + c.objectifs.map(o=>`<li>${esc(o.titre)} — <i>${esc(o.statut)}</i></li>`).join("") + `</ul>`;
-  }
-
-  if (c.roueDeVie && Object.values(c.roueDeVie.scores||{}).some(v=>v>0)) {
-    rep += `<h2>🎡 Roue de la vie</h2>`;
-    if (c.roueDeVie.date) rep += `<p><b>Date :</b> ${esc(c.roueDeVie.date)}</p>`;
-    rep += `<ul>` + DOMAINES_ROUE.map(d=>`<li>${d.emoji} ${esc(d.label)} : ${c.roueDeVie.scores[d.key]||0}/10</li>`).join("") + `</ul>`;
-    if (c.roueDeVie.domainePriorite) {
-      const dp = DOMAINES_ROUE.find(d=>d.key===c.roueDeVie.domainePriorite);
-      if (dp) rep += `<p><b>Domaine prioritaire choisi :</b> ${dp.emoji} ${esc(dp.label)}</p>`;
-    }
-    if (c.roueDeVie.planAction) rep += `<p><b>Action décidée :</b> ${esc(c.roueDeVie.planAction)}</p>`;
-  }
-
-  if (c.ikigai && (c.ikigai.aime.filter(Boolean).length || c.ikigai.doue.filter(Boolean).length || c.ikigai.mondeBesoin.filter(Boolean).length || c.ikigai.payer.filter(Boolean).length)) {
-    const ik = c.ikigai;
-    rep += `<h2>🎯 Parcours Ikigaï</h2>`;
-    if (ik.aime.filter(Boolean).length) rep += `<p><b>❤️ Ce que j'aime :</b> ${ik.aime.filter(Boolean).map(esc).join(", ")}</p>`;
-    if (ik.doue.filter(Boolean).length) rep += `<p><b>⭐ Ce en quoi je suis doué(e) :</b> ${ik.doue.filter(Boolean).map(esc).join(", ")}</p>`;
-    if (ik.mondeBesoin.filter(Boolean).length) rep += `<p><b>🌍 Ce dont le monde a besoin :</b> ${ik.mondeBesoin.filter(Boolean).map(esc).join(", ")}</p>`;
-    if (ik.payer.filter(Boolean).length) rep += `<p><b>💰 Ce pour quoi je peux être payé(e) :</b> ${ik.payer.filter(Boolean).map(esc).join(", ")}</p>`;
-    if (ik.synthese) rep += `<p><b>Synthèse / direction :</b> ${esc(ik.synthese)}</p>`;
-  }
-
-  rep += `<h2>📊 Bilan initial</h2>`;
-  if (scoreEval!==null) {
-    rep += `<p><b>Score global :</b> ${scoreEval} / ${maxEval}</p>`;
-    rep += `<ul>` + dims.map(d=>`<li>${esc(d.label)} : ${c.evaluation[d.key]||0}/10</li>`).join("") + `</ul>`;
-  } else rep += `<p>Non renseigné.</p>`;
-  if (pr.signauxAlerte && pr.signauxAlerte.length) {
-    const labels = pr.signauxAlerte.map(id => { const f=SIGNAUX_ALERTE.find(x=>x.id===id); return f?f.label:id; });
-    rep += `<p style="color:#a04545"><b>🚦 Signaux d'alerte relevés :</b> ${labels.map(esc).join(", ")} — orientation vers un professionnel de santé recommandée.</p>`;
-  }
-
-  rep += `<h2>📖 Historique des séances (${seances.length})</h2>`;
-  if (seances.length) {
-    seances.forEach(s => {
-      rep += `<div class="seance-block"><b>${esc(s.date)} — ${esc(s.derouleNom)}</b>`;
-      if (s.resume) rep += `<p>${esc(s.resume)}</p>`;
-      if (s.devoir) rep += `<p><i>Devoir : ${esc(s.devoir)}</i></p>`;
-      rep += `</div>`;
-    });
-  } else rep += `<p>Aucune séance enregistrée.</p>`;
-
-  rep += `<h2>🧭 Bilan mi-parcours</h2>`;
-  if (bmp && bmp.date) {
-    rep += `<p><b>Date :</b> ${esc(bmp.date)}</p>`;
-    rep += `<ul><li>Organisation : ${bmp.scores.organisation}/10</li><li>Émotions : ${bmp.scores.emotions}/10</li><li>Relations : ${bmp.scores.relations}/10</li><li>Confiance : ${bmp.scores.confiance}/10</li></ul>`;
-    if (bmp.progres) rep += `<p><b>Progrès observés :</b> ${esc(bmp.progres)}</p>`;
-    if (bmp.difficile) rep += `<p><b>Ce qui reste difficile :</b> ${esc(bmp.difficile)}</p>`;
-    if (bmp.prochaineEtape) rep += `<p><b>Prochaine étape :</b> ${esc(bmp.prochaineEtape)}</p>`;
-  } else rep += `<p>Non renseigné.</p>`;
-
-  rep += `<h2>🎒 Kit de survie</h2>`;
-  if (kit && (kit.profilCoache||(kit.signaux&&kit.signaux.length)||(kit.outils&&kit.outils.length)||(kit.mantras&&kit.mantras.length))) {
-    if (kit.profilCoache) rep += `<p><b>Profil :</b> ${esc(kit.profilCoache)}</p>`;
-    if (kit.signaux && kit.signaux.filter(Boolean).length) rep += `<p><b>Signaux d'alerte :</b> ${kit.signaux.filter(Boolean).map(esc).join(", ")}</p>`;
-    if (kit.outils && kit.outils.filter(Boolean).length) rep += `<p><b>Outils préférés :</b> ${kit.outils.filter(Boolean).map(esc).join(", ")}</p>`;
-    if (kit.croyanceLimitante) rep += `<p><b>Croyance limitante → ressource :</b> ${esc(kit.croyanceLimitante)} → ${esc(kit.croyanceRessource||"")}</p>`;
-    if (kit.mantras && kit.mantras.filter(Boolean).length) rep += `<p><b>Mantras :</b> ${kit.mantras.filter(Boolean).map(esc).join(" · ")}</p>`;
-  } else rep += `<p>Non renseigné.</p>`;
-
-  rep += `<h2>✅ Bilan final</h2>`;
-  rep += `<p><b>Date de clôture :</b> ${esc(cl.date||"—")}</p>`;
-  rep += `<p><b>Objectif :</b> ${esc(cl.statutObjectif||"—")}</p>`;
-  if (cl.changements) rep += `<p><b>Changements observés :</b> ${esc(cl.changements)}</p>`;
-  if (cl.recommandations) rep += `<p><b>Recommandations :</b> ${esc(cl.recommandations)}</p>`;
-
-  const fullHtml = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Rapport — ${esc(c.name||"")}</title>
-  <style>
-    body{font-family:Georgia,serif;color:#2E2A20;max-width:720px;margin:40px auto;padding:0 20px;line-height:1.6}
-    h1{font-size:24px;color:#4A4030;margin-bottom:4px}
-    h2{font-size:17px;color:#9C7A2E;margin-top:28px;border-bottom:1px solid #E4DAC0;padding-bottom:6px}
-    .meta{color:#8B7355;font-size:13px;margin-bottom:20px}
-    .seance-block{background:#FBF7EC;border-radius:8px;padding:10px 14px;margin-bottom:8px}
-    ul{padding-left:20px}
-    @media print{ .printbar{display:none} }
-  </style></head><body>
-  <div class="printbar" style="margin-bottom:20px"><button onclick="window.print()" style="padding:8px 16px;font-size:13px;cursor:pointer">🖨️ Imprimer / Enregistrer en PDF</button></div>
-  ${rep}
-  </body></html>`;
-
-  const win = window.open("", "_blank");
-  if (!win) { notifCoach("Autorise les pop-ups pour voir le rapport."); return; }
-  win.document.open();
-  win.document.write(fullHtml);
-  win.document.close();
 }
 
 
