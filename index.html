@@ -24,6 +24,16 @@ button{cursor:pointer;font-family:inherit;border:none;transition:opacity .15s,ba
 .btn-sm{background:transparent;color:#5A5648;border:1px solid #D8CBA8;border-radius:7px;padding:4px 11px;font-size:12px}
 .btn-sm:hover{background:#F0E9D8}
 .card{background:#FFFFFF;border:1px solid #E4DAC0;border-radius:14px}
+.settings-card{padding:18px;margin-bottom:16px}
+.settings-title{font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.settings-hint{font-size:12px;color:#5A5648;margin-bottom:14px;line-height:1.5}
+.settings-subtitle{font-weight:700;font-size:12.5px;color:#8B7355;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+.list-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #D8CBA8;flex-wrap:wrap;transition:background .15s ease}
+.list-row:hover{background:#FBF8F0}
+.list-empty{font-size:12.5px;color:#5A5648;padding:8px 0;font-style:italic}
+.row-del{background:transparent;border:none;color:#c99a9a;cursor:pointer;font-size:18px;line-height:1;padding:4px 7px;border-radius:6px;transition:color .15s ease,background .15s ease}
+.row-del:hover{color:#d07070;background:#FBEFEF}
+.add-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .lbl{color:#5A5648;font-size:13px;display:block;margin-bottom:4px;letter-spacing:.07em}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .span2{grid-column:span 2}
@@ -1486,9 +1496,9 @@ function renderReglagesTab() {
   const s = CoachSettings.data;
 
   // --- Contenu du site (textes éditables) ---
-  const csBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
-  csBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:4px"},"📝 Contenu du site"));
-  csBox.appendChild(h("div",{style:"font-size:12px;color:#5A5648;margin-bottom:14px"},"Modifie les textes affichés sur julien-coaching.vercel.app (page d'accueil + page Profil). Laisse vide pour garder le texte actuel."));
+  const csBox = h("div",{class:"card settings-card"});
+  csBox.appendChild(h("div",{class:"settings-title"},"📝 Contenu du site"));
+  csBox.appendChild(h("div",{class:"settings-hint"},"Modifie les textes affichés sur julien-coaching.vercel.app (page d'accueil + page Profil). Laisse vide pour garder le texte actuel."));
 
   const cs = JSON.parse(JSON.stringify(s.contenuSite));
 
@@ -1502,22 +1512,22 @@ function renderReglagesTab() {
     return row;
   }
 
-  csBox.appendChild(h("div",{style:"font-weight:700;font-size:12.5px;color:#8B7355;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.04em"},"Accueil — bandeau principal"));
+  csBox.appendChild(h("div",{class:"settings-subtitle"},"Accueil — bandeau principal"));
   csBox.appendChild(csField("Sur-titre", cs.hero, "subtitle", false));
   csBox.appendChild(csField("Titre principal (le <br> saute une ligne)", cs.hero, "h1", false));
   csBox.appendChild(csField("Phrase d'intro", cs.hero, "lead", true));
 
-  csBox.appendChild(h("div",{style:"font-weight:700;font-size:12.5px;color:#8B7355;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.04em"},"Accueil — teaser \"Qui suis-je\""));
+  csBox.appendChild(h("div",{class:"settings-subtitle"},"Accueil — teaser \"Qui suis-je\""));
   csBox.appendChild(csField("Sur-titre", cs.quiSuisJe, "subtitle", false));
   csBox.appendChild(csField("Titre", cs.quiSuisJe, "h2", false));
   csBox.appendChild(csField("Texte", cs.quiSuisJe, "lead", true));
 
-  csBox.appendChild(h("div",{style:"font-weight:700;font-size:12.5px;color:#8B7355;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.04em"},"Page Profil — intro"));
+  csBox.appendChild(h("div",{class:"settings-subtitle"},"Page Profil — intro"));
   csBox.appendChild(csField("Sur-titre", cs.profilIntro, "subtitle", false));
   csBox.appendChild(csField("Titre", cs.profilIntro, "h2", false));
   csBox.appendChild(csField("Texte", cs.profilIntro, "lead", true));
 
-  csBox.appendChild(h("div",{style:"font-weight:700;font-size:12.5px;color:#8B7355;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.04em"},"Page Profil — 5 chapitres"));
+  csBox.appendChild(h("div",{class:"settings-subtitle"},"Page Profil — 5 chapitres"));
   cs.chapitres.forEach((ch, i) => {
     csBox.appendChild(h("div",{style:"font-size:12px;font-weight:700;color:#2E2A20;margin-top:8px"}, "Chapitre " + (i+1)));
     csBox.appendChild(csField("Titre", ch, "titre", false));
@@ -1530,8 +1540,8 @@ function renderReglagesTab() {
   wrap.appendChild(csBox);
 
   // --- Horaires ---
-  const horBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
-  horBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:12px"},"🕐 Horaires de disponibilité"));
+  const horBox = h("div",{class:"card settings-card"});
+  horBox.appendChild(h("div",{class:"settings-title"},"🕐 Horaires de disponibilité"));
   const newHoraires = JSON.parse(JSON.stringify(s.horaires));
   const PLAGE_LABELS = ["Matin","Après-midi"];
   JOURS.forEach(j => {
@@ -1571,11 +1581,11 @@ function renderReglagesTab() {
   wrap.appendChild(horBox);
 
   // --- Tarifs ---
-  const tarBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
-  tarBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:12px"},"€ Tarifs affichés sur le site"));
+  const tarBox = h("div",{class:"card settings-card"});
+  tarBox.appendChild(h("div",{class:"settings-title"},"€ Tarifs affichés sur le site"));
   const newTarifs = { ...s.tarifs };
   Object.keys(TARIF_LABELS).forEach(k => {
-    const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:6px 0"});
+    const row = h("div",{class:"list-row"});
     const inp = h("input",{type:"number",min:"0",max:"9999",style:"width:100px"}); inp.value = newTarifs[k];
     inp.addEventListener("change", () => newTarifs[k] = clampNum(inp.value, 0, 9999, newTarifs[k]));
     row.appendChild(h("label",{style:"flex:1;font-size:13px;color:#2E2A20"}, TARIF_LABELS[k]));
@@ -1588,9 +1598,9 @@ function renderReglagesTab() {
   wrap.appendChild(tarBox);
 
   // --- Forfaits (packages de séances) ---
-  const forfBox = h("div",{class:"card",style:"padding:18px;margin-bottom:16px"});
-  forfBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:4px"},"📦 Forfaits proposés"));
-  forfBox.appendChild(h("div",{style:"font-size:12px;color:#5A5648;margin-bottom:12px"},"Ces forfaits apparaissent dans le menu \"Motif\" de l'agenda et pilotent le décompte automatique des séances restantes."));
+  const forfBox = h("div",{class:"card settings-card"});
+  forfBox.appendChild(h("div",{class:"settings-title"},"📦 Forfaits proposés"));
+  forfBox.appendChild(h("div",{class:"settings-hint"},"Ces forfaits apparaissent dans le menu \"Motif\" de l'agenda et pilotent le décompte automatique des séances restantes."));
 
   const forfaits = (s.forfaits || []).map(f => ({...f}));
   const forfListBox = h("div",{id:"forfaitsList"});
@@ -1599,17 +1609,17 @@ function renderReglagesTab() {
   function renderForfaitsList() {
     forfListBox.innerHTML = "";
     if (!forfaits.length) {
-      forfListBox.appendChild(h("p",{style:"font-size:12.5px;color:#5A5648;padding:8px 0"},"Aucun forfait défini."));
+      forfListBox.appendChild(h("p",{class:"list-empty"},"Aucun forfait défini."));
     }
     forfaits.forEach((f, idx) => {
-      const row = h("div",{style:"display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #D8CBA8;flex-wrap:wrap"});
+      const row = h("div",{class:"list-row"});
       const nomInp = h("input",{type:"text",style:"flex:1;min-width:140px;font-size:13px"}); nomInp.value = f.nom;
       nomInp.addEventListener("change", () => { f.nom = nomInp.value.trim(); CoachSettings.save({ forfaits: forfaits }); });
       const seancesInp = h("input",{type:"number",min:"1",max:"99",style:"width:64px;font-size:13px"}); seancesInp.value = f.seances;
       seancesInp.addEventListener("change", () => { f.seances = clampNum(seancesInp.value, 1, 99, f.seances); CoachSettings.save({ forfaits: forfaits }); });
       const prixInp = h("input",{type:"number",min:"0",max:"9999",style:"width:80px;font-size:13px"}); prixInp.value = f.prix;
       prixInp.addEventListener("change", () => { f.prix = clampNum(prixInp.value, 0, 9999, f.prix); CoachSettings.save({ forfaits: forfaits }); });
-      const delBtn = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:18px"},"×");
+      const delBtn = h("button",{class:"row-del"},"×");
       delBtn.addEventListener("click", () => { forfaits.splice(idx,1); renderForfaitsList(); CoachSettings.save({ forfaits: forfaits }); });
       row.appendChild(nomInp);
       row.appendChild(h("span",{style:"font-size:11.5px;color:#5A5648"},"séances"));
@@ -1623,7 +1633,7 @@ function renderReglagesTab() {
   }
   renderForfaitsList();
 
-  const forfAddRow = h("div",{style:"display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"});
+  const forfAddRow = h("div",{class:"add-row"});
   const nomAddInp = h("input",{type:"text",placeholder:"Ex: Forfait Découverte",style:"flex:1;min-width:140px"});
   const seancesAddInp = h("input",{type:"number",min:"1",max:"99",placeholder:"Séances",style:"width:90px"});
   const prixAddInp = h("input",{type:"number",min:"0",max:"9999",placeholder:"Prix €",style:"width:90px"});
@@ -1642,8 +1652,8 @@ function renderReglagesTab() {
   wrap.appendChild(forfBox);
 
   // --- Message d'info (fermeture estivale, etc.) ---
-  const msgBox = h("div",{class:"card",style:"padding:18px"});
-  msgBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:12px"},"📢 Message d'information sur le site"));
+  const msgBox = h("div",{class:"card settings-card"});
+  msgBox.appendChild(h("div",{class:"settings-title"},"📢 Message d'information sur le site"));
   const actifRow = h("label",{style:"display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:#2E2A20"});
   const actifCb = h("input",{type:"checkbox"}); actifCb.checked = s.messageInfo.actif;
   actifRow.appendChild(actifCb); actifRow.appendChild(document.createTextNode("Afficher un message sur le site (ex: fermeture estivale)"));
@@ -1657,9 +1667,9 @@ function renderReglagesTab() {
   wrap.appendChild(msgBox);
 
   // --- Congés / fermetures exceptionnelles ---
-  const congesBox = h("div",{class:"card",style:"padding:18px;margin-top:16px"});
-  congesBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:12px"},"🏖️ Congés / fermetures exceptionnelles"));
-  congesBox.appendChild(h("div",{style:"font-size:12px;color:#5A5648;margin-bottom:12px"},"Ces périodes bloquent la réservation sur le site, en plus des horaires hebdomadaires."));
+  const congesBox = h("div",{class:"card settings-card",style:"margin-bottom:0"});
+  congesBox.appendChild(h("div",{class:"settings-title"},"🏖️ Congés / fermetures exceptionnelles"));
+  congesBox.appendChild(h("div",{class:"settings-hint"},"Ces périodes bloquent la réservation sur le site, en plus des horaires hebdomadaires."));
 
   const conges = (s.conges || []).slice();
   const listBox = h("div",{id:"congesList"});
@@ -1668,12 +1678,12 @@ function renderReglagesTab() {
   function renderCongesList() {
     listBox.innerHTML = "";
     if (!conges.length) {
-      listBox.appendChild(h("p",{style:"font-size:12.5px;color:#5A5648;padding:8px 0"},"Aucune période de fermeture enregistrée."));
+      listBox.appendChild(h("p",{class:"list-empty"},"Aucune période de fermeture enregistrée."));
     }
     conges.forEach((c, idx) => {
-      const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #D8CBA8"});
+      const row = h("div",{class:"list-row"});
       row.appendChild(h("div",{style:"flex:1;font-size:13px;color:#2E2A20"}, (c.label || "Fermeture") + " — du " + c.debut + " au " + c.fin));
-      const delBtn = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:18px"},"×");
+      const delBtn = h("button",{class:"row-del"},"×");
       delBtn.addEventListener("click", () => { conges.splice(idx,1); renderCongesList(); CoachSettings.save({ conges: conges }); });
       row.appendChild(delBtn);
       listBox.appendChild(row);
@@ -1681,7 +1691,7 @@ function renderReglagesTab() {
   }
   renderCongesList();
 
-  const addRow = h("div",{style:"display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"});
+  const addRow = h("div",{class:"add-row"});
   const labelInp = h("input",{type:"text",placeholder:"Ex: Vacances d'été",style:"flex:1;min-width:140px"});
   const debutInp = h("input",{type:"date",style:"width:140px"});
   const finInp = h("input",{type:"date",style:"width:140px"});
@@ -3011,7 +3021,7 @@ function buildProtocole(c) {
       hdr.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#2E2A20"}, def ? (def.icon+" "+def.label) : en.type));
       const right = h("div",{style:"display:flex;align-items:center;gap:10px"});
       right.appendChild(h("span",{style:"font-size:11.5px;color:#5A5648"}, en.date));
-      const delBtn = h("button",{style:"background:transparent;border:none;color:#d07070;cursor:pointer;font-size:16px"},"×");
+      const delBtn = h("button",{class:"row-del"},"×");
       delBtn.addEventListener("click", () => { c.entretiens.splice(idx,1); save(); render(); });
       right.appendChild(delBtn);
       hdr.appendChild(right);
