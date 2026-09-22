@@ -2899,6 +2899,41 @@ function dimensionsPourProfil(profilClient) {
 }
 
 const ENTRETIEN_TYPES = {
+  cadrage: {
+    label: "Cadrage du coaching + RPBD",
+    icon: "🏗️",
+    intro: "Analyse de la demande : établir le fondement de l'accompagnement.",
+    sections: [
+      { titre: "R = Réalité (Situation actuelle)", questions: [
+        "Qui est concerné ?",
+        "Quoi ? De quoi s'agit-il exactement ?",
+        "Comment cela se passe-t-il ?",
+        "Où cela se déroule-t-il ?",
+        "Quand cela arrive-t-il ?",
+        "Pourquoi cette situation existe-t-elle ? (Objectif : Permettre au client de prendre de la hauteur, clarifier le contexte et dissocier les faits des ressentis.)"
+      ]},
+      { titre: "P = Problème (Situation désirée)", questions: [
+        "Si la situation était idéale pour vous, à quoi ressemblerait-elle ?",
+        "Que souhaitez-vous vivre, obtenir ou ressentir à la place des difficultés actuelles ?",
+        "Quelle transformation ou quel changement espérez-vous concrètement ?",
+        "Quels seraient les signes visibles ou ressentis que la problématique a été dépassée ?",
+        "En quoi cette nouvelle situation serait-elle plus satisfaisante ou plus épanouissante pour vous ?",
+        "Comment sauriez-vous que la situation désirée est atteinte ? Quels seraient les indicateurs de réussite ?"
+      ]},
+      { titre: "B = Besoin (Ressources et compétences)", questions: [
+        "De quoi auriez-vous besoin pour atteindre la situation désirée ? Quelles ressources ou compétences vous semblent indispensables à développer ?",
+        "Quelles connaissances, savoir-faire ou aptitudes vous manque-t-il actuellement pour avancer vers votre objectif ?",
+        "Quels apprentissages spécifiques devez-vous acquérir au cours de cet accompagnement ? Est-ce une compétence, une posture, une stratégie ?",
+        "Qu'est-ce qui vous manque aujourd'hui pour franchir le pas vers votre objectif idéal ?",
+        "Quelle ressource, compétence ou soutien serait déterminant pour que le changement ait lieu ?"
+      ]},
+      { titre: "D = Demande (Clarification de l'accompagnement)", questions: [
+        "Quel résultat concret voulez-vous atteindre à l'issue de ce coaching ?",
+        "Qu'attendez-vous précisément de moi en tant que coach ?",
+        "Quelle représentation avez-vous du coaching ?"
+      ]}
+    ]
+  },
   objectif: {
     label: "Entretien d'objectif",
     icon: "🎯",
@@ -2966,6 +3001,39 @@ const ENTRETIEN_TYPES = {
       ]},
       { titre: "Saut", questions: [
         "Que dois-tu faire ou/et qui dois-tu être pour ne plus jamais avoir à faire face à cette situation ?"
+      ]}
+    ]
+  },
+  recadrage: {
+    label: "Cadrage et recadrage",
+    icon: "🔄",
+    intro: "Suivi et correction du plan d'action en cours de coaching.",
+    sections: [
+      { titre: "Les 5 grandes phases du débriefing", questions: [
+        "Quoi de neuf ? Si tu dois résumer les jours passés depuis notre dernier entretien, quelles sont les réussites (ou points positifs) ? Quels sont les échecs (ou points négatifs) ?",
+        "Revenir au plan d'action (de l'entretien de briefing) : « Comment as-tu mis cela en œuvre ? »",
+        "Guider l'entretien : quelle mise en œuvre, quel jour, quel problème imprévu ? Reprendre point par point et revenir sur les zones d'ombres, sur les points non évoqués (ou mal évoqués). Attitude cool !",
+        "Chercher ensemble le correctif pour que le plan d'action soit respecté. Lui laisser 24 heures pour qu'il résolve le problème.",
+        "Faire un dernier tour d'horizon, lui redonner un peu d'air. Reprendre un RV pour un nouveau briefing (ou enchaîner si la situation est ok et que l'entretien n'a pas duré trop longtemps)."
+      ]},
+      { titre: "Entretien de recadrage (Les bases)", questions: [
+        "Sur quelles bases ? Voir les règles du jeu définies.",
+        "Un recadrage doit être fulgurant, franc comme l'éclair et suivi d'un retour immédiat à la stabilité – ni rancune – ni agressivité – ainsi le coach est encore plus « puissant » et motivant."
+      ]},
+      { titre: "RNAR 1 – Rappel non agressif de la règle", questions: [
+        "En tête-à-tête et à froid. Être factuel, précis et juste : « J'ai vu que… »",
+        "Écouter la justification sans rebondir dessus.",
+        "Rappel non agressif de la règle et du sens qu'on lui donne : « et comme tu le sais la règle c'est ça + sens donné à la règle. »"
+      ]},
+      { titre: "RNAR 2 – Accord mutuel", questions: [
+        "Même chose mais suivi de « on est d'accord oui ou non ? »",
+        "Question fermée !"
+      ]},
+      { titre: "Reprise d'autorité", questions: [
+        "« Je voudrais te voir dans 5 minutes dans mon bureau »",
+        "En gardant une main sur la porte : « est-ce que j'ai été clair quand à… RNAR2 ? »",
+        "Laissez répondre mais ne pas accepter les justifications… oui, oui, mais NON !",
+        "Conclure rapidement : OK ! Merci, c'est tout ce que je voulais savoir. Et montrer la sortie."
       ]}
     ]
   }
