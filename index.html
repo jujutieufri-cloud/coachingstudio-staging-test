@@ -2155,6 +2155,7 @@ function creerOuMajClientDepuisRdv(req) {
       notes: req.message || "",
       sessionHistory: ["Séance 1 — " + (req.motif || "RDV") + (req.theme ? " (" + req.theme + ")" : "") + (req.date ? " le " + req.date : "")],
       objectifs: [],
+      entretiens: [],
       paiements: [{ id: Date.now()+"", date: req.date || new Date().toISOString().slice(0,10), montant, statut: "en attente" }]
     };
     appliquerForfait(nouveauClient, req.motif);
@@ -3023,10 +3024,11 @@ function buildAddForm() {
   const saveBtn = h("button",{class:"btn"},"Ajouter");
   saveBtn.addEventListener("click",()=>{
     if (!formData.name.trim()) return;
-    const newClient = {...formData,id:Date.now()+"",sessions:0,sessionHistory:[],objectifs:[]};
+    const newClient = {...formData,id:Date.now()+"",sessions:0,sessionHistory:[],objectifs:[],entretiens:[]};
     state.clients.push(newClient);
     save();
     ClientsManager.saveClient(newClient.id, newClient); // 🔄 Sync Firestore
+    notifCoach("✅ Client créé : "+newClient.name);
     setState({tab:"clients"});
   });
   const cancelBtn = h("button",{class:"btn-g"},"Annuler");
@@ -3299,9 +3301,13 @@ function buildProtocole(c) {
     const btnRow = h("div",{style:"display:flex;gap:10px;margin-top:16px"});
     const finBtn = h("button",{class:"btn"},"✅ Terminer et archiver");
     finBtn.addEventListener("click", () => {
+      c.entretiens = c.entretiens || [];
       c.entretiens.unshift({ id: Date.now()+"", type: en.type, date: new Date().toISOString().slice(0,10), reponses: en.reponses });
       c.protocoleEnCours = null;
-      save(); render();
+      save(); 
+      ClientsManager.saveClient(c.id, c);
+      notifCoach("✅ Entretien archivé !");
+      render();
     });
     const annulerBtn = h("button",{class:"btn-g"},"Annuler");
     annulerBtn.addEventListener("click", () => { c.protocoleEnCours = null; save(); render(); });
@@ -3311,10 +3317,10 @@ function buildProtocole(c) {
   }
 
   wrap.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px;margin-bottom:14px"},"Choisis un entretien à mener avec "+c.name+"."));
-  const choixRow = h("div",{style:"display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap"});
+  const choixRow = h("div",{style:"display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px"});
   Object.keys(ENTRETIEN_TYPES).forEach(typeKey => {
     const def = ENTRETIEN_TYPES[typeKey];
-    const btn = h("button",{class:"btn-g",style:"flex:1;min-width:150px"}, def.icon + " " + def.label);
+    const btn = h("button",{class:"btn-g",style:"padding:10px 8px;font-size:12px;line-height:1.3;text-align:center;word-wrap:break-word;word-break:break-word;overflow-wrap:break-word;white-space:normal;height:auto;min-height:60px;display:flex;align-items:center;justify-content:center;flex-direction:column"}, def.icon + " " + def.label);
     btn.addEventListener("click", () => { c.protocoleEnCours = { type: typeKey, reponses: {} }; save(); render(); });
     choixRow.appendChild(btn);
   });
@@ -3407,7 +3413,13 @@ function buildFiche(c) {
       btnRow.appendChild(bWa);
     }
     const bCopy = h("button",{class:"btn-sm"},"🔗 Copier le lien");
-    bCopy.addEventListener("click",()=>{ navigator.clipboard.writeText(lienQuest).then(()=>notifCoach("Lien copié !")); });
+    bCopy.addEventListener("click",()=>{ 
+      if(navigator.clipboard) {
+        navigator.clipboard.writeText(lienQuest).then(()=>notifCoach("✅ Lien copié !")).catch(()=>notifCoach("⚠️ Copie échouée"));
+      } else {
+        const ta=document.createElement("textarea");ta.value=lienQuest;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);notifCoach("✅ Lien copié !");
+      }
+    });
     btnRow.appendChild(bCopy);
     if (!c.email && !c.tel) qBox.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px"},"Ajoute un email ou téléphone pour pouvoir l'envoyer."));
     qBox.appendChild(btnRow);
