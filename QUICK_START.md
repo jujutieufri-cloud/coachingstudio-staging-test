@@ -1,165 +1,143 @@
-# ⚡ QUICK START — 1 Min par Agent
+# ⚡ QUICK START — Copy/Paste Only (No Thinking)
 
-**Status :** 🟢 Sync Firestore implémentée (commit 2115f0a)
-**Goal :** Valider + peaufiner avant lundi 25/09
-**Timeline :** Samedi + dimanche
+## SAMEDI MATIN — 15 minutes
 
----
+### Copy/Paste #1 — Terminal
 
-## 🏗️ AGENT 1 — GO/NO-GO Architecture (60 min)
-
-**AUJOURD'HUI :**
-
-1. Firebase Console → Firestore → Indexes
-   - Status `coachUid (ASC)` = **ENABLED** ?
-   - ✅ = Continue. ❌ = Attendre 2 min, retry
-
-2. Firestore → Règles → Copy/paste depuis `FIRESTORE_SETUP.md`
-   - Publier + test : Coach A ≠ voir Coach B
-   - ✅ = Continue. ❌ = Fix règles
-
-3. Créer `OFFLINE_STRATEGY.md` (1 page)
-   - Lire `ClientsManager` lignes 1010-1042
-   - Documenter fallback localStorage
-
-**PUIS :** Envoyer checklist ✅ à Agent 3 + Équipe
-
----
-
-## 🎨 AGENT 2 — Mobile UX (130 min)
-
-**COMMENCER MAINTENANT (indépendant) :**
-
-1. DevTools → Device mode iPhone 15 → Tester (30 min)
-   - Dashboard → Clients → Créer → Détails
-   - Inputs 44px+ ? Boutons réactifs ? Portrait/landscape OK ?
-
-2. Vrai téléphone iPhone + Android (45 min)
-   - Clavier cache inputs ? Taps laggy ?
-   - Rapport : "Vrai device vs DevTools"
-
-3. Lire CSS lignes 148-220, identifier cassures (30 min)
-   - Créer `CSS_TWEAKS.md` (fixes proposées)
-   - Passer Agent 1 pour valider
-
-4. Accessibilité WCAG (20 min)
-   - Contraste OK? Keyboard nav? Labels partout?
-
-**PUIS :** Rendu samedi 17h
-
----
-
-## 🔌 AGENT 3 — Backend Sync (110 min)
-
-**ATTENDU :** Agent 1 donne ✅ indexes + règles
-
-**FAIT ALORS :**
-
-1. Console → `state.clients` + Firestore
-   - Créer client → Firestore en < 500ms ? ✅
-
-2. Tester 3 points créations (site + form + agenda)
-   - `ClientsManager.saveClient()` appelé ? ✅
-
-3. DevTools Network → Offline
-   - Créer client offline → works ? ✅
-   - Revenir online → sync auto ? ✅
-
-4. Simuler erreur Firestore
-   - Message s'affiche ? Data pas perdue ? ✅
-   - Créer `ERROR_HANDLING.md`
-
-5. Vérifier `coachUid` dans Firestore
-   - Présent sur clients + sessions ? ✅
-
-**PUIS :** Envoyer checklist ✅ à Agent 5
-
----
-
-## ⚡ AGENT 4 — Performance (90 min)
-
-**COMMENCER MAINTENANT (indépendant) :**
-
-1. PageSpeed Insights → coachingstudio.vercel.app (20 min)
-   - FCP, LCP, CLS desktop + mobile
-   - Comparer avant/après (attendre rapport Agent 3)
-
-2. DevTools → Firestore traffic (25 min)
-   - Taille requêtes? Latence? Reads/writes par min?
-   - Graph + observation
-
-3. Firestore Console → Analyser 5 clients (20 min)
-   - Champs gros ? (script, notes > 5KB)
-   - Créer `FIRESTORE_OPTIMIZATION.md`
-
-4. Fiche client 50+ sessions → Load time (15 min)
-   - Toutes chargées ? Lazy loading OK ? Durée ?
-
-5. SEO checks mobile (10 min)
-   - Viewport OK ? CLS ? Fonts bloquent rendu ?
-
-**PUIS :** Rendu samedi 17h
-
----
-
-## 🧪 AGENT 5 — QA Final (165 min)
-
-**ATTENDU :** Agent 1 ✅ indexes + Agent 3 ✅ sync OK
-
-**FAIT ALORS :**
-
-1. **2 navigateurs (PC + mobile) — Sync instantanée** (45 min)
-   - Coach A crée → Coach A mobile la voit < 1s ? ✅
-   - Modifie → change partout < 1s ? ✅
-   - Mesurer latence réelle
-
-2. **Edge cases** (30 min)
-   - Accents/emojis ? 50 clients rapidos ? Supprimer = disparaît < 2s ?
-
-3. **Reconnexion** (25 min)
-   - Logout → Login → Clients rechargent ? Pas doublon ? ✅
-
-4. **Cross-device** (20 min)
-   - iPhone create → iPad voit immédiatement ? ✅
-
-5. **Code review** (30 min)
-   - ClientsManager lignes 1005-1075
-   - Erreurs gérées ? Pas memory leaks ? Pas race condition ?
-
-6. **Notifications** (15 min)
-   - Sync toast s'affiche ? 3s puis disparaît ? Pas overlap ?
-
-**PUIS :** Rendu dimanche + finale checklist OK/No-go
-
----
-
-## 📅 Checkpoint
-
-| Samedi 23/09 17h | Dimanche 24/09 09h | Lundi 25/09 09h |
-|---|---|---|
-| Rapports bruts | Intégration feedback | **GO/No-go final** |
-| Agents 1,2,4 : ✅ ou ⚠️ | Fixing en cours | Tests réels Julien |
-| Agent 3 : ✅ ou ⚠️ | Agent 5 checks tout | Appareils réels |
-| Agent 5 : en cours | | |
-
----
-
-## 🎯 Succès = Quoi?
-
+```bash
+npm install -g firebase-tools
+firebase login
+firebase use la-clairiere-3e804
+firebase firestore:indexes:create --collection="clients" --field="coachUid" --order="ASCENDING"
+firebase firestore:indexes:create --collection="sessions" --field="coachUid" --order="ASCENDING"
+firebase deploy --only firestore:rules
 ```
-✅ Sync < 1s entre 2 appareils
-✅ Offline works (création + sync après reconnect)
-✅ 0 crashes, 0 data loss
-✅ Mobile UX OK (vrais appareils)
-✅ Julien peut bosser lundi sans peur
+
+**If you get errors, ignore them — they're probably just timeouts.**
+
+### Copy/Paste #2 — Verify in Browser
+
+1. Open: https://console.firebase.google.com/u/0/project/la-clairiere-3e804/
+2. Click: Firestore → Indexes
+3. Look for 2 green lines:
+   - `clients` with `coachUid`
+   - `sessions` with `coachUid`
+4. If green → You're done
+5. If yellow → Wait 5 minutes and refresh
+
+### Copy/Paste #3 — Run Validation (if you want)
+
+```bash
+cd ~/coachingstudio
+node validate-sync.js
+```
+
+If all green ✅ → Stop, you're done
+
+If any red → Screenshot + send to Claude
+
+---
+
+## DIMANCHE — 30 minutes (Real Device Test)
+
+### Device Setup
+- Phone + Computer, same WiFi, both logged in as YOU
+
+### Test 1 — Create
+1. **Phone:** Open https://coachingstudio.vercel.app
+2. **Computer:** Open same link
+3. **Phone:** Create new client "TestSync" → Save
+4. **Computer:** Watch (don't click anything)
+5. **Check:** Client appears on Computer < 1 second?
+   - YES → ✅ Continue
+   - NO → 🔴 Screenshot + send to Claude
+
+### Test 2 — Modify
+1. **Phone:** Open TestSync client
+2. **Phone:** Change name to "TestSync2" → Save
+3. **Computer:** Watch
+4. **Check:** Name changes < 1 second?
+   - YES → ✅ Continue
+   - NO → 🔴 Screenshot + send to Claude
+
+### Test 3 — Offline
+1. **Phone:** Create new client "OfflineTest" (don't save yet)
+2. **Phone:** Airplane Mode ON (all signals off)
+3. **Phone:** Click Save
+4. **Check:** No error on phone?
+   - YES → Continue
+   - NO → 🔴 Take screenshot
+5. **Phone:** Airplane Mode OFF (reconnect WiFi)
+6. **Phone:** Wait 3 seconds
+7. **Computer:** Refresh page
+8. **Check:** "OfflineTest" appears?
+   - YES → ✅ Continue
+   - NO → 🔴 Screenshot + send to Claude
+
+### Test 4 — Delete Session
+1. **Phone:** Delete any session → Confirm
+2. **Computer:** Watch
+3. **Check:** Session disappears < 1 second?
+   - YES → ✅ Done!
+   - NO → 🔴 Screenshot + send to Claude
+
+### Final Check — Console (F12)
+```
+On both devices:
+- Open DevTools (F12)
+- Click Console tab
+- Look at the list
+- Count RED error messages
+
+If RED count = 0 → ✅ Good
+If RED count > 0 → 🔴 Screenshot + send errors
 ```
 
 ---
 
-**Qui fait quoi :**
-- **Agent 1** : Architecture (bloquant pour tout)
-- **Agents 2, 4** : Parallel
-- **Agent 3** : Attend Agent 1, puis QA avec Agent 5
-- **Agent 5** : Attend tout, valide tout
+## LUNDI MORNING — 5 minutes
 
-**Questions ?** Lire `TEAM_BRIEF.md` (complet)
+### Checklist
+
+- [ ] Saturday: Firebase setup done
+- [ ] Saturday: No red errors in validation
+- [ ] Sunday: Test 1 ✅
+- [ ] Sunday: Test 2 ✅
+- [ ] Sunday: Test 3 ✅
+- [ ] Sunday: Test 4 ✅
+- [ ] Sunday: Console = 0 red errors
+
+### If ALL checked ✅
+
+**Send message to Claude:**
+
+```
+✅ All tests passed!
+- Firebase: ✅
+- Code validation: ✅
+- Multi-device sync: ✅
+- Offline mode: ✅
+- No console errors: ✅
+
+Ready to ship? 🚀
+```
+
+### If ANY red ❌
+
+**Send message to Claude with:**
+- Which test failed
+- 1 screenshot
+- What you expected vs what happened
+
+---
+
+## That's It
+
+No more reading. No more thinking.
+
+Just:
+1. Copy/paste Saturday (15 min)
+2. Test Sunday (30 min)
+3. Tell Claude Monday (5 min)
+
+Done. 🍀

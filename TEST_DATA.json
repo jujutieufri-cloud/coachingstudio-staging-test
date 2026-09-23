@@ -1,0 +1,195 @@
+{
+  "_description": "Pre-made test data for CoachingStudio sync validation",
+  "_usage": "Use these test clients/sessions for Dimanche scenarios. Modify values in CoachingStudio UI instead of pasting.",
+  
+  "TEST_CLIENTS": [
+    {
+      "id": "sync-test-001",
+      "nom": "TestSync",
+      "prenom": "Alice",
+      "email": "test.sync.001@example.com",
+      "phone": "+33 6 12 34 56 78",
+      "notes": "🧪 Test client for sync validation",
+      "dateCreation": "2026-09-23T08:00:00Z",
+      "coachUid": "[YOUR_COACH_UID_HERE]"
+    },
+    {
+      "id": "sync-test-002",
+      "nom": "TestSync",
+      "prenom": "Bob",
+      "email": "test.sync.002@example.com",
+      "phone": "+33 6 87 65 43 21",
+      "notes": "🧪 Second test client",
+      "dateCreation": "2026-09-23T08:30:00Z",
+      "coachUid": "[YOUR_COACH_UID_HERE]"
+    },
+    {
+      "id": "sync-test-offline",
+      "nom": "OfflineTest",
+      "prenom": "Charlie",
+      "email": "offline.test@example.com",
+      "phone": "+33 6 55 44 33 22",
+      "notes": "🧪 Test created offline (Airplane Mode)",
+      "dateCreation": "2026-09-23T14:00:00Z",
+      "coachUid": "[YOUR_COACH_UID_HERE]"
+    }
+  ],
+  
+  "TEST_SESSIONS": [
+    {
+      "id": "session-sync-001",
+      "clientId": "sync-test-001",
+      "coachUid": "[YOUR_COACH_UID_HERE]",
+      "type": "🏗️ Cadrage du coaching",
+      "date": "2026-09-23",
+      "heure": "10:00",
+      "duree": 60,
+      "notes": "Test session for sync",
+      "status": "en_cours",
+      "created": "2026-09-23T08:15:00Z"
+    },
+    {
+      "id": "session-sync-002",
+      "clientId": "sync-test-002",
+      "coachUid": "[YOUR_COACH_UID_HERE]",
+      "type": "🎯 Entretien d'objectif",
+      "date": "2026-09-23",
+      "heure": "11:30",
+      "duree": 45,
+      "notes": "Sync test 2 — objectives clarification",
+      "status": "terminee",
+      "created": "2026-09-23T08:45:00Z"
+    }
+  ],
+  
+  "TEST_SCENARIOS": {
+    "Scenario_1_Create": {
+      "step": "Create new client on Device 1",
+      "device_1": {
+        "action": "Click 'Nouveau Client' → Fill: Prenom='TestSync', Email='test@example.com' → Click 'Créer'",
+        "timing": "Instant",
+        "check": "Client appears in list on Device 1"
+      },
+      "device_2": {
+        "action": "Watch screen (no clicks)",
+        "expected": "New client appears < 1 second",
+        "result": "✅ PASS or 🔴 FAIL"
+      },
+      "success_criteria": "Client visible on both devices within 1 second of creation"
+    },
+    
+    "Scenario_2_Modify": {
+      "step": "Modify client on Device 1",
+      "device_1": {
+        "action": "Open TestSync client → Change prenom to 'TestSync2' → Save",
+        "timing": "Instant",
+        "check": "Device 1 shows 'TestSync2'"
+      },
+      "device_2": {
+        "action": "Watch screen (no clicks)",
+        "expected": "Client name changes to 'TestSync2' < 1 second",
+        "result": "✅ PASS or 🔴 FAIL"
+      },
+      "success_criteria": "Modification appears on both devices within 1 second"
+    },
+    
+    "Scenario_3_Offline": {
+      "step": "Create client while offline, then reconnect",
+      "device_1": {
+        "step_1": "Open form to create 'OfflineTest' client",
+        "step_2": "Enable Airplane Mode (WiFi + Bluetooth OFF)",
+        "step_3": "Click 'Créer' — should NOT error",
+        "step_4": "Observe client in list (local only)",
+        "step_5": "Disable Airplane Mode — reconnect WiFi",
+        "step_6": "Wait 5 seconds — client should sync silently"
+      },
+      "device_2": {
+        "before_sync": "OfflineTest NOT visible",
+        "after_sync": "Refresh page (or wait) → OfflineTest appears",
+        "result": "✅ PASS or 🔴 FAIL"
+      },
+      "success_criteria": "No errors offline, auto-sync on reconnect, appears on other device"
+    },
+    
+    "Scenario_4_Delete": {
+      "step": "Delete session on Device 1",
+      "device_1": {
+        "action": "Open a session → Click 'Supprimer' → Confirm",
+        "timing": "Instant",
+        "check": "Session disappears from Device 1 list"
+      },
+      "device_2": {
+        "action": "Watch screen (no clicks)",
+        "expected": "Session disappears < 1 second",
+        "result": "✅ PASS or 🔴 FAIL"
+      },
+      "success_criteria": "Deletion propagates to both devices within 1 second"
+    }
+  },
+  
+  "DEBUGGING": {
+    "Check_Console": {
+      "How": "Open DevTools (F12) → Console tab",
+      "Look_For": "Zero red error messages (⚠️ warnings are OK)",
+      "Expected": "Only blue info messages or no messages at all",
+      "If_Red_Error": "Screenshot + Copy error text → Send to Claude"
+    },
+    
+    "Check_Network": {
+      "How": "Open DevTools (F12) → Network tab",
+      "Filter": "firestore (or just look for .com calls)",
+      "Look_For": "Requests to firestore.googleapis.com",
+      "Expected": "POST /v1/projects/.../databases/.../documents/query",
+      "Status": "Should be 200 OK (green)"
+    },
+    
+    "Check_localStorage": {
+      "How": "Open DevTools (F12) → Application → Local Storage → https://coachingstudio.vercel.app",
+      "Look_For": "Keys: 'cs4-clients', 'cs4-sessions'",
+      "Value": "Should contain JSON with your test data",
+      "If_Empty": "Sync may not be writing to cache (error)"
+    },
+    
+    "Check_Firestore": {
+      "How": "Firebase Console → Firestore → Data",
+      "Look_For": "Collections 'clients' and 'sessions'",
+      "Check": "Your test clients appear there",
+      "If_Missing": "saveClient() not firing or Firestore error"
+    }
+  },
+  
+  "COMMON_ISSUES": {
+    "Issue_1": {
+      "problem": "Client created on Device 1 but not appearing on Device 2 after 5+ seconds",
+      "likely_cause": "Firestore indexes not enabled",
+      "fix": "Check Firebase Console → Firestore → Indexes → Both must be GREEN",
+      "if_not_green": "Run 'firebase firestore:indexes:list' and wait for indexes to build (can take 5-10 min)"
+    },
+    
+    "Issue_2": {
+      "problem": "Red error in console: 'FAILED_PRECONDITION'",
+      "likely_cause": "Missing Firestore indexes",
+      "fix": "Same as Issue 1 — create the 2 indexes"
+    },
+    
+    "Issue_3": {
+      "problem": "Client created offline but doesn't sync after reconnect",
+      "likely_cause": "Firestore write failed silently",
+      "check": "Console → Look for error logs",
+      "fix": "Check Firestore Rules — might have wrong permissions"
+    },
+    
+    "Issue_4": {
+      "problem": "Data syncing but very slowly (5-10+ seconds)",
+      "likely_cause": "Network latency or Firestore indexes still building",
+      "fix": "Wait 5 more minutes for indexes to fully enable"
+    }
+  },
+  
+  "_notes": [
+    "Replace [YOUR_COACH_UID_HERE] with your actual Firebase UID",
+    "Test data is optional — you can create clients manually in the UI",
+    "The validation script (validate-sync.js) doesn't need this data — it just checks the code",
+    "For multi-device testing, use REAL devices (iPhone + Desktop) or DevTools Device Emulator"
+  ]
+}
