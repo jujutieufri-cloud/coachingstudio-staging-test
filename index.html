@@ -272,594 +272,2112 @@ nav{flex:1}
   }
 }
 </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-// ═══════════════════════════════════════════════════════════════════════════
-// 📋 CONTRACT GENERATOR — Version Simplifiée (modèle MHD Formation)
-// Conforme France — ~2 pages
-// ═══════════════════════════════════════════════════════════════════════════
-
-const CONTRACT_TEMPLATE_SIMPLE = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contrat de Coaching</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            line-height: 1.5; 
-            color: #333; 
-            padding: 40px; 
-            background: white;
-        }
-        .container { max-width: 850px; margin: 0 auto; }
-        
-        h1 { font-size: 18px; text-align: center; margin-bottom: 30px; font-weight: 700; }
-        h2 { font-size: 14px; color: #2c3e50; background: #ecf0f1; padding: 10px; margin: 20px 0 10px 0; font-weight: 700; }
-        
-        .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; font-size: 12px; }
-        .meta-block { background: #f8f9fa; padding: 12px; border-radius: 4px; }
-        .meta-label { font-weight: 700; margin-bottom: 4px; }
-        .meta-text { font-size: 11px; color: #555; margin: 2px 0; }
-        
-        p { margin: 8px 0; font-size: 12px; line-height: 1.6; }
-        ol, ul { margin: 10px 0 10px 20px; font-size: 12px; }
-        li { margin: 5px 0; }
-        
-        .signature-line { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px; }
-        .sig-box { text-align: center; font-size: 11px; }
-        .sig-line { border-top: 1px solid #333; width: 150px; margin: 30px auto 10px; }
-        
-        @media print {
-            body { padding: 20px; }
-            .container { page-break-inside: avoid; }
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>CONTRAT DE COACHING PROFESSIONNEL</h1>
-        
-        <div class="meta">
-            <div class="meta-block">
-                <div class="meta-label">LE CLIENT :</div>
-                <div class="meta-text">Nom : {{coacheeName}}</div>
-                <div class="meta-text">Email : {{coachedEmail}}</div>
-                <div class="meta-text">Tél : {{coachedTel}}</div>
-            </div>
-            <div class="meta-block">
-                <div class="meta-label">LE COACH :</div>
-                <div class="meta-text">Nom : {{coachName}}</div>
-                <div class="meta-text">Email : {{coachEmail}}</div>
-                <div class="meta-text">SIRET : {{coachSiret}}</div>
-            </div>
-        </div>
-
-        <h2>OBJET DE LA CONVENTION</h2>
-        <p>Par la présente convention, il est prévu l'organisation d'un accompagnement individuel de coaching professionnel.</p>
-        
-        <p><strong>Objectif du coaching :</strong> {{coachedObjective}}</p>
-
-        <h2>MODALITÉS PRATIQUES</h2>
-        <ol>
-            <li>Séances de {{sessionDuration}} minutes par entretien</li>
-            <li>Fréquence : {{sessionFrequency}}</li>
-            <li>Format : {{sessionFormat}}</li>
-            <li>Les séances doivent avoir lieu à un rythme d'au minimum deux fois par mois</li>
-        </ol>
-
-        <h2>DURÉE DE LA CONVENTION</h2>
-        <ol>
-            <li>Période initiale : {{engagementDuration}}</li>
-            <li>À tout moment, le client pourra mettre fin à cette convention à condition d'en avertir le coach avec un préavis de 30 jours</li>
-            <li>Le coach peut résilier le contrat avec un préavis de 7 jours</li>
-        </ol>
-
-        <h2>MODALITÉS FINANCIÈRES</h2>
-        <ol>
-            <li>Coût total : {{totalAmount}} € TTC</li>
-            <li>Prix par séance : {{pricePerSession}} €</li>
-            <li>Modalités de paiement : {{paymentTerms}}</li>
-        </ol>
-
-        <h2>DEVOIRS DU COACH</h2>
-        <ol>
-            <li>Le coach s'autorise en conscience à exercer cette fonction à partir de sa formation et de son expérience</li>
-            <li>Le coach s'astreint au secret professionnel et à la confidentialité absolue</li>
-            <li>Conscient de sa position, le coach s'interdit d'exercer tout abus d'influence</li>
-            <li>Le coach prend tous les moyens propres à permettre le développement professionnel et personnel du client</li>
-            <li>Le coaching s'exerce dans la synthèse des intérêts du client et de son contexte</li>
-            <li>Le coach laisse toute responsabilité de ses décisions au client</li>
-        </ol>
-
-        <h2>DEVOIRS DU CLIENT</h2>
-        <ol>
-            <li>Le coaching étant un processus de développement, le client a la responsabilité des décisions prises</li>
-            <li>Le client s'engage à être ponctuel. Tout retard de plus de 15 minutes annule la séance</li>
-            <li>En cas d'annulation, le client informe le coach au minimum 48 heures à l'avance</li>
-        </ol>
-
-        <h2>SIGNATURES</h2>
-        <div class="signature-line">
-            <div class="sig-box">
-                <div class="sig-line"></div>
-                <div>Le Client</div>
-                <div style="font-size: 10px; margin-top: 8px;">{{coacheeName}}</div>
-                <div style="font-size: 10px;">Date : {{contractDate}}</div>
-            </div>
-            <div class="sig-box">
-                <div class="sig-line"></div>
-                <div>Le Coach</div>
-                <div style="font-size: 10px; margin-top: 8px;">{{coachName}}</div>
-                <div style="font-size: 10px;">Date : {{contractDate}}</div>
-            </div>
-        </div>
+<button id="mobileMenuBtn" title="Menu">☰</button>
+<div id="mobileOverlay"></div>
+<div id="app">
+  <div id="sidebar">
+    <div class="toggle-row">
+      <button class="toggle-btn" id="toggleBtn" title="Réduire le panneau">&#8249;</button>
     </div>
-</body>
-</html>`;
+    <div class="brand" style="display:flex;align-items:center;gap:10px">
+      <img src="img/logo.png" alt="Julien Coaching" style="height:50px;width:auto;flex-shrink:0">
+      <div>
+        <h1>Coach<span>Studio</span></h1>
+        <p>PROFILS ATYPIQUES</p>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <nav id="nav"></nav>
+    <div class="divider"></div>
+    <div class="sidebar-foot" id="sidefoot"></div>
+    <div style="padding:10px 18px 16px;display:flex;gap:8px;">
+      <button id="btnExport" class="btn-g" style="flex:1;font-size:13px;padding:7px 8px;">⬇ Sauvegarder</button>
+      <button id="btnImport" class="btn-g" style="flex:1;font-size:13px;padding:7px 8px;">⬆ Restaurer</button>
+      <input type="file" id="fileImport" accept=".json" style="display:none">
+    </div>
+  </div>
+  <div id="main"></div>
+</div>
 
-class ContractGenerator {
-    constructor(coachSettings, clientData, cadrageData) {
-        this.coach = coachSettings;
-        this.client = clientData;
-        this.cadrage = cadrageData || {};
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+// ══════════════════════════════════════════
+//  DONNÉES & CONFIG
+// ══════════════════════════════════════════
+const PC = {HPI:"#9880d0",HSP:"#d4885a",TDAH:"#5aaec8","HPI+HSP":"#b87898","HPI+TDAH":"#8090c8","HSP+TDAH":"#88a8b0",Mixte:"#4a9e6a"};
+const PROFILES = ["HPI","HSP","TDAH","HPI+HSP","HPI+TDAH","HSP+TDAH","Mixte"];
+const CAT_COLORS = {"Questions puissantes":"#9C7A2E","NLP":"#9880d0","Sophrologie & somatique":"#5ab8a8","Protocole burnout":"#d07070","Outils pratiques":"#4a9e6a","Communication assertive":"#5aaec8","Régulation émotionnelle":"#d4885a"};
+
+const SAMPLE = [
+  {id:"s1",name:"Sophie M.",profile:"HPI+HSP",age:34,objective:"Gestion du burnout et reconnexion à soi",sessions:4,nextSession:"2026-03-18",status:"actif",notes:"Très analytique. Réagit bien aux métaphores.",sessionHistory:["Séance 1 — Accueil, exploration burnout","Séance 2 — Croyances limitantes (NLP)","Séance 3 — Roue de vie","Séance 4 — Plan de reconnexion"],objectifs:[{id:"o1",titre:"Poser des limites avec sa hiérarchie",echeance:"2026-04-01",statut:"en cours"},{id:"o2",titre:"Cohérence cardiaque chaque matin",echeance:"",statut:"atteint"}]},
+  {id:"s2",name:"Thomas K.",profile:"TDAH",age:28,objective:"Organisation et gestion du temps",sessions:2,nextSession:"2026-03-20",status:"actif",notes:"Préfère les outils visuels et étapes courtes.",sessionHistory:["Séance 1 — Exploration TDAH","Séance 2 — Système 3 blocs"],objectifs:[{id:"o3",titre:"Appliquer le système 3 blocs 2 semaines",echeance:"2026-04-05",statut:"en cours"}]},
+];
+
+const BIBLIO = [
+  {id:"q1",cat:"Questions puissantes",phase:"evaluation",profil:"Tous",titre:"Ouverture & exploration",source:"Meta-Coaching — Hall & Duval",
+   contenu:`1. Qu'est-ce qui est le plus important pour toi là, maintenant ?
+2. Si tu n'avais aucune limite, que ferais-tu ?
+3. Qu'est-ce que cette situation te coûte de ne pas changer ?
+4. De quoi as-tu besoin pour avancer ?
+5. Qu'est-ce qui serait différent si ce problème était résolu ?
+6. Qu'est-ce que tu sais déjà, au fond de toi ?
+7. Quel serait le premier petit pas possible aujourd'hui ?`},
+  {id:"q2",cat:"Questions puissantes",phase:"entrainement",profil:"HPI",titre:"Décélération & ancrage (HPI)",source:"Assenheim — Mon Cerveau est Hyper",
+   contenu:`1. Parmi toutes ces idées, laquelle résonne le plus avec qui tu es vraiment ?
+2. Si tu devais choisir UNE seule priorité cette semaine, laquelle ?
+3. Qu'est-ce que tu ressens dans ton corps quand tu penses à ça ?
+4. Tu analyses beaucoup — qu'est-ce que TOI tu veux vraiment ?
+5. À quel moment tu t'es senti pleinement toi-même récemment ?`},
+  {id:"q3",cat:"Questions puissantes",phase:"entrainement",profil:"HSP",titre:"Validation & besoins (HSP)",source:"Coaching HSP — approche somatique",
+   contenu:`1. Qu'est-ce que tu as absorbé des autres aujourd'hui qui n'est pas le tien ?
+2. Où dans ton corps ressens-tu ça ?
+3. Qu'est-ce dont tu as besoin pour te sentir en sécurité ici ?
+4. Si ta sensibilité était un superpouvoir, comment tu l'utiliserais là ?
+5. Quelle est la frontière que tu as du mal à maintenir en ce moment ?`},
+  {id:"q4",cat:"Questions puissantes",phase:"entrainement",profil:"TDAH",titre:"Focus & momentum (TDAH)",source:"Coaching TDAH — approche forces",
+   contenu:`1. Quelle est la SEULE chose que tu ferais si tu ne pouvais en faire qu'une ?
+2. Qu'est-ce qui te donne de l'énergie vs ce qui t'en prend ?
+3. À quel moment de la journée tu es le plus efficace ?
+4. C'est quoi le vrai obstacle : la tâche ou ce qu'elle représente ?
+5. Comment rendre ça plus fun, plus rapide, plus stimulant ?`},
+  {id:"n1",cat:"NLP",phase:"entrainement",profil:"Tous",titre:"Recadrage de contenu",source:"NLP — Bandler & Grinder",
+   contenu:`OBJECTIF : Changer la signification attribuée à un événement.
+
+1. Identifier la croyance limitante : « Qu'est-ce que tu dis sur toi dans cette situation ? »
+2. Questionner : « Est-ce TOUJOURS vrai ? Dans 100% des cas ? »
+3. Proposer une autre perspective : « Et si ça signifiait autre chose ? »
+4. Ancrer la nouvelle signification : « Si c'était une preuve de ta force ? »
+5. Test : « Sur 1 à 10, comment tu te sens avec cette nouvelle façon de voir ? »
+
+EXEMPLE : "Je suis trop sensible" → "Je perçois ce que les autres ne voient pas encore"`},
+  {id:"n2",cat:"NLP",phase:"entrainement",profil:"HPI",titre:"Ligne du temps — décision (HPI)",source:"NLP — Ligne du temps",
+   contenu:`OBJECTIF : Débloquer une décision via la sagesse temporelle.
+
+1. Imaginer une ligne du temps devant soi.
+2. Avancer vers le FUTUR : « Imagine que tu as fait ce choix. Comment tu te sens ? »
+3. Explorer les conséquences à 1 an, 5 ans, 10 ans.
+4. Revenir au présent : « Depuis ce futur, quel conseil tu te donnes ? »
+5. Ancrer la ressource : geste ou mot-clé associé à la clarté ressentie.
+
+ADAPTÉ HPI : Le HPI visualise plusieurs futurs simultanément — choisir le plus ALIGNÉ, pas le plus optimal.`},
+  {id:"n3",cat:"NLP",phase:"entrainement",profil:"HSP",titre:"Ancrage ressource (HSP)",source:"NLP — Ancrage",
+   contenu:`OBJECTIF : Créer une ancre corporelle de sécurité rapidement accessible.
+
+1. Identifier un souvenir de sécurité absolue.
+2. Immersion sensorielle : voir, entendre, ressentir dans le corps.
+3. Au pic de l'état ressource : poser l'ancre (pression sur le poignet).
+4. Répéter 3 fois pour renforcer.
+5. Tester : activer l'ancre et vérifier le retour de l'état ressource.
+
+ADAPTÉ HSP : Ancres discrètes (poignet, lobe de l'oreille) utilisables en public.`},
+  {id:"n4",cat:"NLP",phase:"entrainement",profil:"TDAH",titre:"Modélisation état de flow (TDAH)",source:"NLP + Csikszentmihalyi — Flow",
+   contenu:`OBJECTIF : Reproduire volontairement un état de concentration intense.
+
+1. « Rappelle-toi d'un moment où tu étais totalement absorbé. »
+2. Mapping sensoriel : environnement, sensations, énergie.
+3. Identifier les déclencheurs : heure, type de tâche, niveau de défi.
+4. Créer un rituel d'entrée : musique, posture, durée (pomodoro 25 min).
+5. Ancrer et tester.
+
+ADAPTÉ TDAH : Le flow arrive quand la tâche est juste assez difficile — calibrer le défi.`},
+  {id:"s1b",cat:"Sophrologie & somatique",phase:"entrainement",profil:"Tous",titre:"Cohérence cardiaque 3-6-5",source:"Dr David O'Hare",
+   contenu:`OBJECTIF : Réguler le système nerveux en 5 minutes.
+→ 3 fois par jour / 6 respirations par minute / 5 minutes
+
+1. S'installer, colonne droite.
+2. Inspiration nasale : 5 secondes.
+3. Expiration buccale : 5 secondes.
+4. Maintenir 5 minutes.
+5. Observer sans juger.
+
+EFFETS : Réduction cortisol, clarté mentale, retour au calme.
+CONSEIL : Matin + avant séance + avant de dormir.
+ADAPTÉ TDAH : Utiliser une app de guidage visuel (RespiRelax).`},
+  {id:"s2b",cat:"Sophrologie & somatique",phase:"entrainement",profil:"HSP",titre:"Protocole de décharge sensorielle",source:"Peter Levine — Somatic Experiencing",
+   contenu:`OBJECTIF : Libérer les tensions d'hyperstimulation.
+DURÉE : 15-20 minutes
+
+1. SCAN CORPOREL (3 min) : Balayer le corps de la tête aux pieds. Nommer les tensions sans les changer.
+
+2. SECOUSSE CONSCIENTE (5 min) : Pieds écartés, laisser les genoux fléchir et vibrer doucement. Laisser monter progressivement.
+
+3. EXPIRATION SONORE (3 min) : Inspirer profond, expirer avec un son (soupir, "aaah"). Répéter jusqu'au relâchement.
+
+4. ANCRAGE (5 min) : S'allonger. Sentir le poids du corps. Nommer 5 choses vues, 4 entendues, 3 touchées.
+
+SIGNAL : Bâillement spontané, chaleur dans les mains.`},
+  {id:"s3b",cat:"Sophrologie & somatique",phase:"entrainement",profil:"HPI",titre:"Scan de désaccélération mentale",source:"Jon Kabat-Zinn — MBSR",
+   contenu:`OBJECTIF : Passer de la pensée arborescente à la présence.
+DURÉE : 10 minutes
+
+1. OBSERVATION (2 min) : Les pensées comme des nuages. Ne pas les suivre ni les repousser.
+
+2. DESCENTE (3 min) : Attention sur les pieds → chevilles → mollets → bassin → ventre → poitrine → épaules → visage.
+
+3. POINT DE GRAVITÉ (3 min) : Centre dans le bas-ventre. Respirer depuis ce centre.
+
+4. QUESTION D'ANCRAGE (2 min) : « Qu'est-ce qui est vrai, là, maintenant ? » Laisser la réponse venir du corps.
+
+ADAPTÉ HPI : Si les pensées s'emballent, les noter avant de commencer.`},
+  {id:"s4b",cat:"Sophrologie & somatique",phase:"entrainement",profil:"TDAH",titre:"Activation physique pré-séance",source:"Dr John Ratey — Spark",
+   contenu:`OBJECTIF : Stimuler dopamine et noradrénaline avant un travail cognitif.
+DURÉE : 5-10 minutes
+
+1. ACTIVATION (2 min) : Tête de gauche à droite, cercles épaules, marche genoux levés.
+
+2. CROISEMENTS (2 min) : Genou gauche + main droite, alternance rapide. Active les deux hémisphères.
+
+3. RESPIRATION ACTIVANTE (2 min) : Inspiration 3 sec / rétention 1 sec / expiration forte. × 10.
+
+4. INTENTION (1 min) : « Aujourd'hui je vais travailler sur… et je m'autorise à… »
+
+POURQUOI : L'exercice augmente BDNF et dopamine, essentiels pour l'attention TDAH.`},
+  {id:"b1b",cat:"Protocole burnout",phase:"evaluation",profil:"Tous",titre:"Évaluation initiale burnout (5 axes)",source:"Christina Maslach + modèle CARE",
+   contenu:`5 AXES À ÉVALUER (de 0 à 10) :
+
+① ÉPUISEMENT PHYSIQUE
+→ Signes : sommeil non récupérateur, douleurs, infections.
+
+② ÉPUISEMENT ÉMOTIONNEL
+→ Signes : émoussement, cynisme, irritabilité.
+
+③ ÉPUISEMENT COGNITIF
+→ Signes : brouillard mental, oublis, indécision.
+
+④ PERTE DE SENS
+→ Signes : détachement, sentiment d'inutilité.
+
+⑤ ISOLEMENT
+→ Signes : repli, évitement social, honte.
+
+INTERPRÉTATION :
+≤ 25 = vigilance
+25-40 = burnout modéré
+> 40 = arrêt recommandé`},
+  {id:"b2b",cat:"Protocole burnout",phase:"entrainement",profil:"HPI",titre:"Reconnecter au sens — post-burnout (HPI)",source:"Cathy Assenheim",
+   contenu:`PHASE 1 — PERMISSION DE SE REPOSER (séances 1-2)
+→ Déconstruire : "je dois produire pour avoir de la valeur"
+→ Exercice : liste de 10 choses que tu ES, sans verbe d'action.
+
+PHASE 2 — RÉINVENTAIRE DES FORCES (séances 3-4)
+→ Roue de l'énergie : ce qui recharge vs ce qui vide.
+→ Question : "Qu'est-ce que tu ferais si tu ne pouvais pas échouer ?"
+
+PHASE 3 — RECONSTRUCTION DU SENS (séances 5-6)
+→ Valeurs non négociables.
+→ Contrat avec soi-même : 3 engagements.
+→ Rituels de ressourcement quotidien.
+
+VIGILANCE : Le HPI peut intellectualiser le burnout sans en vivre la guérison. Ancrer dans le corps.`},
+  {id:"b3b",cat:"Protocole burnout",phase:"entrainement",profil:"HSP",titre:"Récupération sensorielle (HSP)",source:"Elaine Aron + Somatic Experiencing",
+   contenu:`SEMAINE 1-2 : DÉCONNEXION
+→ Réduire stimuli, rituels de silence (10 min entre activités)
+→ Journal des "voleurs d'énergie"
+
+SEMAINE 3-4 : RESTAURATION
+→ Nature, créativité, beauté
+→ Cohérence cardiaque + marche 20 min/jour
+→ Budget d'énergie : 10 jetons/jour
+
+SEMAINE 5-6 : RECALIBRATION
+→ Besoins fondamentaux non satisfaits
+→ Zones tampon entre stimulations
+→ Script de communication des besoins
+
+QUESTION CLÉ : "Qu'est-ce que tu n'as pas le droit de ressentir selon toi ?"`},
+  {id:"b4b",cat:"Protocole burnout",phase:"entrainement",profil:"TDAH",titre:"Reconstruire un système soutenable post-burnout (TDAH)",source:"Parcours Reconversion après burn-out",
+   contenu:`SEMAINE 1-2 : OBSERVER SANS CORRIGER
+→ Cartographier une journée type sans jugement, repérer les voleurs de temps réels (oublis, recommencements).
+→ Le pic d'énergie du jour : identifier le moment où la concentration est naturellement disponible.
+
+SEMAINE 3-4 : UN SYSTÈME EXTERNE SIMPLE
+→ Un seul support visible (pas de dispersion), échéances affichées physiquement.
+→ Time-boxing en blocs courts (15-25 min) + un blanc protégé par jour, non négociable.
+
+SEMAINE 5 : TENIR LA CHARGE SANS S'EFFONDRER
+→ 3 catégories de priorité maximum (urgent / important / reportable).
+→ Une phrase de refus prête à l'avance, réutilisable telle quelle.
+→ Version « minimum » du planning prévue pour les jours sans énergie.
+
+REPÈRE COACH : un système qui ne prévoit pas les jours sans énergie n'est pas un vrai système — la flexibilité planifiée fait partie de la structure.`},
+  {id:"pr1",cat:"Parcours 5 semaines (reconversion)",phase:"entrainement",profil:"Tous",titre:"Organisation / gestion du temps",source:"Parcours Reconversion après burn-out",
+   contenu:`S1 — Observer avant de changer : cartographier une journée type, repérer les voleurs de temps, sans encore rien corriger.
+S2 — Construire un système externe : un support unique, simple, testé 2 semaines avant tout ajout.
+S3 — Découper et cadencer : time-boxing, règle des 2 minutes, un blanc protégé chaque jour.
+S4 — Tenir la charge dans la durée : prioriser en 3 catégories, anticiper l'imprévu, savoir dire non.
+S5 — Ancrer et transmettre : formaliser le système sur une seule page, le partager, prévoir la version « semaine chargée ».
+
+REPÈRE COACH : chaque semaine se termine par un bilan factuel, jamais un jugement de discipline.`},
+  {id:"pr2",cat:"Parcours 5 semaines (reconversion)",phase:"entrainement",profil:"HSP",titre:"Régulation émotionnelle",source:"Parcours Reconversion après burn-out",
+   contenu:`S1 — Observer les vagues : journal d'intensité émotionnelle (1-10), 3 fois/jour, sans intervenir.
+S2 — Nommer et ralentir : verbaliser l'émotion à voix haute, pause de 90 secondes avant de réagir.
+S3 — Repérer les signaux : signal corporel annonciateur (mâchoire, respiration), seuil de bascule.
+S4 — Construire des espaces de régulation : lieu de retrait, personne ressource, objet apaisant — testés à l'avance.
+S5 — Consolider un rythme stable : une semaine sans journal pour vérifier que les réflexes tiennent seuls.
+
+EXERCICE COACH (S1) : relecture commentée du journal des vagues en séance (20 min) — questions ouvertes uniquement, sans interpréter à la place du client.`},
+  {id:"pr3",cat:"Parcours 5 semaines (reconversion)",phase:"entrainement",profil:"Tous",titre:"Relations sociales / professionnelles",source:"Parcours Reconversion après burn-out",
+   contenu:`S1 — Cartographier les interactions : lesquelles coûtent, lesquelles ressourcent, sans jugement.
+S2 — Clarifier plutôt que deviner : poser la question directe au lieu de supposer une attente implicite.
+S3 — Préparer les échanges à enjeu : 3 points clés écrits à l'avance, scénario de réaction difficile anticipé.
+S4 — Poser des limites : décliner sans justification excessive, limiter la durée d'une interaction.
+S5 — Construire un réseau soutenant durable : identifier le noyau de 3-5 personnes vraiment soutenantes.
+
+REPÈRE COACH : la culpabilité après un refus posé est normale et attendue — ne signifie pas que la limite était injustifiée.`},
+  {id:"pr4",cat:"Parcours 5 semaines (reconversion)",phase:"entrainement",profil:"HPI",titre:"Confiance en soi / estime de soi",source:"Parcours Reconversion après burn-out",
+   contenu:`S1 — Collecter les faits : 3 réussites notées chaque soir, réussites passées oubliées, retours de tiers.
+S2 — Distinguer fait et jugement : reformuler un échec en fait neutre, repérer les mots absolus (toujours/jamais).
+S3 — Solliciter et intégrer les retours : demander un avis ciblé, accueillir un compliment sans le minimiser.
+S4 — Retravailler le discours intérieur : identifier la voix critique d'origine, préparer une réponse ferme et bienveillante.
+S5 — Ancrer une image de soi stable : une semaine sans relevé pour vérifier la stabilité acquise.
+
+REPÈRE COACH : le but n'est pas la pensée positive mais une base factuelle solide face à une mémoire biaisée vers l'échec.`},
+  {id:"o1b",cat:"Outils pratiques",phase:"evaluation",profil:"Tous",titre:"Roue de vie — version atypiques",source:"Adapté Wheel of Life",
+   contenu:`8 DOMAINES (de 0 à 10) :
+
+① ÉNERGIE & CORPS — Je prends soin de mon corps ?
+② MENTAL & CLARTÉ — Mon esprit est clair et apaisé ?
+③ ÉMOTIONS — Je reconnais et exprime mes émotions ?
+④ RELATIONS — Mes relations me nourrissent ?
+⑤ TRAVAIL & SENS — Mon travail a du sens ?
+⑥ CRÉATIVITÉ — J'explore, je crée, j'apprends ?
+⑦ LIMITES — Je sais dire non ?
+⑧ PLAISIR — Je ris, je joue, je savoure ?
+
+UTILISATION :
+1. Client note chaque domaine (5 min)
+2. Domaine le plus bas : "Que se passerait-il si ça montait de 1 ?"
+3. Domaine le plus haut : "Comment cette force peut-elle aider les autres ?"
+4. 1 action concrète pour la semaine.`},
+  {id:"o2b",cat:"Outils pratiques",phase:"entrainement",profil:"HPI",titre:"Journal de décélération (HPI)",source:"Journaling adapté HPI",
+   contenu:`FORMAT QUOTIDIEN — 10 minutes le soir
+
+① CE QUI S'EST PASSÉ (2 min) — Faits bruts, sans analyse.
+
+② CE QUE J'AI RESSENTI (3 min) — Émotions, sensations corporelles.
+
+③ CE QUE J'AI APPRIS (2 min) — 1 seule chose. Pas une liste.
+
+④ BESOIN DE DEMAIN (1 min) — 1 besoin, 1 action.
+
+⑤ GRATITUDE (2 min) — 1 chose concrète, ressentie dans le corps.
+
+RÈGLE DU JEU : Interdiction d'analyser. Juste décrire et ressentir.`},
+  {id:"o3b",cat:"Outils pratiques",phase:"entrainement",profil:"TDAH",titre:"Système des 3 blocs (TDAH)",source:"Dr Ned Hallowell + Russell Barkley",
+   contenu:`MATIN — BLOC COGNITIF (pic dopamine)
+→ Tâches de concentration max
+→ 90 min max, pauses de 10 min
+→ UNE tâche à la fois, téléphone en mode avion
+
+APRÈS-MIDI — BLOC CRÉATIF & RELATIONNEL
+→ Réunions, appels, créativité
+→ Blocs de 45 min
+
+FIN DE JOURNÉE — BLOC ADMINISTRATIF
+→ Emails, rangement, planification du lendemain
+→ 30-45 min max
+
+RITUELS DE TRANSITION :
+→ 10 min de marche entre chaque bloc
+→ Début : "Mon intention pour ce bloc est…"
+→ Fin : noter ce qui reste (vider la RAM)`},
+  {id:"o4b",cat:"Outils pratiques",phase:"evaluation",profil:"HSP",titre:"Carte des déclencheurs sensoriels",source:"Elaine Aron — The Highly Sensitive Person",
+   contenu:`À REMPLIR AVEC LE CLIENT :
+
+DÉCLENCHEURS SONORES
+→ Ce qui épuise : _____ Ce qui ressource : _____
+
+DÉCLENCHEURS VISUELS
+→ Ce qui épuise : _____ Ce qui ressource : _____
+
+DÉCLENCHEURS RELATIONNELS
+→ Profils épuisants : _____ Profils ressourçants : _____
+
+ÉMOTIONS ABSORBÉES
+→ Émotions des autres que j'absorbe facilement : _____
+→ Ma stratégie de protection : _____
+
+SIGNAUX D'ALERTE
+→ Dans mon corps, surcharge = : _____
+
+PLAN DE DÉCOMPRESSION
+→ En 5 min : _____ En 30 min : _____ En 1 soirée : _____`},
+  {id:"o5b",cat:"Outils pratiques",phase:"maintien",profil:"Tous",titre:"Bilan de séance structuré",source:"Meta-Coaching + supervision",
+   contenu:`À REMPLIR EN FIN DE SÉANCE (10 min)
+
+POUR LE CLIENT :
+① Ce que j'ai exploré : _____
+② La prise de conscience principale : _____
+③ Ce que je ressens dans mon corps : _____
+④ Mon engagement pour la semaine : _____
+⑤ Ce dont j'ai besoin de mon coach : _____
+
+POUR LE COACH :
+① Ce que j'ai observé : _____
+② La dynamique de la séance : _____
+③ Ce qui a bien fonctionné : _____
+④ Ce que j'aurais pu faire différemment : _____
+⑤ Points à suivre : _____`},
+  {id:"c1b",cat:"Communication assertive",phase:"entrainement",profil:"Tous",titre:"Script DESC — Poser ses limites",source:"Sharon Bower — DESC + CNV",
+   contenu:`MÉTHODE DESC
+
+D — DÉCRIRE les faits (sans jugement)
+→ "Quand… [fait précis]"
+
+E — EXPRIMER mon ressenti (en "je")
+→ "Je ressens…"
+
+S — SPÉCIFIER ma demande (concrète)
+→ "Ce dont j'ai besoin c'est…"
+
+C — CONSÉQUENCES (positives)
+→ "Ainsi…"
+
+EXEMPLE COMPLET :
+"Quand tu m'envoies des messages après 22h, je me sens envahie. J'ai besoin qu'on évite ça sauf urgence. Ainsi je serai plus disponible le jour."
+
+ADAPTÉ HSP : Préparer le script à l'écrit avant de le dire.
+ADAPTÉ HPI : Éviter de sur-justifier. Rester simple et direct.`},
+  {id:"c2b",cat:"Communication assertive",phase:"entrainement",profil:"HSP",titre:"Décentrage émotionnel (HSP)",source:"Judith Orloff — The Empath's Survival Guide",
+   contenu:`OBJECTIF : Ne pas absorber les émotions de l'autre.
+
+AVANT :
+1. Visualiser une bulle protectrice autour de soi.
+2. "Je peux être présent(e) sans porter leur charge."
+3. Ancrage : sentir ses pieds au sol.
+
+PENDANT :
+1. Observer l'émotion de l'autre sans la laisser entrer.
+2. "Je comprends que c'est difficile pour toi."
+3. Rester conscient(e) de son propre état.
+
+APRÈS :
+1. Se laver les mains en imaginant lâcher ce qui n'est pas sien.
+2. Scanner le corps : qu'est-ce qui reste ? À qui ça appartient ?
+3. Expiration longue + secouer les mains.`},
+  {id:"e1b",cat:"Régulation émotionnelle",phase:"entrainement",profil:"Tous",titre:"Protocole STOP (urgence émotionnelle)",source:"Jon Kabat-Zinn — MBSR",
+   contenu:`S — STOP
+→ Stopper. Mains à plat sur les cuisses.
+
+T — TAKE A BREATH
+→ Inspiration 5 sec, expiration 7 sec.
+
+O — OBSERVER
+→ "Qu'est-ce qui se passe en moi ?"
+→ Nommer l'émotion. La localiser dans le corps.
+
+P — PROCEED
+→ Choisir consciemment comment répondre.
+→ "Quelle est la réponse la plus utile pour moi ?"
+
+DURÉE : 60-90 secondes.
+EFFET : Activation cortex préfrontal, réduction amygdale.`},
+  {id:"e2b",cat:"Régulation émotionnelle",phase:"entrainement",profil:"HPI+HSP",titre:"Journal des émotions complexes",source:"Susan David — Emotional Agility",
+   contenu:`FORMAT HEBDOMADAIRE
+
+LUNDI — INVENTAIRE
+→ Quelles émotions cette semaine ?
+→ Lesquelles ont été les plus intenses ?
+
+MERCREDI — EXPLORATION
+→ Émotion la plus difficile :
+   • Qu'est-ce qu'elle dit de mes besoins ?
+   • D'où vient-elle ?
+
+VENDREDI — INTÉGRATION
+→ Comment j'ai géré ?
+→ Quelle est la sagesse de cette émotion ?
+→ "Chère [émotion], merci de m'avoir dit que…"
+
+DIMANCHE — RESSOURCE
+→ Quelle émotion positive cette semaine ?
+→ Comment en cultiver plus ?`},
+  {id:"p90-1",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S01 — La citadelle intérieure",source:"Masterclass 90 Jours — Stoïcisme (Épictète)",
+   contenu:`« Ce qui trouble les hommes, ce ne sont pas les choses, mais les jugements qu'ils portent sur les choses. » — Épictète
+
+Dichotomie du contrôle : séparer ce qui dépend de soi (actes, pensées) de ce qui n'en dépend pas.
+La citadelle intérieure : créer une bulle mentale pour protéger sa concentration et son calme.
+Amor Fati : transformer chaque imprévu en opportunité d'apprentissage.
+
+Planning quotidien :
+• Lundi — Désencombrement mental : Lister les irritants du jour et barrer ceux qui ne dépendent pas de vous.
+• Mardi — Ancrage visuel : Placer un rappel 'Contrôlable / Incontrôlable' sur votre poste de travail.
+• Mercredi — Focus unique : Traiter 1 seule tâche prioritaire le matin en immersion totale sans distraction.
+• Jeudi — Mode stoïcien : Face à un retard ou couac, respirer 3 fois et appliquer une solution purement logique.
+• Vendredi — Clôture sereine : Traiter et classer vos urgences pour clôturer la semaine sans charge mentale restante.
+• Week-end — Recharge sensorielle : Coupure des notifications et reconnexion au calme en plein air.
+Ancrage quotidien : 5 min de cohérence cardiaque au réveil + question « Est-ce sous mon contrôle direct ? »`},
+  {id:"p90-2",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S02 — L'ancrage dans l'ici et maintenant",source:"Masterclass 90 Jours — Pleine conscience (Eckhart Tolle)",
+   contenu:`« Rien ne s'est jamais produit dans le passé, rien ne se produira dans le futur : tout se produit dans le Présent. » — E. Tolle
+
+Rupture de la rumination : empêcher le cerveau de voyager entre regrets et scénarios futurs.
+L'Observateur Silencieux : observer ses pensées sans les juger.
+Extinction du feu mental : revenir répétitivement à l'instant présent.
+
+Planning quotidien :
+• Lundi — Ancrage des 5 sens : Prendre votre premier café/thé du matin en observant 3 détails visuels et 2 odeurs sans écran.
+• Mardi — Repas mono-tâche : Manger votre déjeuner sans téléphone, ni vidéo, ni lecture.
+• Mercredi — Marche consciente : Effectuer 10 minutes de marche en vous concentrant uniquement sur le contact des pieds.
+• Jeudi — Pause d'extinction : Faire 3 micro-pauses de 2 minutes dans la journée pour observer simplement votre respiration.
+• Vendredi — Transition pro/perso : Prendre 5 minutes de silence absolu avant de basculer dans votre soirée.
+• Week-end — Immersion manuelle : Bricolage, jardinage, sport ou activité manuelle avec une présence totale.
+Ancrage quotidien : 10 min de silence au réveil + règle des 3 respirations avant toute nouvelle tâche.`},
+  {id:"p90-3",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S03 — Le dépouillement du superflu",source:"Masterclass 90 Jours — Cynisme & minimalisme (Diogène)",
+   contenu:`« Je possède tout car je ne désire rien. » — Diogène de Sinope
+
+Dépouillement stratégique : réduire les choix quotidiens pour préserver l'énergie décisionnelle.
+Indépendance sociale : se détacher du besoin de validation extérieure.
+Sobriété choisie : redécouvrir la clarté de l'essentiel.
+
+Planning quotidien :
+• Lundi — Trieur numérique : Supprimer 5 applications inutiles et désactiver toutes les notifications secondaires.
+• Mardi — Épure du bureau : Ne laisser sur votre plan de travail physique et digital que le dossier en cours.
+• Mercredi — Journée sans dépense/distraction : Limiter la consultation des réseaux à 1 seul créneau de 15 min.
+• Jeudi — To-Do List minimaliste : Réduire la liste de travail de la journée à 3 priorités absolues.
+• Vendredi — Refus constructif : Dire non de façon courtoise mais ferme à une sollicitation non essentielle.
+• Week-end — Tri physique : Épurer, donner ou jeter 5 objets inutiles qui encombrent votre espace de vie.
+Ancrage quotidien : règle de soustraction avant tout nouvel engagement.`},
+  {id:"p90-4",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S04 — L'art du lâcher-prise",source:"Masterclass 90 Jours — Stoïcisme moderne",
+   contenu:`« Vous n'avez pas le contrôle sur ce qui vous arrive, mais vous avez le contrôle absolu sur la façon d'y réagir. »
+
+Sélection des combats : économiser son attention pour l'impact réel.
+Équation de la souffrance = Souci × Résistance.
+Tolérance à l'inconfort : accepter le doute sans distraction réflexe.
+
+Planning quotidien :
+• Lundi — Tri des batailles : Lister 3 sujets qui vous préoccupent et décider consciemment d'en lâcher un.
+• Mardi — Règle des 80/20 : Livrer une tâche dès qu'elle est efficace à 80% sans chercher la perfection ultime.
+• Mercredi — Mantra de secours : Répéter 'C'est un détail, pas une urgence' face aux petits imprévus.
+• Jeudi — Délégation / Simplification : Identifier 1 processus répétitif à simplifier ou automatiser.
+• Vendredi — Clôture sereine : Écrire votre liste du lundi soir pour libérer complètement votre cerveau du week-end.
+• Week-end — Déconnexion totale : Une journée 100% libre de tout objectif de performance.
+Ancrage quotidien : technique du « Et alors ? » face au pire scénario réaliste.`},
+  {id:"p90-5",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S05 — La conversion des passions en joie",source:"Masterclass 90 Jours — Spinoza",
+   contenu:`« La joie est le passage de l'homme d'une moindre à une plus grande perfection. » — Spinoza
+
+Le Conatus : l'énergie vitale qui pousse à se développer.
+Joie Active vs Passion Subie : comprendre la cause de ses émotions.
+Augmentation de la puissance : privilégier ce qui redonne de l'énergie.
+
+Planning quotidien :
+• Lundi — Analyse d'énergie : Identifier les 2 activités qui vous apportent le plus d'enthousiasme.
+• Mardi — Action motrice : Bloquer un créneau d'hyperfocus sur un projet stimulant au début de journée.
+• Mercredi — Analyse des blocages : Remplacer une frustration par la question : 'Quelle action concrète résout cela ?'
+• Jeudi — Micro-succès : Noter et célébrer 3 petites victoires accomplies aujourd'hui.
+• Vendredi — Partage positif : Exprimer un compliment sincère ou une gratitude à un collaborateur ou proche.
+• Week-end — Projet passion : Consacrer 2h à un projet personnel stimulant sans contrainte de résultat.
+Ancrage quotidien : journal de Spinoza — 3 moments de fierté/élan chaque soir.`},
+  {id:"p90-6",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S06 — La sobriété heureuse & les plaisirs simples",source:"Masterclass 90 Jours — Épicurisme",
+   contenu:`« Ne gâte pas ce que tu as par le désir de ce que tu n'as pas. » — Épicure
+
+Tri des désirs : nécessaire vs superflu anxieux.
+Ataraxie : tranquillité par la réduction des besoins artificiels.
+Plaisir d'être : savourer l'existant.
+
+Planning quotidien :
+• Lundi — Audit des impulsions : Vérifier si un nouveau projet/achat répond à un besoin réel ou à une impulsion.
+• Mardi — Pause café/thé sensorielle : Savourer une boisson en observant avec attention sa chaleur et ses arômes.
+• Mercredi — Déjeuner déconnecté : Manger dans le calme et échanger de façon authentique sans écran.
+• Jeudi — Marche de décompression : Faire un tour de 15 minutes en plein air sans téléphone.
+• Vendredi — Valorisation des acquis : Lister 5 outils ou réussites actuelles dont vous êtes pleinement satisfait.
+• Week-end — Cuisine & Convivialité : Préparer un repas simple et savoureux à partager avec vos proches.
+Ancrage quotidien : « un truc à la fois » — interdire le multitâche pendant un plaisir simple.`},
+  {id:"p90-7",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S07 — L'élan créateur & le mouvement",source:"Masterclass 90 Jours — Bergson",
+   contenu:`« Exister consiste à changer, changer à se mûrir, se mûrir à se créer soi-même. » — Henri Bergson
+
+L'Élan créateur : la force de vie dans la création et le renouvellement.
+Sortir du temps mécanique : vivre en état de Flow.
+L'intuition agissante : faire confiance aux flashs de compréhension.
+
+Planning quotidien :
+• Lundi — Casser la routine : Changer la disposition de votre bureau ou faire varier votre itinéraire habituel.
+• Mardi — Brainstorming visuel : Poser toutes vos idées sur une carte mentale (MindMap) ou un tableau blanc.
+• Mercredi — Action rapide : Tester une idée créative immédiatement sur un prototype ou un brouillon.
+• Jeudi — Mouvement corporel : Pratiquer une séance de sport ou une marche active pour réactiver le mental.
+• Vendredi — Veille inspirante : Explorer un sujet totalement nouveau hors de votre domaine habituel.
+• Week-end — Création libre : Construire, concevoir, rédiger ou développer quelque chose de personnel.
+Ancrage quotidien : session Flow de 25 min sans interruption ni correction.`},
+  {id:"p90-8",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S08 — La révolte solidaire & l'action",source:"Masterclass 90 Jours — Camus",
+   contenu:`« Je me révolte, donc nous sommes. » — Albert Camus
+
+L'Action vs le Cynisme : donner un sens par des actes engagés.
+La Révolte noble : dire non à l'injuste pour proposer une solution.
+La Solidarité : mettre ses compétences au service du collectif.
+
+Planning quotidien :
+• Lundi — Clarification du Sens : Identifier le 'Pourquoi' fondamental de votre projet ou mission.
+• Mardi — Correction d'inefficacité : Résoudre un dysfonctionnement récurrent qui freine l'équipe ou le quotidien.
+• Mercredi — Entraide spontanée : Offrir 15 minutes d'aide ou de conseil avisé à un collègue ou un proche.
+• Jeudi — Prise de position : Exprimer une idée forte avec calme et clarté lors d'un échange.
+• Vendredi — Alignement éthique : Vérifier que vos projets de la semaine respectent vos valeurs profondes.
+• Week-end — Bilan de mi-parcours : Évaluer le chemin parcouru sur ces 8 premières semaines.
+Ancrage quotidien : remplacer chaque critique par « Voici comment on peut l'améliorer ».`},
+  {id:"p90-9",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S09 — L'action sans effort (Wu Wei)",source:"Masterclass 90 Jours — Taoïsme (Lao Tseu)",
+   contenu:`« Le sage agit sans rien faire et enseigne sans rien dire. » — Lao Tseu
+
+Wu Wei (Non-Forçage) : suivre le courant plutôt que lutter.
+La souplesse de l'eau : l'adaptabilité l'emporte sur la rigidité.
+Alternance Yin/Yang : équilibrer action intense et repos.
+
+Planning quotidien :
+• Lundi — Lecture du flux : Identifier les tâches où vous avez du vent dans les voiles et pousser celles-ci.
+• Mardi — Économie de gestes : Découvrir la méthode la plus directe et simple pour accomplir votre objectif.
+• Mercredi — Écoute non-réactive : Laisser parler vos interlocuteurs sans anticiper mentalement vos réponses.
+• Jeudi — Lâcher la rigidité : Si un obstacle bloque un projet, pivoter temporairement vers une autre tâche.
+• Vendredi — Ralentissement mesuré : Effectuer vos tâches avec calme, régularité et précision sans courir.
+• Week-end — Reconnexion nature : Passer du temps au bord de l'eau ou en forêt sans montre ni timing.
+Ancrage quotidien : pause de fluidité — 5 min de respiration neutre dès qu'une résistance bloque.`},
+  {id:"p90-10",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S10 — La boussole du sens & l'Ikigai",source:"Masterclass 90 Jours — Sagesse japonaise",
+   contenu:`« Seul celui qui a un but peut trouver une joie constante dans son activité quotidienne. »
+
+L'Ikigai : intersection entre Passion, Mission, Vocation et Compétences.
+Le Kodawari : l'exigence et la fierté du travail bien fait.
+Artisan de sa vie : façonner son quotidien comme une œuvre alignée.
+
+Planning quotidien :
+• Lundi — Analyse Passion : Lister les 3 domaines qui vous passionnent le plus en ce moment.
+• Mardi — Analyse Talent : Identifier vos forces uniques (vitesse d'apprentissage, logique, créativité).
+• Mercredi — Analyse Utilité : Définir comment vos compétences apportent une valeur directe aux autres.
+• Jeudi — Analyse Valeur : Vérifier que vos activités principales assurent votre équilibre financier.
+• Vendredi — Synthèse Ikigai : Réajuster vos projets de la semaine pour les rapprocher du centre de votre boussole.
+• Week-end — Planification stratégique : Sanctuariser un créneau fixe pour votre projet de cœur.
+Ancrage quotidien : au moins une action par jour nourrissant sa passion ou mission.`},
+  {id:"p90-11",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S11 — La parole impeccable & l'éthique",source:"Masterclass 90 Jours — 4 Accords Toltèques (Don Miguel Ruiz)",
+   contenu:`« Que votre parole soit impeccable. Ne faites aucune supposition. Ne prenez rien personnellement. » — D. M. Ruiz
+
+Parole Impeccable : utiliser ses mots pour construire, pas critiquer.
+Rien de personnel : la réaction des autres reflète leur univers intérieur.
+Zéro Supposition : poser des questions directes plutôt qu'inventer des scénarios.
+
+Planning quotidien :
+• Lundi — Parole claire : Bannir la rouspétance, les jugements et sous-entendus de vos échanges.
+• Mardi — Bouclier émotionnel : Face à une remarque sèche, vous dire : 'Cela appartient à son stress'.
+• Mercredi — Vérification des faits : Poser une question directe au lieu de faire des suppositions.
+• Jeudi — Faire de son mieux : Accepter que votre 'mieux' varie selon votre niveau de fatigue.
+• Vendredi — Nettoyage relationnel : Désamorcer un quiproquo par un message simple et bienveillant.
+• Week-end — Harmonie relationnelle : Pratiquer l'écoute active sans couper la parole ni conseiller sans demande.
+Ancrage quotidien : « Quand tu dis cela, tu veux dire que… ? » avant de réagir.`},
+  {id:"p90-12",cat:"Programme 90 jours",phase:"maintien",profil:"Tous",titre:"S12 — La sérénité absolue & l'éveil",source:"Masterclass 90 Jours — Brené Brown",
+   contenu:`« Le Nirvana est l'extinction complète des feux de la peur, du doute et de l'agitation mentale. »
+
+L'Acceptation Absolue : embrasser pleinement qui l'on est.
+La Puissance de l'Authenticité : abandonner le masquage social épuisant.
+L'Éveil au quotidien : ancrer clarté, paix intérieure et gratitude active.
+
+Planning quotidien :
+• Lundi — Bienveillance envers soi : Cesser tout auto-jugement ou reproche sur votre niveau de productivité.
+• Mardi — Expression authentique : Exprimer clairement une limite ou un besoin avec calme et assurance.
+• Mercredi — Gratitude active : Noter 5 aspects de votre vie pour lesquels vous éprouvez de la reconnaissance.
+• Jeudi — Pardon & Libération : Tourner la page sur une frustration passée pour alléger votre esprit.
+• Vendredi — Consécration du parcours : Célébrer l'accomplissement des 12 semaines de cette masterclass.
+• Week-end — Charte de Vie : Rédiger vos 5 piliers personnels pour maintenir ce cap de sérénité sur le long terme.
+Ancrage quotidien : rituel de gratitude matin/soir.`},
+];
+
+// ══════════════════════════════════════════
+//  DÉROULÉS DE SÉANCE (script minuté + trame souple)
+// ══════════════════════════════════════════
+const PHASES_LABELS = {
+  evaluation: "🔍 Évaluation",
+  psychoeducation: "📚 Psychoéducation",
+  entrainement: "🛠️ Entraînement aux compétences",
+  maintien: "🌱 Maintien / prévention rechute"
+};
+
+const DEROULES = [
+  {id:"d1", cat:"Accueil", phase:"evaluation", profil:"Tous", duree:60,
+   titre:"Séance d'accueil — bilan initial",
+   objectif:"Poser le cadre de travail, comprendre la demande réelle derrière la demande exprimée, co-construire un premier objectif concret et mesurable.",
+   minute:[
+     {t:"0-5 min", titre:"Accueil", texte:"Installation, cadre de confidentialité rappelé (oral, pas de notes automatiques). Question d'ouverture neutre : « Qu'est-ce qui vous amène aujourd'hui ? »"},
+     {t:"5-20 min", titre:"Écoute de la demande", texte:"Écoute active, reformulation CNV (observation / sentiment / besoin). Ne pas orienter vers un diagnostic. Repérer les mots récurrents et le non-dit."},
+     {t:"20-35 min", titre:"Exploration du fonctionnement", texte:"Roue de vie (8 domaines, notation 0-10) pour objectiver les zones de tension sans jugement. Identifier 2-3 domaines prioritaires selon le client, pas selon le coach."},
+     {t:"35-50 min", titre:"Premier objectif", texte:"Formuler ensemble un objectif SMART limité à une seule zone. Vérifier l'adhésion réelle (pas de complaisance) : « Sur une échelle de 0 à 10, à quel point c'est vraiment vous qui voulez ça ? »"},
+     {t:"50-60 min", titre:"Clôture", texte:"Reformulation finale par le client (pas par le coach). Explication du rythme des séances à venir. Un seul devoir simple, jamais plusieurs."}
+   ],
+   souple:[
+     {etape:"Ouverture", texte:"Accueillir sans grille préconçue. Laisser le client poser sa propre demande avant toute proposition d'outil."},
+     {etape:"Cartographie", texte:"Utiliser la Roue de vie comme support de discussion, pas comme diagnostic. L'outil sert la conversation, pas l'inverse."},
+     {etape:"Co-construction", texte:"Un seul objectif, choisi par le client parmi ce qui émerge — jamais imposé par la grille du coach."},
+     {etape:"Clôture", texte:"Vérifier l'alignement avant de clore : le client repart-il avec SA formulation, ou celle du coach ?"}
+   ],
+   devoirs:"Observer sans corriger : noter 3 moments où le sujet identifié est apparu dans la semaine, sans essayer de le changer."},
+
+  {id:"d2", cat:"Profils", phase:"entrainement", profil:"TDAH", duree:60,
+   titre:"Séance TDAH — structurer sans s'enfermer",
+   objectif:"Construire un système d'organisation externe qui tient compte des variations d'énergie, sans viser une discipline uniforme irréaliste.",
+   minute:[
+     {t:"0-5 min", titre:"Météo intérieure", texte:"Question rapide : niveau d'énergie du jour (1-10), sans commentaire. Sert de calibrage pour la suite."},
+     {t:"5-20 min", titre:"Bilan de la semaine", texte:"Revue factuelle (pas de jugement) : ce qui a été tenu, ce qui a débordé. Chercher le pattern, pas la faute."},
+     {t:"20-40 min", titre:"Ajustement du système", texte:"Un seul point du système externe retravaillé à la fois (support unique, time-boxing, blanc protégé). Tester verbalement le scénario d'un jour « sans énergie »."},
+     {t:"40-55 min", titre:"Script de refus / priorisation", texte:"Préparer une phrase de refus réutilisable. Trier les tâches en 3 catégories maximum (urgent/important/reportable)."},
+     {t:"55-60 min", titre:"Clôture", texte:"Reformulation par le client du changement précis à tester, pas d'une intention vague."}
+   ],
+   souple:[
+     {etape:"Calibrage", texte:"Prendre la température énergétique avant toute chose — un système qui ignore l'énergie du jour ne tiendra pas."},
+     {etape:"Observation sans jugement", texte:"Nommer les patterns comme des faits, jamais comme des échecs de volonté."},
+     {etape:"Un seul changement", texte:"Résister à la tentation de tout réorganiser en une séance. Un ajustement, testé, puis évalué la fois suivante."},
+     {etape:"Anticiper la rechute", texte:"Toujours prévoir la version dégradée du système pour les jours difficiles — elle fait partie du système, pas un aveu d'échec."}
+   ],
+   devoirs:"Tester le point ajusté pendant 5 jours. Noter uniquement les faits (tenu / pas tenu), sans commentaire sur soi-même."},
+
+  {id:"d3", cat:"Profils", phase:"entrainement", profil:"HPI", duree:60,
+   titre:"Séance HPI — ralentir la pensée en arborescence",
+   objectif:"Aider à choisir une branche de réflexion sans étouffer les autres, et transformer l'excès d'analyse en décision utilisable.",
+   minute:[
+     {t:"0-5 min", titre:"Accueil", texte:"Laisser un temps pour « vider » — le HPI arrive souvent avec plusieurs sujets en tête. Lister-les à voix haute sans les traiter."},
+     {t:"5-10 min", titre:"Priorisation", texte:"Choisir UN seul sujet parmi la liste, avec l'accord explicite du client. Les autres restent notés, pas ignorés."},
+     {t:"10-35 min", titre:"Exploration structurée", texte:"Niveaux logiques de Dilts (environnement → comportement → capacités → croyances → identité) pour éviter de rester bloqué au niveau des idées abstraites."},
+     {t:"35-50 min", titre:"Ancrage dans le concret", texte:"Traduire l'insight en une action vérifiable cette semaine. Question clé : « À quoi verra-t-on que ce n'est plus juste une idée ? »"},
+     {t:"50-60 min", titre:"Clôture", texte:"Reformulation courte, une phrase. Si le client part avec un paragraphe, c'est que ce n'est pas encore ancré."}
+   ],
+   souple:[
+     {etape:"Décharge", texte:"Ne jamais commencer par traiter — d'abord lister ce qui encombre, pour libérer de la place."},
+     {etape:"Un seul fil", texte:"Le coach protège la focalisation sur un seul sujet ; c'est son rôle face à la dispersion naturelle du profil."},
+     {etape:"Descendre les niveaux", texte:"Ramener systématiquement l'abstrait vers l'observable et le testable."},
+     {etape:"Sobriété de clôture", texte:"Une séance réussie se termine par une phrase simple, pas par une nouvelle idée brillante."}
+   ],
+   devoirs:"Une seule action test, avec un critère de vérification écrit à l'avance (pour éviter de juger a posteriori selon un critère mouvant)."},
+
+  {id:"d4", cat:"Profils", phase:"entrainement", profil:"HSP", duree:60,
+   titre:"Séance HSP — réguler la charge sensorielle et émotionnelle",
+   objectif:"Restaurer un budget d'énergie soutenable et repérer les signaux avant-coureurs de surcharge.",
+   minute:[
+     {t:"0-5 min", titre:"Accueil au ralenti", texte:"Rythme volontairement plus lent que d'habitude. Éviter les questions fermées en rafale."},
+     {t:"5-20 min", titre:"Journal des vagues", texte:"Relecture commentée du journal d'intensité émotionnelle si tenu. Questions ouvertes uniquement, sans interpréter à la place du client."},
+     {t:"20-35 min", titre:"Signal corporel", texte:"Identifier le signal physique annonciateur de bascule (mâchoire, respiration, oppression). Cohérence cardiaque (5 min) en séance pour l'ancrer."},
+     {t:"35-50 min", titre:"Espace de régulation", texte:"Construire concrètement un lieu de retrait ou un rituel de 10 minutes, testé en dehors des moments de crise."},
+     {t:"50-60 min", titre:"Clôture", texte:"Vérifier que le client ne repart pas en surcharge après la séance elle-même — ralentir la fin si besoin."}
+   ],
+   souple:[
+     {etape:"Rythme adapté", texte:"La vitesse de la séance est elle-même un outil thérapeutique ici — ne pas calquer le rythme d'une séance TDAH."},
+     {etape:"Nommer avant d'agir", texte:"Mettre des mots sur l'intensité avant de proposer une technique de régulation."},
+     {etape:"Tester hors-crise", texte:"Tout outil de régulation se construit et se répète en dehors des pics, jamais pour la première fois pendant une crise."},
+     {etape:"Sortie de séance", texte:"Le coach reste attentif à l'état du client à la sortie — une séance ne doit pas laisser en surcharge."}
+   ],
+   devoirs:"Trois relevés d'intensité par jour (1-10), sans intervenir dessus — observer uniquement."},
+
+  {id:"d5", cat:"Burnout / Reconversion", phase:"evaluation", profil:"Tous", duree:60,
+   titre:"Séance bilan — évaluation initiale burnout (5 axes)",
+   objectif:"Poser un état des lieux objectivé du niveau d'épuisement avant tout protocole, sans minimiser ni dramatiser.",
+   minute:[
+     {t:"0-5 min", titre:"Accueil", texte:"Cadre bienveillant explicite : cette évaluation n'est pas un diagnostic médical, c'est un point de départ de travail."},
+     {t:"5-30 min", titre:"Grille des 5 axes", texte:"Épuisement émotionnel / dépersonnalisation / accomplissement personnel (Maslach) + 2 axes complémentaires du modèle CARE. Notation par le client, commentée verbalement, pas juste chiffrée."},
+     {t:"30-45 min", titre:"Repérage du profil", texte:"Identifier la coloration dominante (TDAH / HPI / HSP) pour orienter le protocole adapté à suivre (fiches b2b/b3b/b4b)."},
+     {t:"45-55 min", titre:"Priorité immédiate", texte:"Une seule urgence à traiter en premier (souvent : sommeil, ou une limite non posée). Pas de plan à 12 semaines dès la première séance."},
+     {t:"55-60 min", titre:"Clôture", texte:"Rappeler que si des signaux d'alerte médicaux sont présents (idées noires, épuisement physique sévère), orientation vers un médecin en parallèle du coaching."}
+   ],
+   souple:[
+     {etape:"Cadrage", texte:"Différencier clairement coaching et suivi médical/psychologique dès l'ouverture."},
+     {etape:"Objectiver sans dramatiser", texte:"La grille sert à sortir du flou (« je suis fatigué ») pour aller vers du concret et actionnable."},
+     {etape:"Orientation profil", texte:"Le protocole qui suivra dépend du profil dominant — ne pas appliquer un protocole générique."},
+     {etape:"Une urgence, pas un programme", texte:"Résister à la tentation de tout traiter en une séance ; la reconstruction se fait sur plusieurs semaines."}
+   ],
+   devoirs:"Aucun devoir actif cette semaine si l'épuisement est marqué — le repos fait partie du protocole, pas une pause avant le vrai travail."},
+
+  {id:"d6", cat:"Burnout / Reconversion", phase:"maintien", profil:"Tous", duree:60,
+   titre:"Séance bilan mi-parcours — reconversion",
+   objectif:"Objectiver les progrès réels sur les 5 semaines écoulées, ajuster la suite, et vérifier l'alignement avec le projet de reconversion.",
+   minute:[
+     {t:"0-5 min", titre:"Accueil", texte:"Question d'ouverture : « Qu'est-ce qui est différent aujourd'hui par rapport au premier jour ? » — laisser venir librement."},
+     {t:"5-25 min", titre:"Relecture du parcours", texte:"Reprendre les relevés du parcours suivi (organisation / émotions / relations / confiance selon le track engagé). Repérer les faits, pas les impressions."},
+     {t:"25-40 min", titre:"Écarts et ajustements", texte:"Ce qui a bien fonctionné → à garder. Ce qui n'a pas tenu → ajuster la méthode, pas culpabiliser le client."},
+     {t:"40-55 min", titre:"Projection reconversion", texte:"Si le sujet reconversion professionnelle est présent : vérifier l'alignement valeurs/compétences/marché (pas juste l'envie du moment)."},
+     {t:"55-60 min", titre:"Clôture", texte:"Fixer le cap des semaines restantes en une phrase claire."}
+   ],
+   souple:[
+     {etape:"Bilan factuel d'abord", texte:"Toujours partir des faits observés avant les ressentis, pour contrer la mémoire biaisée vers l'échec fréquente en sortie de burnout."},
+     {etape:"Ajuster, ne pas recommencer", texte:"Un mi-parcours sert à affiner la trajectoire, pas à tout remettre à plat."},
+     {etape:"Reconversion = test, pas verdict", texte:"Toute piste de reconversion doit rester réversible et testée à petite échelle avant engagement définitif."},
+     {etape:"Cap clair", texte:"Terminer sur une direction unique et formulée simplement par le client lui-même."}
+   ],
+   devoirs:"Choisir une seule piste de reconversion (si applicable) à tester concrètement à très petite échelle avant la prochaine séance."}
+];
+
+// ══════════════════════════════════════════
+//  GESTIONNAIRES FIRESTORE (Sync temps réel)
+// ══════════════════════════════════════════
+
+const ClientsManager = {
+  data: null,
+  unsubClients: null,
+  unsubSessions: null,
+  
+  listen(cb) {
+    const uid = CoachLink.user?.uid;
+    if (!uid) {
+      console.warn("ClientsManager: pas d'utilisateur connecté");
+      return;
     }
     
-    generateHTML() {
-        let html = CONTRACT_TEMPLATE_SIMPLE;
-        const today = new Date().toLocaleDateString('fr-FR');
-        
-        // Coach
-        html = html.replace(/{{coachName}}/g, this.coach.name || 'Coach');
-        html = html.replace(/{{coachEmail}}/g, this.coach.email || '');
-        html = html.replace(/{{coachSiret}}/g, this.coach.siret || '⚠️ À remplir');
-        
-        // Client
-        html = html.replace(/{{coacheeName}}/g, this.client.name || 'Client');
-        html = html.replace(/{{coachedEmail}}/g, this.client.email || '');
-        html = html.replace(/{{coachedTel}}/g, this.client.tel || '');
-        html = html.replace(/{{coachedObjective}}/g, this.client.objective || 'À définir');
-        
-        // Cadrage
-        const total = this.cadrage.totalAmount || 1200;
-        const sessionCount = this.cadrage.sessionCount || 12;
-        
-        html = html.replace(/{{engagementDuration}}/g, this.cadrage.duration || '3 mois');
-        html = html.replace(/{{sessionDuration}}/g, this.cadrage.sessionDuration || 60);
-        html = html.replace(/{{sessionFrequency}}/g, this.cadrage.frequency || '1x/semaine');
-        html = html.replace(/{{sessionFormat}}/g, this.cadrage.format || 'Visioconférence');
-        html = html.replace(/{{totalAmount}}/g, total);
-        html = html.replace(/{{pricePerSession}}/g, (total / sessionCount).toFixed(2));
-        html = html.replace(/{{paymentTerms}}/g, this.cadrage.paymentTerms || 'À convenir');
-        
-        html = html.replace(/{{contractDate}}/g, today);
-        
-        return html;
-    }
-    
-    getHTMLPreview() {
-        return this.generateHTML();
-    }
-    
-    async generatePDF() {
-        const html = this.generateHTML();
-        return new Promise((resolve, reject) => {
-            if (typeof html2pdf === 'undefined') {
-                reject(new Error('html2pdf not loaded'));
-                return;
-            }
-            
-            const element = document.createElement('div');
-            element.innerHTML = html;
-            
-            const opt = {
-                margin: 10,
-                filename: `Contrat_${this.client.name}_${Date.now()}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-            };
-            
-            html2pdf().set(opt).from(element).save();
-            resolve({ success: true });
+    // 🔍 Écoute clients en temps réel (filtrés par coach)
+    if (!this.unsubClients) {
+      this.unsubClients = firebase.firestore()
+        .collection("clients")
+        .where("coachUid", "==", uid)
+        .onSnapshot(snap => {
+          this.data = [];
+          snap.forEach(doc => this.data.push({ id: doc.id, ...doc.data() }));
+          this.data.sort((a,b) => (a.name||a.nom||"").localeCompare(b.name||b.nom||""));
+          localStorage.setItem("cs4-clients", JSON.stringify(this.data));
+          state.clients = this.data;
+          if (cb) cb();
+          render();
+        }, e => {
+          console.error("listen clients:", e);
+          this.data = JSON.parse(localStorage.getItem("cs4-clients") || "null") || SAMPLE;
+          if (cb) cb();
         });
     }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// INTÉGRATION COACHINGSTUDIO
-// ═══════════════════════════════════════════════════════════════════════════
-
-async function openContractModal(clientId) {
-    const client = state.clients.find(c => c.id === clientId);
-    if (!client) return notifCoach("❌ Client non trouvé");
     
-    // Settings coach (À COMPLÉTER AVEC VRAIES DONNÉES)
-    const coachSettings = {
-        name: "Coach Julien Tieufri",
-        email: "julien.coaching@example.fr",
-        tel: "+33 6 XX XX XX XX",
-        siret: "SIRET_À_REMPLIR",
-        certification: "Coach RNCP"
-    };
-    
-    // Données client
-    const clientData = {
-        name: client.name || 'Client',
-        email: client.email || '',
-        tel: client.tel || '',
-        objective: client.objective || ''
-    };
-    
-    // Données cadrage (par défaut si manquantes)
-    const cadrageData = client.cadrage || {
-        duration: '3 mois',
-        sessionCount: 12,
-        sessionDuration: 60,
-        frequency: '1x/semaine',
-        format: 'Visioconférence',
-        totalAmount: 1200,
-        paymentTerms: 'À la signature'
-    };
-    
-    const generator = new ContractGenerator(coachSettings, clientData, cadrageData);
-    const html = generator.getHTMLPreview();
-    
-    // Modal
-    const modal = document.createElement('div');
-    modal.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 10px;`;
-    
-    const content = document.createElement('div');
-    content.style.cssText = `background: white; width: 95%; max-width: 900px; max-height: 85vh; overflow: auto; border-radius: 8px; padding: 20px;`;
-    
-    const header = document.createElement('div');
-    header.style.cssText = `display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #ddd;`;
-    
-    const title = document.createElement('h2');
-    title.textContent = '📋 Aperçu du Contrat';
-    title.style.cssText = `margin: 0; font-size: 18px;`;
-    
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = '✕';
-    closeBtn.style.cssText = `background: #e74c3c; color: white; border: none; width: 36px; height: 36px; border-radius: 4px; cursor: pointer; font-size: 18px; font-weight: bold;`;
-    closeBtn.onclick = () => modal.remove();
-    
-    header.appendChild(title);
-    header.appendChild(closeBtn);
-    
-    const preview = document.createElement('iframe');
-    preview.style.cssText = `width: 100%; height: 450px; border: 1px solid #ddd; margin-bottom: 15px; border-radius: 4px;`;
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    preview.src = URL.createObjectURL(blob);
-    
-    const actions = document.createElement('div');
-    actions.style.cssText = `display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;`;
-    
-    const btnDownload = document.createElement('button');
-    btnDownload.textContent = '⬇️ Télécharger PDF';
-    btnDownload.style.cssText = `background: #27ae60; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px;`;
-    btnDownload.onclick = async () => {
-        try {
-            await generator.generatePDF();
-            notifCoach("✅ PDF téléchargé");
-            modal.remove();
-        } catch(e) {
-            notifCoach("❌ Erreur: " + e.message);
-        }
-    };
-    
-    const btnArchive = document.createElement('button');
-    btnArchive.textContent = '💾 Archiver';
-    btnArchive.style.cssText = `background: #9b59b6; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px;`;
-    btnArchive.onclick = async () => {
-        try {
-            const db = firebase.firestore();
-            await db.collection('clients').doc(clientId).collection('contracts').add({
-                type: 'coaching_contract',
-                createdAt: new Date(),
-                status: 'draft',
-                htmlContent: html,
-                clientName: client.name,
-                coachName: coachSettings.name
-            });
-            notifCoach("✅ Contrat archivé dans Firestore");
-            modal.remove();
-        } catch(e) {
-            notifCoach("❌ Erreur archivage: " + e.message);
-        }
-    };
-    
-    const btnClose = document.createElement('button');
-    btnClose.textContent = '✕ Fermer';
-    btnClose.style.cssText = `background: #95a5a6; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px;`;
-    btnClose.onclick = () => modal.remove();
-    
-    actions.appendChild(btnDownload);
-    actions.appendChild(btnArchive);
-    actions.appendChild(btnClose);
-    
-    content.appendChild(header);
-    content.appendChild(preview);
-    content.appendChild(actions);
-    modal.appendChild(content);
-    document.body.appendChild(modal);
-}
-// ═══════════════════════════════════════════════════════════════════════════
-// 📋 CONTRACT GENERATOR — Intégration CoachingStudio
-// ═══════════════════════════════════════════════════════════════════════════
-
-const CONTRACT_TEMPLATE = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contrat de Coaching Professionnel</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: white; padding: 40px; }
-        .container { max-width: 900px; margin: 0 auto; background: white; }
-        .header { text-align: center; border-bottom: 3px solid #2c3e50; padding-bottom: 20px; margin-bottom: 30px; }
-        .header h1 { font-size: 24px; color: #2c3e50; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; font-size: 13px; }
-        .meta-block { background: #f8f9fa; padding: 15px; border-radius: 4px; border-left: 3px solid #3498db; }
-        .section { margin-bottom: 30px; }
-        .section h2 { font-size: 16px; color: #2c3e50; background: #ecf0f1; padding: 12px 15px; margin-bottom: 15px; border-left: 4px solid #3498db; }
-        .section h3 { font-size: 13px; color: #2c3e50; margin: 15px 0 8px 0; font-weight: 700; }
-        .rpbd-box { background: #f0f7ff; border-left: 4px solid #3498db; padding: 12px 15px; margin: 12px 0; font-size: 12px; }
-        .highlight { background: #fffacd; padding: 2px 4px; border-radius: 2px; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 12px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #ecf0f1; font-weight: 700; }
-        .signature-line { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 50px; }
-        .sig-box { border-top: 1px solid #333; padding-top: 10px; text-align: center; }
-        @media print { body { padding: 0; } }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>📋 Contrat de Coaching Professionnel</h1>
-            <p>{{contractDate}}</p>
-        </div>
-        <div class="meta">
-            <div class="meta-block">
-                <strong>🎯 Coach</strong>
-                <div>Nom: {{coachName}}</div>
-                <div>Email: {{coachEmail}}</div>
-                <div>SIRET: {{coachSiret}}</div>
-                <div>Certification: {{coachCertification}}</div>
-            </div>
-            <div class="meta-block">
-                <strong>👤 Coaché</strong>
-                <div>Nom: {{coacheeName}}</div>
-                <div>Email: {{coachedEmail}}</div>
-                <div>Profil: {{coachedProfile}}</div>
-                <div>Objectif: {{coachedObjective}}</div>
-            </div>
-        </div>
-        <div class="section">
-            <h2>1️⃣ Contexte du Coaching</h2>
-            <h3>Demande du Coaché</h3>
-            <p>{{coachedObjective}}</p>
-        </div>
-        <div class="section">
-            <h2>2️⃣ Modalités</h2>
-            <table>
-                <tr><th>Aspect</th><th>Détail</th></tr>
-                <tr><td>Durée</td><td>{{engagementDuration}}</td></tr>
-                <tr><td>Séances</td><td>{{numberOfSessions}} x {{sessionDuration}}min</td></tr>
-                <tr><td>Fréquence</td><td>{{sessionFrequency}}</td></tr>
-                <tr><td>Format</td><td>{{sessionFormat}}</td></tr>
-            </table>
-        </div>
-        <div class="section">
-            <h2>3️⃣ Tarification</h2>
-            <table>
-                <tr><th>Élément</th><th>Montant</th></tr>
-                <tr><td>Forfait</td><td><strong>{{totalAmount}} € TTC</strong></td></tr>
-                <tr><td>Par séance</td><td>{{pricePerSession}} €</td></tr>
-            </table>
-        </div>
-        <div class="section">
-            <h2>4️⃣ Droits & Responsabilités</h2>
-            <p><strong>Coaching:</strong> Conseil & accompagnement, NON garantie de résultats</p>
-            <p><strong>Confidentialité:</strong> Secret professionnel respecté</p>
-            <p><strong>Droit de rétractation:</strong> 14 jours après signature</p>
-            <p><strong>Rupture:</strong> Préavis 30 jours (client), 7 jours (coach)</p>
-        </div>
-        <div class="section">
-            <h2>5️⃣ Signatures</h2>
-            <div class="signature-line">
-                <div class="sig-box">
-                    <p style="margin-top: 40px;">_________________________</p>
-                    <p>Coach - Date</p>
-                    <p style="font-size: 11px; margin-top: 10px;">{{coachName}}</p>
-                </div>
-                <div class="sig-box">
-                    <p style="margin-top: 40px;">_________________________</p>
-                    <p>Coaché - Date</p>
-                    <p style="font-size: 11px; margin-top: 10px;">{{coacheeName}}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
-</html>`;
-
-class ContractGenerator {
-    constructor(coachSettings, clientData, rpbdData, cadrageData) {
-        this.coach = coachSettings;
-        this.client = clientData;
-        this.rpbd = rpbdData || {};
-        this.cadrage = cadrageData || {};
-    }
-    
-    generateHTML() {
-        let html = CONTRACT_TEMPLATE;
-        const today = new Date();
-        
-        html = html.replace(/{{coachName}}/g, this.coach.name || 'Coach Julien');
-        html = html.replace(/{{coachEmail}}/g, this.coach.email || '');
-        html = html.replace(/{{coachSiret}}/g, this.coach.siret || 'SIRET');
-        html = html.replace(/{{coachCertification}}/g, this.coach.certification || 'Coach RNCP');
-        
-        html = html.replace(/{{coacheeName}}/g, this.client.name || 'Client');
-        html = html.replace(/{{coachedEmail}}/g, this.client.email || '');
-        html = html.replace(/{{coachedProfile}}/g, this.client.profile || 'Profil');
-        html = html.replace(/{{coachedObjective}}/g, this.client.objective || '');
-        
-        html = html.replace(/{{engagementDuration}}/g, this.cadrage.duration || '3 mois');
-        html = html.replace(/{{numberOfSessions}}/g, this.cadrage.sessionCount || 12);
-        html = html.replace(/{{sessionDuration}}/g, this.cadrage.sessionDuration || 60);
-        html = html.replace(/{{sessionFrequency}}/g, this.cadrage.frequency || '1x/semaine');
-        html = html.replace(/{{sessionFormat}}/g, this.cadrage.format || 'Visioconférence');
-        
-        const total = this.cadrage.totalAmount || 1200;
-        html = html.replace(/{{totalAmount}}/g, total);
-        html = html.replace(/{{pricePerSession}}/g, Math.round((total / (this.cadrage.sessionCount || 12)) * 100) / 100);
-        
-        html = html.replace(/{{contractDate}}/g, today.toLocaleDateString('fr-FR'));
-        
-        return html;
-    }
-    
-    getHTMLPreview() {
-        return this.generateHTML();
-    }
-    
-    async generatePDF() {
-        const html = this.generateHTML();
-        return new Promise((resolve, reject) => {
-            const element = document.createElement('div');
-            element.innerHTML = html;
-            
-            const opt = {
-                margin: 10,
-                filename: `Contrat_${this.client.name}_${Date.now()}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-            };
-            
-            if (typeof html2pdf !== 'undefined') {
-                html2pdf().set(opt).from(element).save();
-                resolve({ success: true });
-            } else {
-                reject(new Error('html2pdf not loaded'));
-            }
+    // 🔍 Écoute sessions en temps réel (filtrées par coach)
+    if (!this.unsubSessions) {
+      this.unsubSessions = firebase.firestore()
+        .collection("sessions")
+        .where("coachUid", "==", uid)
+        .onSnapshot(snap => {
+          const sessions = {};
+          snap.forEach(doc => sessions[doc.id] = doc.data());
+          localStorage.setItem("cs4-sessions", JSON.stringify(sessions));
+          state.sessions = sessions;
+          if (cb) cb();
+          render();
+        }, e => {
+          console.error("listen sessions:", e);
+          state.sessions = JSON.parse(localStorage.getItem("cs4-sessions") || "{}");
+          if (cb) cb();
         });
     }
+  },
+  
+  async saveClient(clientId, patch) {
+    const uid = CoachLink.user?.uid;
+    if (!uid) return;
+    try {
+      const dataWithCoach = { ...patch, coachUid: uid };
+      const docRef = firebase.firestore().collection("clients").doc(clientId);
+      await docRef.set(dataWithCoach, { merge: true });
+      notifCoach("✅ Client synchronisé");
+    } catch (e) {
+      notifCoach("⚠️ Erreur sync : " + e.message);
+      console.error("saveClient:", e);
+    }
+  },
+  
+  async saveSession(sessionId, data) {
+    const uid = CoachLink.user?.uid;
+    if (!uid) return;
+    try {
+      const dataWithCoach = { ...data, coachUid: uid };
+      await firebase.firestore().collection("sessions").doc(sessionId).set(dataWithCoach);
+      notifCoach("✅ Entretien synchronisé");
+    } catch (e) {
+      notifCoach("⚠️ Erreur sync : " + e.message);
+      console.error("saveSession:", e);
+    }
+  },
+  
+  async deleteSession(sessionId) {
+    try {
+      await firebase.firestore().collection("sessions").doc(sessionId).delete();
+    } catch (e) {
+      console.error("deleteSession:", e);
+    }
+  }
+};
+
+// ══════════════════════════════════════════
+//  ÉTAT GLOBAL
+// ══════════════════════════════════════════
+let state = {
+  tab: "dashboard",
+  clients: JSON.parse(localStorage.getItem("cs4-clients") || "null") || SAMPLE,
+  ressources: JSON.parse(localStorage.getItem("cs4-ressources") || "[]"),
+  notes: localStorage.getItem("cs4-notes") || "",
+  appointments: JSON.parse(localStorage.getItem("cs4-appointments") || "[]"),
+  sessions: JSON.parse(localStorage.getItem("cs4-sessions") || "{}"),
+  agendaView: "liste",
+  agendaRef: (() => { const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); })(),
+  agendaSelectedDay: null,
+  selClientId: null,
+  subTab: "fiche",
+  bibCat: "Tous",
+  bibProfil: "Tous",
+  bibPhase: "Tous",
+  bibSearch: "",
+  resProfil: "Tous",
+  deroulesCat: "Tous",
+  deroulesMode: {},
+  clairiereOpenMember: null,
+};
+
+function save() {
+  // 🔄 Sauvegarde locale ET Firestore
+  localStorage.setItem("cs4-clients", JSON.stringify(state.clients));
+  localStorage.setItem("cs4-ressources", JSON.stringify(state.ressources));
+  localStorage.setItem("cs4-notes", state.notes);
+  localStorage.setItem("cs4-appointments", JSON.stringify(state.appointments));
+  localStorage.setItem("cs4-sessions", JSON.stringify(state.sessions || {}));
+  
+  // Sync sélectives vers Firestore (plus optimisé que sync globale)
+  // Les clients individuels sont syncés lors de leur modification
 }
 
-// Fonction d'ouverture du modal
-async function openContractModal(clientId) {
-    const client = state.clients.find(c => c.id === clientId);
-    if (!client) return notifCoach("❌ Client non trouvé");
-    
-    const coachSettings = {
-        name: "Coach Julien Tieufri",
-        email: "contact@coach-julien.fr",
-        tel: "+33 6 XX XX XX XX",
-        address: "Baron, Oise",
-        statut: "Auto-entrepreneur",
-        siret: "SIRET_À_REMPLIR",
-        city: "Baron",
-        certification: "Coach RNCP",
-        insuranceRC: "RC Pro assurée"
-    };
-    
-    const generator = new ContractGenerator(
-        coachSettings,
-        {
-            name: client.name,
-            email: client.email,
-            tel: client.tel,
-            profile: client.profile || 'Profil neuro-atypique',
-            objective: client.objective || ''
-        },
-        client.rpbd || {},
-        client.cadrage || { duration: '3 mois', sessionCount: 12, totalAmount: 1200 }
+let notesTimer = null;
+
+function setState(patch) {
+  Object.assign(state, patch);
+  render();
+}
+
+// ══════════════════════════════════════════
+//  SAUVEGARDE / RESTAURATION (export-import JSON)
+// ══════════════════════════════════════════
+function exportBackup() {
+  const payload = {
+    version: "cs4",
+    exportedAt: new Date().toISOString(),
+    clients: state.clients,
+    ressources: state.ressources,
+    notes: state.notes,
+    appointments: state.appointments
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const d = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `coachingstudio-sauvegarde-${d}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    let data;
+    try {
+      data = JSON.parse(e.target.result);
+    } catch (err) {
+      alert("Fichier invalide : impossible de lire ce JSON.");
+      return;
+    }
+    if (!data.clients || !Array.isArray(data.clients)) {
+      alert("Fichier invalide : format de sauvegarde non reconnu.");
+      return;
+    }
+    if (!confirm(`Restaurer cette sauvegarde va REMPLACER les données actuelles (${state.clients.length} client(s) actuel(s) → ${data.clients.length} client(s) dans la sauvegarde). Continuer ?`)) return;
+    state.clients = data.clients;
+    state.ressources = data.ressources || [];
+    state.notes = data.notes || "";
+    state.appointments = data.appointments || [];
+    save();
+    setState({tab:"dashboard", selClientId:null});
+    alert("Sauvegarde restaurée avec succès.");
+  };
+  reader.readAsText(file);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btnExport = document.getElementById("btnExport");
+  const btnImport = document.getElementById("btnImport");
+  const fileImport = document.getElementById("fileImport");
+  if (btnExport) btnExport.addEventListener("click", exportBackup);
+  if (btnImport) btnImport.addEventListener("click", () => fileImport.click());
+  if (fileImport) fileImport.addEventListener("change", (e) => {
+    if (e.target.files[0]) importBackup(e.target.files[0]);
+    fileImport.value = "";
+  });
+});
+
+// ══════════════════════════════════════════
+//  VOLET COACH — LIEN AVEC LA CLAIRIÈRE
+// ══════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyDMV0s1MPRzjswK_WFKO7VrV3rxl0p4xdM",
+  authDomain: "la-clairiere-3e804.firebaseapp.com",
+  projectId: "la-clairiere-3e804",
+  storageBucket: "la-clairiere-3e804.firebasestorage.app",
+  messagingSenderId: "674974632077",
+  appId: "1:674974632077:web:ffdc647c053c944fb6bac4"
+};
+try { firebase.initializeApp(firebaseConfig); } catch(e) { console.error("firebase init:", e); }
+
+const CoachLink = {
+  user: null,
+  linkedFamilies: JSON.parse(localStorage.getItem("cs4-linkedFamilies") || "[]"),
+  familyData: {},
+  unsubs: {},
+
+  init() {
+    firebase.auth().onAuthStateChanged(u => {
+      this.user = u;
+      if (u) {
+        this.linkedFamilies.forEach(code => this.listen(code));
+        if (!CoachSettings.data) CoachSettings.listen();
+        if (!ClientsManager.data) ClientsManager.listen(); // 🔄 Sync clients temps réel
+      }
+      if (["clairiere","rdv","reglages"].includes(state.tab)) render();
+    });
+  },
+
+  login(email, password) {
+    return firebase.auth().signInWithEmailAndPassword(email, password)
+      .catch(e => { notifCoach(traduireErreurAuth(e.code)); throw e; });
+  },
+
+  logout() { firebase.auth().signOut(); },
+
+  claimShareCode(shareCode, cb) {
+    const code = (shareCode || "").trim().toUpperCase();
+    if (!code) return;
+    const db = firebase.firestore();
+    db.collection("coachLinks").doc(code).get().then(snap => {
+      if (!snap.exists) { notifCoach("Code invalide ou déjà utilisé."); return; }
+      const familyCode = snap.data().familyCode;
+      const famRef = db.collection("familles").doc(familyCode);
+      const coachEntry = { uid: this.user.uid, email: this.user.email, addedAt: new Date().toISOString() };
+      famRef.update({
+        authorizedCoaches: firebase.firestore.FieldValue.arrayUnion(coachEntry),
+        authorizedCoachUids: firebase.firestore.FieldValue.arrayUnion(this.user.uid)
+      }).then(() => {
+        db.collection("coachLinks").doc(code).delete().catch(()=>{});
+        if (!this.linkedFamilies.includes(familyCode)) {
+          this.linkedFamilies.push(familyCode);
+          localStorage.setItem("cs4-linkedFamilies", JSON.stringify(this.linkedFamilies));
+        }
+        this.listen(familyCode);
+        notifCoach("✅ Famille liée avec succès.");
+        cb && cb();
+      }).catch(e => notifCoach("Erreur : " + e.message));
+    }).catch(e => notifCoach("Erreur : " + e.message));
+  },
+
+  listen(familyCode) {
+    if (this.unsubs[familyCode]) return;
+    const ref = firebase.firestore().collection("familles").doc(familyCode);
+    this.unsubs[familyCode] = ref.onSnapshot(snap => {
+      if (snap.exists) this.familyData[familyCode] = snap.data();
+      if (state.tab === "clairiere") render();
+    }, e => console.error("listen family:", e));
+  },
+
+  unlink(familyCode) {
+    if (this.unsubs[familyCode]) { this.unsubs[familyCode](); delete this.unsubs[familyCode]; }
+    this.linkedFamilies = this.linkedFamilies.filter(c => c !== familyCode);
+    localStorage.setItem("cs4-linkedFamilies", JSON.stringify(this.linkedFamilies));
+    delete this.familyData[familyCode];
+    render();
+  }
+};
+
+function traduireErreurAuth(code) {
+  const map = {
+    "auth/invalid-email": "Email invalide.",
+    "auth/user-not-found": "Aucun compte avec cet email.",
+    "auth/wrong-password": "Mot de passe incorrect.",
+    "auth/invalid-credential": "Email ou mot de passe incorrect.",
+    "auth/too-many-requests": "Trop de tentatives, réessayez plus tard."
+  };
+  return map[code] || ("Erreur de connexion (" + code + ")");
+}
+
+function notifCoach(msg) {
+  const el = h("div", {style:"position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#FBF7EC;color:#2E2A20;padding:10px 18px;border-radius:8px;font-size:13px;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.3)"}, msg);
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 3200);
+}
+
+CoachLink.init();
+
+const MOOD_EMOJI = {joie:'😊',calme:'😌',fatigue:'😴',stress:'😰',colere:'😠',triste:'😢'};
+
+function computeMemberInsights(data, pid) {
+  const journee = data.journee || {};
+  const entries = Object.keys(journee)
+    .filter(k => journee[k] && journee[k].pid === pid)
+    .map(k => journee[k])
+    .filter(e => e.date)
+    .sort((a,b) => a.date.localeCompare(b.date))
+    .slice(-14);
+
+  const routinesBySlot = (data.personRoutines && data.personRoutines[pid]) || {};
+  const tasksDone = data.tasksDone || {};
+  const incomplete = [];
+  Object.keys(routinesBySlot).forEach(slot => {
+    (routinesBySlot[slot] || []).forEach(r => {
+      if (r.steps && r.steps.length) {
+        r.steps.forEach(s => {
+          const k = pid + '_' + slot + '_' + r.id + '_' + s.id;
+          if (!tasksDone[k]) incomplete.push({slot, label: r.name + ' — ' + s.name});
+        });
+      } else {
+        const k = pid + '_' + slot + '_' + r.id;
+        if (!tasksDone[k]) incomplete.push({slot, label: r.name});
+      }
+    });
+  });
+
+  return { entries, incomplete };
+}
+
+function svgEnergyCurve(entries) {
+  if (!entries.length) return h("div",{style:"font-size:13px;color:#6B6355;padding:6px 0"},"Pas encore de données d'énergie enregistrées.");
+  const w = 240, hgt = 46, pad = 4;
+  const step = entries.length > 1 ? (w - pad*2) / (entries.length - 1) : 0;
+  const pts = entries.map((e,i) => {
+    const val = typeof e.energie === 'number' ? e.energie : 0;
+    const x = pad + i*step;
+    const y = hgt - pad - (val/10)*(hgt - pad*2);
+    return x.toFixed(1)+","+y.toFixed(1);
+  }).join(" ");
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", w); svg.setAttribute("height", hgt); svg.setAttribute("viewBox", `0 0 ${w} ${hgt}`);
+  const poly = document.createElementNS(svgNS, "polyline");
+  poly.setAttribute("points", pts);
+  poly.setAttribute("fill","none"); poly.setAttribute("stroke","#4a9e6a"); poly.setAttribute("stroke-width","2");
+  svg.appendChild(poly);
+  return svg;
+}
+
+function renderMemberInsights(data, m) {
+  const { entries, incomplete } = computeMemberInsights(data, m.id);
+  const box = h("div",{style:"margin-top:8px;padding-top:8px;border-top:1px solid #D8CBA8"});
+
+  box.appendChild(h("div",{style:"font-size:12.5px;color:#5A5648;margin-bottom:4px"},"Énergie (14 derniers jours, /10)"));
+  box.appendChild(svgEnergyCurve(entries));
+
+  if (entries.length) {
+    const moodRow = h("div",{style:"display:flex;gap:4px;margin-top:6px;flex-wrap:wrap"});
+    entries.forEach(e => {
+      moodRow.appendChild(h("span",{style:"font-size:14px",title:e.date+" — "+(e.humeur||'')}, MOOD_EMOJI[e.humeur] || '·'));
+    });
+    box.appendChild(moodRow);
+  }
+
+  if (incomplete.length) {
+    const list = h("div",{style:"margin-top:8px;font-size:13px;color:#d0a070"});
+    list.appendChild(h("div",{style:"font-weight:600;margin-bottom:3px"}, "⚠️ Non complété actuellement (" + incomplete.length + ")"));
+    incomplete.slice(0,5).forEach(item => {
+      list.appendChild(h("div",{style:"color:#9a9a85;padding:1px 0"}, "· " + item.label));
+    });
+    if (incomplete.length > 5) list.appendChild(h("div",{style:"color:#6a7a6a;font-style:italic"}, "+ " + (incomplete.length-5) + " autres"));
+    box.appendChild(list);
+  } else if (Object.keys((data.personRoutines||{})[m.id] || {}).length) {
+    box.appendChild(h("div",{style:"margin-top:8px;font-size:13px;color:#4a9e6a"}, "✅ Toutes les routines définies sont à jour"));
+  }
+
+  return box;
+}
+
+const JOURS_ABBR_ALL = ['lun','mar','mer','jeu','ven','sam','dim'];
+const ROUTINE_TEMPLATES = [
+  {id:'rt_tdah_lever', profile:'tdah', slot:'lever', label:'🌄 Lever', name:'Réveil en douceur (TDAH)',
+   steps:["Ouvrir les rideaux tout de suite","3 grands étirements","Boire un verre d'eau"]},
+  {id:'rt_tdah_matin', profile:'tdah', slot:'matin', label:'🌅 Matin', name:'Matin structuré (TDAH)',
+   steps:["Habits déjà choisis la veille","Petit-déjeuner assis 10 min","Sac vérifié avec la checklist affichée","Dernier contrôle avant de partir"]},
+  {id:'rt_tdah_coucher', profile:'tdah', slot:'coucher', label:'😴 Coucher', name:'Coucher sans écran (TDAH)',
+   steps:["Écrans éteints","Pyjama","Brossage de dents","Une histoire courte","Lumière tamisée"]},
+  {id:'rt_hpi_matin', profile:'hpi', slot:'matin', label:'🌅 Matin', name:'Démarrage sans surcharge (HPI)',
+   steps:["Annoncer à voix haute UNE seule priorité du jour","Petit-déjeuner sans écran","Départ 5 minutes avant l'heure limite"]},
+  {id:'rt_hpi_soir', profile:'hpi', slot:'soir', label:'🌙 Soir', name:'Vider sa tête avant le calme (HPI)',
+   steps:["Dire ou écrire 3 pensées qui tournent en boucle","Choisir la seule chose importante de demain","Respirer lentement 5 fois"]},
+  {id:'rt_hsp_apresmidi', profile:'hsp', slot:'apresmidi', label:'🌞 Après-midi', name:'Sas de décompression (HSP)',
+   steps:["10 minutes seul(e) au calme en rentrant","Boisson ou collation préférée","Musique douce ou silence, au choix"]},
+  {id:'rt_hsp_coucher', profile:'hsp', slot:'coucher', label:'😴 Coucher', name:'Apaisement du soir (HSP)',
+   steps:["Lumière tamisée 30 min avant","Bain ou douche tiède","Doudou ou objet apaisant à portée","Voix chuchotée plutôt que parlée"]},
+  {id:'rt_normal_matin', profile:'normal', slot:'matin', label:'🌅 Matin', name:'Matin classique',
+   steps:["Se lever","Petit-déjeuner","Se laver","S'habiller","Vérifier le sac"]},
+  {id:'rt_normal_coucher', profile:'normal', slot:'coucher', label:'😴 Coucher', name:'Coucher classique',
+   steps:["Pyjama","Brossage de dents","Rangement rapide de la chambre","Extinction des lumières"]},
+  {id:'rt_tous_midi', profile:'tous', slot:'midi', label:'🕛 Midi', name:'Pause déjeuner calme',
+   steps:["Se laver les mains","Manger assis à table","Débarrasser son assiette"]},
+];
+
+function envoyerProgramme(familyCode, memberId, templateId, prenom) {
+  const t = ROUTINE_TEMPLATES.find(x => x.id === templateId);
+  if (!t) return;
+  const routineObj = {
+    id: 'r_' + Date.now(),
+    name: t.name,
+    jours: JOURS_ABBR_ALL.slice(),
+    steps: t.steps.map((s,i) => ({ id: 's_' + (Date.now()+i), name: s }))
+  };
+  const path = `personRoutines.${memberId}.${t.slot}`;
+  firebase.firestore().collection("familles").doc(familyCode).update({
+    [path]: firebase.firestore.FieldValue.arrayUnion(routineObj)
+  }).then(() => {
+    notifCoach("✅ Programme envoyé à " + (prenom||"la famille"));
+  }).catch(e => notifCoach("Erreur : " + e.message));
+}
+
+function renderClairiereTab() {
+  const wrap = h("div",{});
+  if (!CoachLink.user) {
+    wrap.appendChild(renderCoachLogin());
+    return wrap;
+  }
+  const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"},
+    h("div",{style:"font-size:13px;color:#5A5648"}, "Connecté : ", h("b",{style:"color:#2E2A20"}, CoachLink.user.email)),
+    h("button",{class:"btn-sm",onclick:()=>CoachLink.logout()},"Déconnexion")
+  );
+  wrap.appendChild(hdr);
+
+  const linkBox = h("div",{class:"card",style:"padding:18px;margin-bottom:18px"});
+  linkBox.appendChild(h("div",{style:"font-weight:700;font-size:14px;margin-bottom:10px;color:#2E2A20"},"🔗 Lier une nouvelle famille"));
+  const inputRow = h("div",{style:"display:flex;gap:8px"});
+  const codeInput = h("input",{type:"text",placeholder:"Code reçu de la famille (8 caractères)",style:"flex:1;text-transform:uppercase"});
+  const linkBtn = h("button",{class:"btn",style:"padding:9px 16px;font-size:13px"},"Lier");
+  linkBtn.addEventListener("click", () => { CoachLink.claimShareCode(codeInput.value, ()=>render()); codeInput.value=""; });
+  inputRow.appendChild(codeInput); inputRow.appendChild(linkBtn);
+  linkBox.appendChild(inputRow);
+  wrap.appendChild(linkBox);
+
+  if (!CoachLink.linkedFamilies.length) {
+    wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;padding:20px 0;text-align:center"},"Aucune famille liée pour l'instant."));
+    return wrap;
+  }
+
+  CoachLink.linkedFamilies.forEach(code => {
+    const data = CoachLink.familyData[code];
+    const card = h("div",{class:"card",style:"padding:18px;margin-bottom:14px"});
+    const topRow = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"},
+      h("div",{style:"font-weight:700;font-size:15px;color:#2E2A20"},"🦔 Famille " + code),
+      h("button",{class:"btn-sm",style:"border-color:#d0707044;color:#d07070",onclick:()=>CoachLink.unlink(code)},"Délier")
     );
-    
-    const html = generator.getHTMLPreview();
-    
-    const modal = document.createElement('div');
-    modal.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 10px;`;
-    
-    const content = document.createElement('div');
-    content.style.cssText = `background: white; width: 95%; max-width: 900px; max-height: 85vh; overflow: auto; border-radius: 8px; padding: 20px;`;
-    
-    const header = document.createElement('div');
-    header.style.cssText = `display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #ddd;`;
-    header.innerHTML = `<h2 style="margin: 0;">📋 Aperçu Contrat</h2>`;
-    
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = '✕ Fermer';
-    closeBtn.style.cssText = `background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;`;
-    closeBtn.onclick = () => modal.remove();
-    header.appendChild(closeBtn);
-    
-    const preview = document.createElement('iframe');
-    preview.style.cssText = `width: 100%; height: 500px; border: 1px solid #ddd; margin-bottom: 20px; border-radius: 4px;`;
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    preview.src = URL.createObjectURL(blob);
-    
-    const actions = document.createElement('div');
-    actions.style.cssText = `display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;`;
-    
-    const btnDownload = document.createElement('button');
-    btnDownload.textContent = '⬇️ Télécharger PDF';
-    btnDownload.style.cssText = `background: #27ae60; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;`;
-    btnDownload.onclick = async () => {
-        try {
-            await generator.generatePDF();
-            notifCoach("✅ PDF téléchargé");
-            modal.remove();
-        } catch(e) {
-            notifCoach("❌ Erreur: " + e.message);
+    card.appendChild(topRow);
+    if (!data) {
+      card.appendChild(h("p",{style:"color:#5A5648;font-size:12.5px"},"Chargement des données…"));
+    } else {
+      const fam = data.fam || [];
+      fam.forEach(m => {
+        const xp = (data.gXP && data.gXP[m.id]) || 0;
+        const journalCount = (data.journal||[]).filter(j=>j.pid===m.id).length;
+        const memberBox = h("div",{style:"background:#FBF7EC;border-radius:10px;padding:12px;margin-bottom:10px"});
+        memberBox.appendChild(h("div",{style:"display:flex;align-items:center;gap:10px"},
+          h("div",{style:"font-size:22px"}, m.emoji||"👤"),
+          h("div",{style:"flex:1"},
+            h("div",{style:"font-size:13px;font-weight:600;color:#2E2A20"}, m.prenom + (m.profile?" · "+m.profile:"")),
+            h("div",{style:"font-size:13px;color:#5A5648;margin-top:2px"}, xp + " XP · " + journalCount + " entrées journal")
+          )
+        ));
+        memberBox.appendChild(renderMemberInsights(data, m));
+
+        const openKey = code + "_" + m.id;
+        const isOpen = state.clairiereOpenMember === openKey;
+        const toggleBtn = h("button",{class:"btn-sm",style:"margin-top:8px"}, isOpen ? "▲ Fermer la bibliothèque" : "📚 Envoyer un programme de routine");
+        toggleBtn.addEventListener("click", () => { state.clairiereOpenMember = isOpen ? null : openKey; render(); });
+        memberBox.appendChild(toggleBtn);
+
+        if (isOpen) {
+          const libBox = h("div",{style:"margin-top:10px;padding-top:10px;border-top:1px solid #D8CBA8"});
+          const reco = ROUTINE_TEMPLATES.filter(t => t.profile === m.profile || t.profile === "tous");
+          const autres = ROUTINE_TEMPLATES.filter(t => t.profile !== m.profile && t.profile !== "tous");
+          function templateRow(t) {
+            const row = h("div",{style:"display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #E4DAC0"},
+              h("div",{},
+                h("div",{style:"font-size:12.5px;font-weight:700;color:#2E2A20"}, t.name),
+                h("div",{style:"font-size:11px;color:#8B7355"}, t.label + " · " + t.steps.length + " étapes")
+              )
+            );
+            const sendBtn = h("button",{class:"btn-sm",style:"background:#9C7A2E;color:#fff;flex-shrink:0"},"✅ Envoyer");
+            sendBtn.addEventListener("click", () => envoyerProgramme(code, m.id, t.id, m.prenom));
+            row.appendChild(sendBtn);
+            return row;
+          }
+          libBox.appendChild(h("div",{style:"font-size:11px;font-weight:700;color:#9C7A2E;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px"}, "Recommandés (" + (m.profile||"normal") + ")"));
+          if (!reco.length) libBox.appendChild(h("div",{style:"font-size:12px;color:#5A5648;padding:6px 0"},"Aucun programme spécifique."));
+          else reco.forEach(t => libBox.appendChild(templateRow(t)));
+          if (autres.length) {
+            libBox.appendChild(h("div",{style:"font-size:11px;font-weight:700;color:#8B7355;text-transform:uppercase;letter-spacing:.04em;margin:10px 0 4px"}, "Autres programmes"));
+            autres.forEach(t => libBox.appendChild(templateRow(t)));
+          }
+          memberBox.appendChild(libBox);
         }
-    };
-    
-    const btnEmail = document.createElement('button');
-    btnEmail.textContent = '📧 Envoyer par Email';
-    btnEmail.style.cssText = `background: #f39c12; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;`;
-    btnEmail.onclick = () => {
-        notifCoach("📧 À implémenter: envoi email + e-signature Yousign");
-    };
-    
-    const btnArchive = document.createElement('button');
-    btnArchive.textContent = '💾 Archiver & Signer';
-    btnArchive.style.cssText = `background: #9b59b6; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;`;
-    btnArchive.onclick = async () => {
-        try {
-            const db = firebase.firestore();
-            await db.collection('clients').doc(clientId).collection('contracts').add({
-                type: 'coaching_contract',
-                createdAt: new Date(),
-                status: 'draft',
-                htmlContent: html,
-                clientName: client.name,
-                coachName: coachSettings.name
-            });
-            notifCoach("✅ Contrat archivé");
-            modal.remove();
-        } catch(e) {
-            notifCoach("❌ Erreur archivage: " + e.message);
-        }
-    };
-    
-    actions.appendChild(btnDownload);
-    actions.appendChild(btnEmail);
-    actions.appendChild(btnArchive);
-    
-    content.appendChild(header);
-    content.appendChild(preview);
-    content.appendChild(actions);
-    modal.appendChild(content);
-    document.body.appendChild(modal);
+
+        card.appendChild(memberBox);
+      });
+      const lastUpdate = data.lastUpdate ? ("Dernière activité : " + data.lastUpdate) : "";
+      if (lastUpdate) card.appendChild(h("div",{style:"font-size:13px;color:#5A5648;margin-top:10px"}, lastUpdate));
+    }
+    wrap.appendChild(card);
+  });
+
+  return wrap;
 }
+
+function renderDeroulesTab() {
+  const wrap = h("div",{});
+  wrap.appendChild(h("div",{style:"margin-bottom:14px"},
+    h("div",{style:"font-weight:700;font-size:15px;color:#2E2A20;margin-bottom:4px"},"📖 Déroulés de séance"),
+    h("div",{style:"font-size:13px;color:#5A5648"},"Scripts prêts à suivre en direct pendant la séance. Deux formats disponibles par déroulé : script minuté (pas à pas, chronométré) ou trame souple (repères sans minutage).")
+  ));
+
+  const filterRow = h("div",{style:"display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"});
+  const cats = ["Tous", ...Array.from(new Set(DEROULES.map(d=>d.cat)))];
+  let filtreCat = state.deroulesCat || "Tous";
+  cats.forEach(c => {
+    const b = h("button",{class:"btn-sm"+(filtreCat===c?" active":""),style:"padding:6px 14px"+(filtreCat===c?";background:#9C7A2E;color:#fff":"")},c);
+    b.addEventListener("click", () => { state.deroulesCat = c; render(); });
+    filterRow.appendChild(b);
+  });
+  wrap.appendChild(filterRow);
+
+  const list = DEROULES.filter(d => filtreCat==="Tous" || d.cat===filtreCat);
+  list.forEach(d => {
+    const card = h("div",{class:"card",style:"padding:18px;margin-bottom:14px"});
+    card.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"},
+      h("div",{},
+        h("div",{style:"font-weight:700;font-size:14.5px;color:#2E2A20"}, d.titre),
+        h("div",{style:"font-size:12px;color:#8B7355;margin-top:2px"}, d.profil + " · " + d.duree + " min · " + d.cat + " · " + PHASES_LABELS[d.phase])
+      )
+    ));
+    card.appendChild(h("div",{style:"font-size:13px;color:#5A5648;margin:10px 0;font-style:italic"}, "Objectif : " + d.objectif));
+
+    const toggleRow = h("div",{style:"display:flex;gap:8px;margin-bottom:12px"});
+    const mode = state.deroulesMode[d.id] || "minute";
+    const btnMinute = h("button",{class:"btn-sm"+(mode==="minute"?" active":""),style:"padding:5px 12px"+(mode==="minute"?";background:#9C7A2E;color:#fff":"")},"⏱ Script minuté");
+    const btnSouple = h("button",{class:"btn-sm"+(mode==="souple"?" active":""),style:"padding:5px 12px"+(mode==="souple"?";background:#9C7A2E;color:#fff":"")},"〰 Trame souple");
+    btnMinute.addEventListener("click", () => { state.deroulesMode[d.id] = "minute"; render(); });
+    btnSouple.addEventListener("click", () => { state.deroulesMode[d.id] = "souple"; render(); });
+    toggleRow.appendChild(btnMinute); toggleRow.appendChild(btnSouple);
+    card.appendChild(toggleRow);
+
+    const body = h("div",{});
+    if (mode==="minute") {
+      d.minute.forEach(step => {
+        body.appendChild(h("div",{style:"display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #00000010"},
+          h("div",{style:"width:78px;flex-shrink:0;font-size:12px;font-weight:700;color:#9C7A2E"}, step.t),
+          h("div",{},
+            h("div",{style:"font-size:13px;font-weight:700;color:#2E2A20"}, step.titre),
+            h("div",{style:"font-size:12.5px;color:#5A5648;margin-top:2px"}, step.texte)
+          )
+        ));
+      });
+    } else {
+      d.souple.forEach(step => {
+        body.appendChild(h("div",{style:"padding:8px 0;border-bottom:1px solid #00000010"},
+          h("div",{style:"font-size:13px;font-weight:700;color:#2E2A20"}, "→ " + step.etape),
+          h("div",{style:"font-size:12.5px;color:#5A5648;margin-top:2px"}, step.texte)
+        ));
+      });
+    }
+    card.appendChild(body);
+    card.appendChild(h("div",{style:"font-size:12.5px;color:#6B6355;margin-top:12px;padding-top:10px;border-top:1px solid #D8CBA8"}, "📝 Devoirs : " + d.devoirs));
+    wrap.appendChild(card);
+  });
+
+  return wrap;
+}
+
+function renderReconversionTab() {
+  const wrap = h("div",{});
+  wrap.appendChild(h("div",{style:"margin-bottom:14px"},
+    h("div",{style:"font-weight:700;font-size:15px;color:#2E2A20;margin-bottom:4px"},"🌱 Parcours Reconversion après burn-out"),
+    h("div",{style:"font-size:13px;color:#5A5648"},"Auto-évaluation, masterclass 12 semaines, parcours thématiques (organisation, émotions, relations, confiance) et routines par profil — à faire vivre au client ou à parcourir avec lui en séance.")
+  ));
+  const frame = h("iframe",{
+    src:"reconversion-burnout.html",
+    style:"width:100%;height:78vh;border:1px solid #00000014;border-radius:14px;background:#EFEDE4"
+  });
+  wrap.appendChild(frame);
+  return wrap;
+}
+
+function renderCoachLogin() {
+  const box = h("div",{class:"card",style:"max-width:360px;margin:60px auto;padding:28px;text-align:center"});
+  box.appendChild(h("div",{style:"font-size:30px;margin-bottom:10px"},"🧭"));
+  box.appendChild(h("div",{style:"font-weight:700;font-size:16px;color:#2E2A20;margin-bottom:18px"},"Connexion coach"));
+  const email = h("input",{type:"email",placeholder:"Email",style:"margin-bottom:10px"});
+  const pass = h("input",{type:"password",placeholder:"Mot de passe",style:"margin-bottom:14px"});
+  const btn = h("button",{class:"btn",style:"width:100%;padding:11px"},"Se connecter");
+  btn.addEventListener("click", () => {
+    if (!email.value || !pass.value) return;
+    btn.textContent = "Connexion…";
+    CoachLink.login(email.value.trim(), pass.value).then(()=>render()).catch(()=>{ btn.textContent = "Se connecter"; });
+  });
+  box.appendChild(email); box.appendChild(pass); box.appendChild(btn);
+  return box;
+}
+
+// ══════════════════════════════════════════
+//  RÉGLAGES COACH (horaires, tarifs, message d'info)
+// ══════════════════════════════════════════
+const DEFAULT_SETTINGS = {
+  horaires: {
+    lundi:    { plages: [ {ouvert:true,  debut:"09:00", fin:"12:00"}, {ouvert:true,  debut:"14:00", fin:"18:00"} ] },
+    mardi:    { plages: [ {ouvert:true,  debut:"09:00", fin:"12:00"}, {ouvert:true,  debut:"14:00", fin:"18:00"} ] },
+    mercredi: { plages: [ {ouvert:true,  debut:"09:00", fin:"12:00"}, {ouvert:true,  debut:"14:00", fin:"18:00"} ] },
+    jeudi:    { plages: [ {ouvert:true,  debut:"09:00", fin:"12:00"}, {ouvert:true,  debut:"14:00", fin:"18:00"} ] },
+    vendredi: { plages: [ {ouvert:true,  debut:"09:00", fin:"12:00"}, {ouvert:true,  debut:"14:00", fin:"18:00"} ] },
+    samedi:   { plages: [ {ouvert:false, debut:"09:00", fin:"12:00"}, {ouvert:false, debut:"14:00", fin:"18:00"} ] },
+    dimanche: { plages: [ {ouvert:false, debut:"09:00", fin:"12:00"}, {ouvert:false, debut:"14:00", fin:"18:00"} ] },
+  },
+  dureeRdv: 60,
+  tarifs: { decouverte:0, unite:70, declic:190, codeChaine:520, famille:340, club:20 },
+  messageInfo: { actif:false, texte:"" },
+  conges: [],
+  forfaits: [
+    { nom: "Forfait Déclic", seances: 3, prix: 190 },
+    { nom: "Programme Sérénité", seances: 8, prix: 520 },
+    { nom: "Forfait Famille Hérisson", seances: 4, prix: 340 }
+  ],
+  contenuSite: {
+    hero: {
+      subtitle: "Le Coaching TDAH",
+      h1: "Transforme tes différences<br>pour en faire une force",
+      lead: "Je vous aide à apprivoiser votre TDAH et votre HPI pour en faire votre plus grande force au quotidien."
+    },
+    quiSuisJe: {
+      subtitle: "Qui suis-je",
+      h2: "Du défi personnel à la vocation",
+      lead: "Champion de France de basket fauteuil, TDAH et HPI diagnostiqués à l'âge adulte, père d'une fille au profil semblable au mien : mon parcours nourrit directement ma façon d'accompagner."
+    },
+    profilIntro: {
+      subtitle: "Mon profil",
+      h2: "Du défi personnel à la vocation",
+      lead: "Cinq chapitres, un même fil : comprendre ce qui semblait être un obstacle pour en faire une force."
+    },
+    chapitres: [
+      {titre:"Un premier obstacle", texte:"Il est des vies qui commencent par une résistance. La mienne a débuté dans l'effort — né avec un handicap physique, j'ai appris dès l'enfance que le monde ne s'offre pas, il se mérite. À seize ans, une opération lourde et six mois de rééducation intensive m'ont demandé de tout réapprendre : habiter mon propre corps, un geste à la fois, un souffle après l'autre. Dans cette traversée silencieuse et exigeante, j'ai découvert une résilience que je ne savais pas porter en moi."},
+      {titre:"Se dépasser", texte:"Après des années d'acharnement, de chutes relevées et de victoires arrachées centimètre par centimètre, j'ai décroché le titre de Champion de France de basket fauteuil. Ce titre m'a révélé quelque chose de fondamental : la même intensité qui me dépassait parfois pouvait devenir, une fois canalisée, le moteur d'un accomplissement durable."},
+      {titre:"Me comprendre enfin", texte:"Ce que je ne savais pas encore, c'est que derrière cette intensité — cette pensée qui s'emballe, cette hypersensibilité, ce besoin viscéral d'aller toujours plus loin — se cachait un profil doublement atypique : TDAH et Haut Potentiel Intellectuel (HPI). Deux réalités entrelacées, souvent confondues, parfois opposées en apparence, mais qui ensemble formaient le moteur le plus puissant que je n'aurais pu imaginer."},
+      {titre:"Devenir père", texte:"Puis il y a six ans, ma fille est venue au monde — et avec elle, une lumière nouvelle. C'est en la regardant grandir que j'ai reconnu en elle quelque chose de profondément familier : ce même feu intérieur, cette même vivacité d'esprit, que j'avais appris, à mon tour, à transformer en carburant."},
+      {titre:"Ma vocation", texte:"Je ne pouvais pas la laisser traverser seule ce que j'avais mis des années à comprendre. C'est là qu'est née ma vocation : mettre ce que la résilience et le sport de haut niveau m'avaient appris au service des autres."}
+    ]
+  }
+};
+
+const CoachSettings = {
+  data: null,
+  unsub: null,
+  listen(cb) {
+    if (this.unsub) return;
+    this.unsub = firebase.firestore().collection("settings").doc("coach").onSnapshot(snap => {
+      const raw = snap.exists ? (snap.data() || {}) : {};
+      const mergedHoraires = {};
+      JOURS.forEach(j => {
+        const rawDay = (raw.horaires||{})[j];
+        let plages;
+        if (rawDay && Array.isArray(rawDay.plages)) {
+          plages = [0,1].map(i => ({ ...DEFAULT_SETTINGS.horaires[j].plages[i], ...(rawDay.plages[i]||{}) }));
+        } else if (rawDay && rawDay.debut) {
+          // ancien format (une seule plage débi/fin) : migration en douceur
+          plages = [
+            { ouvert: !!rawDay.ouvert, debut: rawDay.debut, fin: rawDay.fin },
+            { ...DEFAULT_SETTINGS.horaires[j].plages[1] }
+          ];
+        } else {
+          plages = DEFAULT_SETTINGS.horaires[j].plages.map(p => ({...p}));
+        }
+        mergedHoraires[j] = { plages };
+      });
+      this.data = {
+        ...DEFAULT_SETTINGS,
+        ...raw,
+        horaires: mergedHoraires,
+        dureeRdv: raw.dureeRdv || DEFAULT_SETTINGS.dureeRdv,
+        tarifs: { ...DEFAULT_SETTINGS.tarifs, ...(raw.tarifs||{}) },
+        messageInfo: { ...DEFAULT_SETTINGS.messageInfo, ...(raw.messageInfo||{}) },
+        conges: raw.conges || [],
+        forfaits: raw.forfaits || DEFAULT_SETTINGS.forfaits,
+        contenuSite: {
+          hero: { ...DEFAULT_SETTINGS.contenuSite.hero, ...((raw.contenuSite||{}).hero||{}) },
+          quiSuisJe: { ...DEFAULT_SETTINGS.contenuSite.quiSuisJe, ...((raw.contenuSite||{}).quiSuisJe||{}) },
+          profilIntro: { ...DEFAULT_SETTINGS.contenuSite.profilIntro, ...((raw.contenuSite||{}).profilIntro||{}) },
+          chapitres: DEFAULT_SETTINGS.contenuSite.chapitres.map((ch,i) => ({ ...ch, ...(((raw.contenuSite||{}).chapitres||[])[i]||{}) }))
+        }
+      };
+      if (!raw.horaires) {
+        // Le document n'a jamais reçu d'horaires : on les initialise
+        // pour que le site public ne se retrouve jamais sans données.
+        this.save({ horaires: DEFAULT_SETTINGS.horaires });
+      }
+      if (cb) cb();
+      if (state.tab === "reglages") render();
+    }, e => { console.error("listen settings:", e); this.data = { ...DEFAULT_SETTINGS }; if (cb) cb(); });
+  },
+  save(patch) {
+    firebase.firestore().collection("settings").doc("coach").set(patch, { merge: true })
+      .then(() => notifCoach("✅ Réglages enregistrés"))
+      .catch(e => notifCoach("Erreur : " + e.message));
+  }
+};
+
+const JOURS = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
+const TARIF_LABELS = {
+  decouverte:"Séance Découverte", unite:"Séance à l'unité", declic:"Forfait Déclic",
+  codeChaine:"Programme Sérénité", famille:"Famille Hérisson", club:"Club des Hérissons (mensuel)"
+};
+
+function renderReglagesTab() {
+  const wrap = h("div",{});
+  if (!CoachLink.user) { wrap.appendChild(renderCoachLogin()); return wrap; }
+  if (!CoachSettings.data) { CoachSettings.listen(); wrap.appendChild(h("p",{style:"color:#5A5648"},"Chargement…")); return wrap; }
+
+  const s = CoachSettings.data;
+
+  // --- Contenu du site (textes éditables) ---
+  const csBox = h("div",{class:"card settings-card"});
+  csBox.appendChild(h("div",{class:"settings-title"},"📝 Contenu du site"));
+  csBox.appendChild(h("div",{class:"settings-hint"},"Modifie les textes affichés sur julien-coaching.vercel.app (page d'accueil + page Profil). Laisse vide pour garder le texte actuel."));
+
+  const cs = JSON.parse(JSON.stringify(s.contenuSite));
+
+  function csField(labelText, obj, key, multiline) {
+    const row = h("div",{style:"margin-bottom:10px"});
+    row.appendChild(h("div",{style:"font-size:12px;font-weight:600;color:#6B6355;margin-bottom:4px"}, labelText));
+    const inp = h(multiline?"textarea":"input", multiline?{style:"width:100%;min-height:60px;font-size:13.5px"}:{type:"text",style:"width:100%;font-size:13.5px"});
+    inp.value = obj[key] || "";
+    inp.addEventListener("change", () => obj[key] = inp.value);
+    row.appendChild(inp);
+    return row;
+  }
+
+  csBox.appendChild(h("div",{class:"settings-subtitle"},"Accueil — bandeau principal"));
+  csBox.appendChild(csField("Sur-titre", cs.hero, "subtitle", false));
+  csBox.appendChild(csField("Titre principal (le <br> saute une ligne)", cs.hero, "h1", false));
+  csBox.appendChild(csField("Phrase d'intro", cs.hero, "lead", true));
+
+  csBox.appendChild(h("div",{class:"settings-subtitle"},"Accueil — teaser \"Qui suis-je\""));
+  csBox.appendChild(csField("Sur-titre", cs.quiSuisJe, "subtitle", false));
+  csBox.appendChild(csField("Titre", cs.quiSuisJe, "h2", false));
+  csBox.appendChild(csField("Texte", cs.quiSuisJe, "lead", true));
+
+  csBox.appendChild(h("div",{class:"settings-subtitle"},"Page Profil — intro"));
+  csBox.appendChild(csField("Sur-titre", cs.profilIntro, "subtitle", false));
+  csBox.appendChild(csField("Titre", cs.profilIntro, "h2", false));
+  csBox.appendChild(csField("Texte", cs.profilIntro, "lead", true));
+
+  csBox.appendChild(h("div",{class:"settings-subtitle"},"Page Profil — 5 chapitres"));
+  cs.chapitres.forEach((ch, i) => {
+    csBox.appendChild(h("div",{style:"font-size:12px;font-weight:700;color:#2E2A20;margin-top:8px"}, "Chapitre " + (i+1)));
+    csBox.appendChild(csField("Titre", ch, "titre", false));
+    csBox.appendChild(csField("Texte", ch, "texte", true));
+  });
+
+  const saveCsBtn = h("button",{class:"btn",style:"margin-top:10px;padding:9px 18px;font-size:13px"},"Enregistrer le contenu du site");
+  saveCsBtn.addEventListener("click", () => CoachSettings.save({ contenuSite: cs }));
+  csBox.appendChild(saveCsBtn);
+  wrap.appendChild(csBox);
+
+  // --- Horaires ---
+  const horBox = h("div",{class:"card settings-card"});
+  horBox.appendChild(h("div",{class:"settings-title"},"🕐 Horaires de disponibilité"));
+  const newHoraires = JSON.parse(JSON.stringify(s.horaires));
+  const PLAGE_LABELS = ["Matin","Après-midi"];
+  JOURS.forEach(j => {
+    const jourBox = h("div",{style:"padding:10px 0;border-bottom:1px solid #D8CBA8"});
+    jourBox.appendChild(h("div",{style:"font-size:13px;color:#2E2A20;text-transform:capitalize;font-weight:700;margin-bottom:6px"}, j));
+    newHoraires[j].plages.forEach((plage, pIdx) => {
+      const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:4px 0 4px 12px"});
+      const checkbox = h("input",{type:"checkbox"});
+      checkbox.checked = plage.ouvert;
+      checkbox.addEventListener("change", () => newHoraires[j].plages[pIdx].ouvert = checkbox.checked);
+      const label = h("label",{style:"width:90px;font-size:12.5px;color:#5A5648"}, checkbox, " " + PLAGE_LABELS[pIdx]);
+      const debut = h("input",{type:"time",style:"width:110px"}); debut.value = plage.debut;
+      debut.addEventListener("change", () => newHoraires[j].plages[pIdx].debut = debut.value);
+      const fin = h("input",{type:"time",style:"width:110px"}); fin.value = plage.fin;
+      fin.addEventListener("change", () => newHoraires[j].plages[pIdx].fin = fin.value);
+      row.appendChild(label); row.appendChild(debut); row.appendChild(h("span",{style:"color:#5A5648;font-size:12px"},"à")); row.appendChild(fin);
+      jourBox.appendChild(row);
+    });
+    horBox.appendChild(jourBox);
+  });
+  const saveHorBtn = h("button",{class:"btn",style:"margin-top:14px;padding:9px 18px;font-size:13px"},"Enregistrer les horaires");
+  let newDureeRdv = s.dureeRdv || 60;
+  saveHorBtn.addEventListener("click", () => CoachSettings.save({ horaires: newHoraires, dureeRdv: newDureeRdv }));
+
+  const dureeRow = h("div",{style:"display:flex;align-items:center;gap:10px;padding:10px 0;margin-top:6px;border-top:1px solid #D8CBA8"});
+  dureeRow.appendChild(h("label",{style:"font-size:13px;color:#2E2A20"},"⏱️ Durée entre les rendez-vous"));
+  const dureeSel = h("select",{style:"width:140px"});
+  [15,20,30,45,60,90,120].forEach(min => {
+    const opt = h("option",{value:String(min)}, min + " min");
+    if (min === newDureeRdv) opt.selected = true;
+    dureeSel.appendChild(opt);
+  });
+  dureeSel.addEventListener("change", () => newDureeRdv = Number(dureeSel.value));
+  dureeRow.appendChild(dureeSel);
+  horBox.appendChild(dureeRow);
+  horBox.appendChild(saveHorBtn);
+  wrap.appendChild(horBox);
+
+  // --- Tarifs ---
+  const tarBox = h("div",{class:"card settings-card"});
+  tarBox.appendChild(h("div",{class:"settings-title"},"€ Tarifs affichés sur le site"));
+  const newTarifs = { ...s.tarifs };
+  Object.keys(TARIF_LABELS).forEach(k => {
+    const row = h("div",{class:"list-row"});
+    const inp = h("input",{type:"number",min:"0",max:"9999",style:"width:100px"}); inp.value = newTarifs[k];
+    inp.addEventListener("change", () => newTarifs[k] = clampNum(inp.value, 0, 9999, newTarifs[k]));
+    row.appendChild(h("label",{style:"flex:1;font-size:13px;color:#2E2A20"}, TARIF_LABELS[k]));
+    row.appendChild(inp); row.appendChild(h("span",{style:"color:#5A5648;font-size:12px"},"€"));
+    tarBox.appendChild(row);
+  });
+  const saveTarBtn = h("button",{class:"btn",style:"margin-top:14px;padding:9px 18px;font-size:13px"},"Enregistrer les tarifs");
+  saveTarBtn.addEventListener("click", () => CoachSettings.save({ tarifs: newTarifs }));
+  tarBox.appendChild(saveTarBtn);
+  wrap.appendChild(tarBox);
+
+  // --- Forfaits (packages de séances) ---
+  const forfBox = h("div",{class:"card settings-card"});
+  forfBox.appendChild(h("div",{class:"settings-title"},"📦 Forfaits proposés"));
+  forfBox.appendChild(h("div",{class:"settings-hint"},"Ces forfaits apparaissent dans le menu \"Motif\" de l'agenda et pilotent le décompte automatique des séances restantes."));
+
+  const forfaits = (s.forfaits || []).map(f => ({...f}));
+  const forfListBox = h("div",{id:"forfaitsList"});
+  forfBox.appendChild(forfListBox);
+
+  function renderForfaitsList() {
+    forfListBox.innerHTML = "";
+    if (!forfaits.length) {
+      forfListBox.appendChild(h("p",{class:"list-empty"},"Aucun forfait défini."));
+    }
+    forfaits.forEach((f, idx) => {
+      const row = h("div",{class:"list-row"});
+      const nomInp = h("input",{type:"text",style:"flex:1;min-width:140px;font-size:13px"}); nomInp.value = f.nom;
+      nomInp.addEventListener("change", () => { f.nom = nomInp.value.trim(); CoachSettings.save({ forfaits: forfaits }); });
+      const seancesInp = h("input",{type:"number",min:"1",max:"99",style:"width:64px;font-size:13px"}); seancesInp.value = f.seances;
+      seancesInp.addEventListener("change", () => { f.seances = clampNum(seancesInp.value, 1, 99, f.seances); CoachSettings.save({ forfaits: forfaits }); });
+      const prixInp = h("input",{type:"number",min:"0",max:"9999",style:"width:80px;font-size:13px"}); prixInp.value = f.prix;
+      prixInp.addEventListener("change", () => { f.prix = clampNum(prixInp.value, 0, 9999, f.prix); CoachSettings.save({ forfaits: forfaits }); });
+      const delBtn = h("button",{class:"row-del"},"×");
+      delBtn.addEventListener("click", () => { forfaits.splice(idx,1); renderForfaitsList(); CoachSettings.save({ forfaits: forfaits }); });
+      row.appendChild(nomInp);
+      row.appendChild(h("span",{style:"font-size:11.5px;color:#5A5648"},"séances"));
+      row.appendChild(seancesInp);
+      row.appendChild(h("span",{style:"font-size:11.5px;color:#5A5648"},"prix"));
+      row.appendChild(prixInp);
+      row.appendChild(h("span",{style:"font-size:12px;color:#5A5648"},"€"));
+      row.appendChild(delBtn);
+      forfListBox.appendChild(row);
+    });
+  }
+  renderForfaitsList();
+
+  const forfAddRow = h("div",{class:"add-row"});
+  const nomAddInp = h("input",{type:"text",placeholder:"Ex: Forfait Découverte",style:"flex:1;min-width:140px"});
+  const seancesAddInp = h("input",{type:"number",min:"1",max:"99",placeholder:"Séances",style:"width:90px"});
+  const prixAddInp = h("input",{type:"number",min:"0",max:"9999",placeholder:"Prix €",style:"width:90px"});
+  const forfAddBtn = h("button",{class:"btn-sm"},"+ Ajouter et enregistrer");
+  forfAddBtn.addEventListener("click", () => {
+    const nom = nomAddInp.value.trim();
+    if (!nom) { notifCoach("Merci d'indiquer un nom de forfait."); return; }
+    if (!seancesAddInp.value) { notifCoach("Merci d'indiquer le nombre de séances."); return; }
+    forfaits.push({ nom: nom, seances: clampNum(seancesAddInp.value, 1, 99, 1), prix: clampNum(prixAddInp.value, 0, 9999, 0) });
+    nomAddInp.value = ""; seancesAddInp.value = ""; prixAddInp.value = "";
+    renderForfaitsList();
+    CoachSettings.save({ forfaits: forfaits });
+  });
+  forfAddRow.appendChild(nomAddInp); forfAddRow.appendChild(seancesAddInp); forfAddRow.appendChild(prixAddInp); forfAddRow.appendChild(forfAddBtn);
+  forfBox.appendChild(forfAddRow);
+  wrap.appendChild(forfBox);
+
+  // --- Message d'info (fermeture estivale, etc.) ---
+  const msgBox = h("div",{class:"card settings-card"});
+  msgBox.appendChild(h("div",{class:"settings-title"},"📢 Message d'information sur le site"));
+  const actifRow = h("label",{style:"display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:#2E2A20"});
+  const actifCb = h("input",{type:"checkbox"}); actifCb.checked = s.messageInfo.actif;
+  actifRow.appendChild(actifCb); actifRow.appendChild(document.createTextNode("Afficher un message sur le site (ex: fermeture estivale)"));
+  msgBox.appendChild(actifRow);
+  const texteArea = h("textarea",{style:"width:100%;min-height:70px;font-size:14px"});
+  texteArea.value = s.messageInfo.texte;
+  msgBox.appendChild(texteArea);
+  const saveMsgBtn = h("button",{class:"btn",style:"margin-top:12px;padding:9px 18px;font-size:13px"},"Enregistrer le message");
+  saveMsgBtn.addEventListener("click", () => CoachSettings.save({ messageInfo: { actif: actifCb.checked, texte: texteArea.value } }));
+  msgBox.appendChild(saveMsgBtn);
+  wrap.appendChild(msgBox);
+
+  // --- Congés / fermetures exceptionnelles ---
+  const congesBox = h("div",{class:"card settings-card",style:"margin-bottom:0"});
+  congesBox.appendChild(h("div",{class:"settings-title"},"🏖️ Congés / fermetures exceptionnelles"));
+  congesBox.appendChild(h("div",{class:"settings-hint"},"Ces périodes bloquent la réservation sur le site, en plus des horaires hebdomadaires."));
+
+  const conges = (s.conges || []).slice();
+  const listBox = h("div",{id:"congesList"});
+  congesBox.appendChild(listBox);
+
+  function renderCongesList() {
+    listBox.innerHTML = "";
+    if (!conges.length) {
+      listBox.appendChild(h("p",{class:"list-empty"},"Aucune période de fermeture enregistrée."));
+    }
+    conges.forEach((c, idx) => {
+      const row = h("div",{class:"list-row"});
+      row.appendChild(h("div",{style:"flex:1;font-size:13px;color:#2E2A20"}, (c.label || "Fermeture") + " — du " + c.debut + " au " + c.fin));
+      const delBtn = h("button",{class:"row-del"},"×");
+      delBtn.addEventListener("click", () => { conges.splice(idx,1); renderCongesList(); CoachSettings.save({ conges: conges }); });
+      row.appendChild(delBtn);
+      listBox.appendChild(row);
+    });
+  }
+  renderCongesList();
+
+  const addRow = h("div",{class:"add-row"});
+  const labelInp = h("input",{type:"text",placeholder:"Ex: Vacances d'été",style:"flex:1;min-width:140px"});
+  const debutInp = h("input",{type:"date",style:"width:140px"});
+  const finInp = h("input",{type:"date",style:"width:140px"});
+  const addBtn = h("button",{class:"btn-sm"},"+ Ajouter et enregistrer");
+  addBtn.addEventListener("click", () => {
+    if (!debutInp.value || !finInp.value) { notifCoach("Dates de début et fin requises"); return; }
+    if (finInp.value < debutInp.value) { notifCoach("La date de fin doit être après le début"); return; }
+    conges.push({ label: labelInp.value.trim() || "Fermeture", debut: debutInp.value, fin: finInp.value });
+    labelInp.value = ""; debutInp.value = ""; finInp.value = "";
+    renderCongesList();
+    CoachSettings.save({ conges: conges });
+  });
+  addRow.appendChild(labelInp); addRow.appendChild(debutInp); addRow.appendChild(finInp); addRow.appendChild(addBtn);
+  congesBox.appendChild(addRow);
+
+  wrap.appendChild(congesBox);
+
+  return wrap;
+}
+
+// ══════════════════════════════════════════
+//  DEMANDES DE RDV (depuis le site vitrine)
+// ══════════════════════════════════════════
+const RdvRequests = {
+  items: [],
+  unsub: null,
+  autoTraites: new Set(),
+  autoSupprimees: new Set(),
+  listen() {
+    if (this.unsub || !CoachLink.user) return;
+    this.unsub = firebase.firestore().collection("rdvRequests")
+      .orderBy("createdAt", "desc")
+      .onSnapshot(snap => {
+        this.items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        this.autoConfirmerClientsExistants();
+        this.nettoyerAnciennesDemandes();
+        if (state.tab === "rdv" || state.tab === "agenda") render();
+      }, e => console.error("listen rdvRequests:", e));
+  },
+  autoConfirmerClientsExistants() {
+    this.items
+      .filter(r => r.status === "nouveau" && !this.autoTraites.has(r.id))
+      .forEach(r => {
+        const client = trouverClientExistant(r);
+        if (client) {
+          this.autoTraites.add(r.id);
+          if (r.motif === "Séance Découverte (gratuite)") {
+            // La séance découverte gratuite est réservée aux nouveaux clients.
+            this.setStatus(r.id, "rejete");
+            notifCoach("⛔ Séance découverte refusée automatiquement : " + client.name + " est déjà client (offre réservée aux nouveaux).");
+          } else {
+            this.setStatus(r.id, "confirme");
+            notifCoach("✅ RDV auto-confirmé (client existant) : " + client.name);
+          }
+        }
+      });
+  },
+  nettoyerAnciennesDemandes() {
+    const db = firebase.firestore();
+    const seuil = Date.now() - 3 * 24 * 60 * 60 * 1000; // 3 jours
+    this.items
+      .filter(r => r.status !== "nouveau" && r.createdAt && new Date(r.createdAt).getTime() < seuil && !this.autoSupprimees.has(r.id))
+      .forEach(r => {
+        this.autoSupprimees.add(r.id);
+        db.collection("rdvRequests").doc(r.id).delete()
+          .catch(e => console.error("nettoyage rdvRequests:", e));
+      });
+  },
+  setStatus(id, status, callback) {
+    const db = firebase.firestore();
+    const req = this.items.find(r => r.id === id);
+    db.collection("rdvRequests").doc(id).update({ status })
+      .then(() => {
+        if (status === "confirme" && req) {
+          if (req.date && req.heure) {
+            const slotId = req.date + "_" + req.heure;
+            db.collection("bookedSlots").doc(slotId).set({ date: req.date, heure: req.heure })
+              .catch(e => console.error("bookedSlots:", e));
+          }
+          creerOuMajClientDepuisRdv(req);
+        } else if (status === "rejete" && req && req.date && req.heure) {
+          // Le créneau avait été réservé automatiquement à l'envoi : on le libère.
+          const slotId = req.date + "_" + req.heure;
+          db.collection("bookedSlots").doc(slotId).delete()
+            .catch(e => console.error("bookedSlots (liberation):", e));
+        }
+        if (callback) callback(null);
+      })
+      .catch(e => {
+        notifCoach("Erreur : " + e.message);
+        if (callback) callback(e);
+      });
+  },
+  annuler(id, callback) {
+    const db = firebase.firestore();
+    const req = this.items.find(r => r.id === id);
+    db.collection("rdvRequests").doc(id).update({ status: "annule" })
+      .then(() => {
+        if (req && req.date && req.heure) {
+          const slotId = req.date + "_" + req.heure;
+          db.collection("bookedSlots").doc(slotId).delete()
+            .catch(e => console.error("bookedSlots (annulation):", e));
+          state.appointments = state.appointments.filter(a =>
+            !(a.source === "site" && a.date === req.date && a.heure === req.heure));
+          save();
+        }
+        notifCoach("Rendez-vous annulé, créneau libéré.");
+        if (callback) callback(null);
+        render();
+      })
+      .catch(e => {
+        notifCoach("Erreur : " + e.message);
+        if (callback) callback(e);
+      });
+  }
+};
+
+const MOTIF_TARIF_KEY = {
+  "Séance Découverte (gratuite)": "decouverte",
+  "Forfait Déclic": "declic",
+  "Programme Sérénité": "codeChaine",
+  "Forfait Famille Hérisson": "famille"
+};
+
+function montantPourMotif(motif) {
+  const forfaitsDef = (CoachSettings.data && CoachSettings.data.forfaits) || DEFAULT_SETTINGS.forfaits;
+  const fMatch = forfaitsDef.find(f => f.nom === motif);
+  if (fMatch) return Number(fMatch.prix) || 0;
+  const key = MOTIF_TARIF_KEY[motif];
+  if (key && CoachSettings.data && CoachSettings.data.tarifs && CoachSettings.data.tarifs[key] != null) {
+    return Number(CoachSettings.data.tarifs[key]);
+  }
+  return 0;
+}
+
+function appliquerForfait(client, motif) {
+  const forfaitsDef = (CoachSettings.data && CoachSettings.data.forfaits) || DEFAULT_SETTINGS.forfaits;
+  const fMatch = forfaitsDef.find(f => f.nom === motif);
+  const total = fMatch ? Number(fMatch.seances) : 0;
+  if (!total) return; // séance à l'unité / découverte / autre / club : pas de suivi de forfait
+  if (client.forfaitNom !== motif || !client.forfaitTotal) {
+    client.forfaitNom = motif;
+    client.forfaitTotal = total;
+    client.forfaitUtilisees = 1;
+  } else {
+    client.forfaitUtilisees = Math.min(total, (client.forfaitUtilisees||0) + 1);
+  }
+}
+
+function normalizePhone(raw) {
+  if (!raw) return "";
+  let d = String(raw).replace(/[^\d+]/g, "");
+  if (d.startsWith("+33")) d = "0" + d.slice(3);
+  else if (d.startsWith("0033")) d = "0" + d.slice(4);
+  return d;
+}
+
+function ajouterRdvAgenda({ clientId, clientName, date, heure, motif, notes, source, reqId }) {
+  state.appointments.push({
+    id: "a" + Date.now() + Math.random().toString(36).slice(2,6),
+    clientId: clientId || null,
+    clientName: clientName || "Client",
+    date: date || "",
+    heure: heure || "",
+    motif: motif || "",
+    notes: notes || "",
+    source: source || "manuel",
+    reqId: reqId || null
+  });
+  save();
+  if (date && heure) {
+    const slotId = date + "_" + heure;
+    firebase.firestore().collection("bookedSlots").doc(slotId).set({ date, heure })
+      .catch(e => console.error("bookedSlots (agenda manuel):", e));
+  }
+}
+
+function supprimerRdvAgenda(id) {
+  const item = state.appointments.find(a => a.id === id);
+  state.appointments = state.appointments.filter(a => a.id !== id);
+  save();
+  if (item && item.date && item.heure) {
+    const slotId = item.date + "_" + item.heure;
+    firebase.firestore().collection("bookedSlots").doc(slotId).delete()
+      .catch(e => console.error("bookedSlots delete:", e));
+  }
+  if (item && item.reqId) {
+    firebase.firestore().collection("rdvRequests").doc(item.reqId).update({ status: "annule" })
+      .catch(e => console.error("annulation rdvRequests:", e));
+  }
+}
+
+function trouverClientExistant(req) {
+  const emailNorm = (req.email || "").trim().toLowerCase();
+  const telNorm = normalizePhone(req.tel);
+  return state.clients.find(c => {
+    const sameEmail = emailNorm && (c.email||"").trim().toLowerCase() === emailNorm;
+    const samePhone = telNorm && normalizePhone(c.tel) === telNorm;
+    return sameEmail || samePhone;
+  }) || null;
+}
+
+function creerOuMajClientDepuisRdv(req) {
+  let client = trouverClientExistant(req);
+  const montant = montantPourMotif(req.motif);
+
+  if (client) {
+    client.sessions = (client.sessions || 0) + 1;
+    client.nextSession = req.date || client.nextSession || "";
+    client.sessionHistory = client.sessionHistory || [];
+    client.sessionHistory.push("Séance " + client.sessionHistory.length + 1 + " — " + (req.motif || "RDV") + (req.theme ? " (" + req.theme + ")" : "") + (req.date ? " le " + req.date : ""));
+    appliquerForfait(client, req.motif);
+    client.paiements = client.paiements || [];
+    client.paiements.push({ id: Date.now()+"", date: req.date || new Date().toISOString().slice(0,10), montant, statut: "en attente" });
+    save();
+    ClientsManager.saveClient(client.id, client); // 🔄 Sync Firestore
+    ajouterRdvAgenda({ clientId: client.id, clientName: client.name, date: req.date, heure: req.heure, motif: req.motif, notes: req.message, source: "site", reqId: req.id });
+    notifCoach("✅ Séance ajoutée à la fiche de " + client.name);
+  } else {
+    const nom = ((req.prenom||"") + " " + (req.nom||"")).trim() || "Nouveau client";
+    const nouveauClient = {
+      id: "c" + Date.now(),
+      name: nom,
+      email: req.email || "",
+      tel: req.tel || "",
+      profile: "À définir",
+      age: null,
+      objective: req.motif || "",
+      sessions: 1,
+      nextSession: req.date || "",
+      status: "actif",
+      notes: req.message || "",
+      sessionHistory: ["Séance 1 — " + (req.motif || "RDV") + (req.theme ? " (" + req.theme + ")" : "") + (req.date ? " le " + req.date : "")],
+      objectifs: [],
+      entretiens: [],
+      paiements: [{ id: Date.now()+"", date: req.date || new Date().toISOString().slice(0,10), montant, statut: "en attente" }]
+    };
+    appliquerForfait(nouveauClient, req.motif);
+    state.clients.push(nouveauClient);
+    save();
+    ClientsManager.saveClient(nouveauClient.id, nouveauClient); // 🔄 Sync Firestore
+    ajouterRdvAgenda({ clientId: nouveauClient.id, clientName: nom, date: req.date, heure: req.heure, motif: req.motif, notes: req.message, source: "site", reqId: req.id });
+    notifCoach("✅ Nouvelle fiche client créée : " + nom);
+  }
+}
+
+const MOIS_NOMS_FR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+
+// ══════════════════════════════════════════
+//  AGENDA (tous les rendez-vous, site + manuels)
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+//  AGENDA (tous les rendez-vous, site + manuels)
+// ══════════════════════════════════════════
+function isoDate(d) { return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function parseISO(s) { return new Date(s + "T00:00:00"); }
+function startOfWeekMonday(d) { const day = d.getDay(); const diff = (day===0?-6:1-day); const r = new Date(d); r.setDate(d.getDate()+diff); return r; }
+const JOURS_COURT = ["lun","mar","mer","jeu","ven","sam","dim"];
+
+function appointmentsForDate(dateStr) {
+  return state.appointments.filter(a => a.date === dateStr).sort((a,b) => (a.heure||"").localeCompare(b.heure||""));
+}
+
+function resynchroniserCreneaux() {
+  const avecCreneau = state.appointments.filter(a => a.date && a.heure);
+  if (!avecCreneau.length) { notifCoach("Aucun rendez-vous avec créneau à synchroniser."); return; }
+  const db = firebase.firestore();
+  let fait = 0;
+  const total = avecCreneau.length;
+  avecCreneau.forEach(a => {
+    const slotId = a.date + "_" + a.heure;
+    db.collection("bookedSlots").doc(slotId).set({ date: a.date, heure: a.heure })
+      .then(() => { fait++; if (fait === total) notifCoach("✅ " + total + " créneau(x) resynchronisé(s)."); })
+      .catch(e => console.error("resync bookedSlots:", e));
+  });
+}
+
+function renderAgendaTab() {
+  const wrap = h("div",{class:"fade"});
+  const hdr = h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px"},
+    h("div",{},
+      h("h1",{style:"font-size:30px;color:#2E2A20;font-weight:600;font-style:italic"},"Agenda"),
+      h("p",{style:"color:#5A5648;font-size:13px;margin-top:4px"},"Tous les rendez-vous, issus du site ou ajoutés manuellement")
+    )
+  );
+  let showForm = false;
+  const addBtn = h("button",{class:"btn"},"+ Nouveau rendez-vous");
+  let formEl3 = null;
+  addBtn.addEventListener("click", () => {
+    showForm = !showForm;
+    addBtn.textContent = showForm ? "✕ Fermer" : "+ Nouveau rendez-vous";
+    if (showForm && !formEl3) {
+      formEl3 = buildAgendaForm();
+      hdr.after(formEl3);
+    } else if (!showForm && formEl3) {
+      formEl3.remove(); formEl3 = null;
+    }
+  });
+  hdr.appendChild(addBtn);
+  const syncBtn = h("button",{class:"btn-g"},"↻ Resynchroniser les créneaux");
+  syncBtn.addEventListener("click", () => resynchroniserCreneaux());
+  hdr.appendChild(syncBtn);
+  wrap.appendChild(hdr);
+
+  // --- Sélecteur de vue ---
+  const viewRow = h("div",{style:"display:flex;gap:8px;margin-bottom:18px"});
+  [["liste","☰ Liste"],["semaine","▦ Semaine"],["mois","▤ Mois"]].forEach(([id,label]) => {
+    const b = h("button",{class:"btn-sm"}, label);
+    if (state.agendaView === id) { b.style.background="#9C7A2E22"; b.style.color="#9C7A2E"; b.style.borderColor="#9C7A2E55"; }
+    b.addEventListener("click", () => { state.agendaView = id; state.agendaSelectedDay = null; render(); });
+    viewRow.appendChild(b);
+  });
+  wrap.appendChild(viewRow);
+
+  if (state.agendaView === "semaine") wrap.appendChild(renderAgendaSemaine());
+  else if (state.agendaView === "mois") wrap.appendChild(renderAgendaMois());
+  else wrap.appendChild(renderAgendaListe());
+
+  return wrap;
+}
+
+function appointmentRow(a) {
+  const todayStr = isoDate(new Date());
+  const isPast = a.date && a.date < todayStr;
+  const row = h("div",{class:"card",style:"padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:14px"+(isPast?";opacity:0.55":"")});
+  const dateBox = h("div",{style:"min-width:78px;text-align:center"},
+    h("div",{style:"font-size:13px;font-weight:700;color:#9C7A2E"}, a.date || "—"),
+    h("div",{style:"font-size:13px;color:#5A5648;margin-top:2px"}, a.heure || "")
+  );
+  const info = h("div",{style:"flex:1;min-width:0"},
+    h("div",{style:"color:#2E2A20;font-size:14px;font-weight:600"}, a.clientName),
+    h("div",{style:"color:#5A5648;font-size:12px;margin-top:2px"}, a.motif || "Rendez-vous")
+  );
+  const srcBadge = h("span",{style:`font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;background:${a.source==="site"?"#5aaec822":"#9880d022"};color:${a.source==="site"?"#5aaec8":"#9880d0"}`}, a.source==="site" ? "site" : "manuel");
+  const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#6B6355;font-size:18px;padding:0 4px"},"×");
+  delBtn.addEventListener("click", () => {
+    if (!confirm("Supprimer ce rendez-vous ?")) return;
+    supprimerRdvAgenda(a.id);
+    render();
+  });
+  row.appendChild(dateBox); row.appendChild(info); row.appendChild(srcBadge); row.appendChild(delBtn);
+  return row;
+}
+
+function renderAgendaListe() {
+  const wrap = h("div",{});
+  const todayStr = isoDate(new Date());
+  const items = [...state.appointments].sort((a,b) => (a.date+((a.heure||"00:00"))).localeCompare(b.date+(b.heure||"00:00")));
+  const upcoming = items.filter(a => !a.date || a.date >= todayStr);
+  const past = items.filter(a => a.date && a.date < todayStr).reverse();
+
+  wrap.appendChild(h("div",{style:"font-weight:700;font-size:14px;color:#2E2A20;margin-bottom:10px"}, "À venir (" + upcoming.length + ")"));
+  if (!upcoming.length) wrap.appendChild(h("p",{style:"color:#5A5648;font-size:13px;padding:10px 0"},"Aucun rendez-vous à venir."));
+  upcoming.forEach(a => wrap.appendChild(appointmentRow(a)));
+
+  if (past.length) {
+    wrap.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#5A5648;margin:22px 0 10px"}, "Passés"));
+    past.slice(0,15).forEach(a => wrap.appendChild(appointmentRow(a)));
+  }
+  return wrap;
+}
+
+function renderAgendaSemaine() {
+  const wrap = h("div",{});
+  const ref = parseISO(state.agendaRef);
+  const monday = startOfWeekMonday(ref);
+  const days = [...Array(7)].map((_,i) => { const d = new Date(monday); d.setDate(monday.getDate()+i); return d; });
+  const todayStr = isoDate(new Date());
+
+  const nav = h("div",{style:"display:flex;align-items:center;gap:12px;margin-bottom:16px"});
+  const prevBtn = h("button",{class:"btn-sm"},"‹ Semaine préc.");
+  const nextBtn = h("button",{class:"btn-sm"},"Semaine suiv. ›");
+  prevBtn.addEventListener("click", () => { const d = new Date(monday); d.setDate(d.getDate()-7); state.agendaRef = isoDate(d); render(); });
+  nextBtn.addEventListener("click", () => { const d = new Date(monday); d.setDate(d.getDate()+7); state.agendaRef = isoDate(d); render(); });
+  const label = MOIS_NOMS_FR[days[0].getMonth()] + " " + days[0].getDate() + " – " + (days[6].getMonth()!==days[0].getMonth() ? MOIS_NOMS_FR[days[6].getMonth()]+" " : "") + days[6].getDate() + " " + days[6].getFullYear();
+  nav.appendChild(prevBtn); nav.appendChild(h("div",{style:"color:#2E2A20;font-weight:700;font-size:14px;flex:1;text-align:center"},label)); nav.appendChild(nextBtn);
+  wrap.appendChild(nav);
+
+  days.forEach(d => {
+    const dStr = isoDate(d);
+    const dayApts = appointmentsForDate(dStr);
+    const isToday = dStr === todayStr;
+    const dayCard = h("div",{class:"card",style:"padding:14px 18px;margin-bottom:10px"+(isToday?";border-color:#9C7A2E66":"")});
+    dayCard.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"},
+      h("div",{style:"color:"+(isToday?"#9C7A2E":"#2E2A20")+";font-weight:700;font-size:13px;text-transform:capitalize"}, JOURS_COURT[d.getDay()===0?6:d.getDay()-1] + " " + d.getDate()),
+      h("span",{style:"color:#6B6355;font-size:13px"}, dayApts.length ? dayApts.length + " RDV" : "")
+    ));
+    if (!dayApts.length) {
+      dayCard.appendChild(h("p",{style:"color:#6B6355;font-size:12.5px"},"Aucun rendez-vous."));
+    } else {
+      dayApts.forEach(a => {
+        const row = h("div",{style:"display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #E4DAC0"});
+        row.appendChild(h("div",{style:"min-width:44px;color:#9C7A2E;font-size:12.5px;font-weight:600"}, a.heure||"—"));
+        row.appendChild(h("div",{style:"flex:1;color:#2E2A20;font-size:13px"}, a.clientName + (a.motif ? " — "+a.motif : "")));
+        const delBtn = h("button",{style:"background:transparent;border:none;cursor:pointer;color:#6B6355;font-size:16px"},"×");
+        delBtn.addEventListener("click", () => { if(confirm("Supprimer ce rendez-vous ?")){ supprimerRdvAgenda(a.id); render(); } });
+        row.appendChild(delBtn);
+        dayCard.appendChild(row);
+      });
+    }
+    wrap.appendChild(dayCard);
+  });
+
+  return wrap;
+}
+
+function renderAgendaMois() {
+  const wrap = h("div",{});
+  const ref = parseISO(state.agendaRef);
+  const year = ref.getFullYear(), month = ref.getMonth();
+  const firstOfMonth = new Date(year, month, 1);
+  const startGrid = startOfWeekMonday(firstOfMonth);
+  const todayStr = isoDate(new Date());
+
+  const nav = h("div",{style:"display:flex;align-items:center;gap:12px;margin-bottom:16px"});
+  const prevBtn = h("button",{class:"btn-sm"},"‹ Mois préc.");
+  const nextBtn = h("button",{class:"btn-sm"},"Mois suiv. ›");
+  prevBtn.addEventListener("click", () => { const d = new Date(year, month-1, 1); state.agendaRef = isoDate(d); state.agendaSelectedDay=null; render(); });
+  nextBtn.addEventListener("click", () => { const d = new Date(year, month+1, 1); state.agendaRef = isoDate(d); state.agendaSelectedDay=null; render(); });
+  nav.appendChild(prevBtn); nav.appendChild(h("div",{style:"color:#2E2A20;font-weight:700;font-size:14px;flex:1;text-align:center;text-transform:capitalize"}, MOIS_NOMS_FR[month]+" "+year)); nav.appendChild(nextBtn);
+  wrap.appendChild(nav);
+
+  const grid = h("div",{style:"display:grid;grid-template-columns:repeat(7,1fr);gap:6px"});
+  JOURS_COURT.forEach(j => grid.appendChild(h("div",{style:"text-align:center;color:#6B6355;font-size:13px;font-weight:700;padding-bottom:4px;text-transform:capitalize"}, j)));
+
+  const cursor = new Date(startGrid);
+  for (let w = 0; w < 6; w++) {
+    for (let i = 0; i < 7; i++) {
+      const dStr = isoDate(cursor);
+      const inMonth = cursor.getMonth() === month;
+      const dayApts = appointmentsForDate(dStr);
+      const isToday = dStr === todayStr;
+      const isSelected = state.agendaSelectedDay === dStr;
+      const cell = h("div",{style:`min-height:56px;border-radius:8px;padding:6px;cursor:pointer;background:${isSelected?"#9C7A2E22":"#FFFFFF"};border:1px solid ${isToday?"#9C7A2E66":"#E4DAC0"};opacity:${inMonth?1:0.35}`});
+      cell.appendChild(h("div",{style:"font-size:12px;color:"+(isToday?"#9C7A2E":"#2E2A20")+";font-weight:600"}, String(cursor.getDate())));
+      if (dayApts.length) {
+        cell.appendChild(h("div",{style:"margin-top:4px;font-size:9.5px;color:#9C7A2E;font-weight:700"}, dayApts.length + " RDV"));
+      }
+      cell.addEventListener("click", () => { state.agendaSelectedDay = (state.agendaSelectedDay===dStr) ? null : dStr; render(); });
+      grid.appendChild(cell);
+      cursor.setDate(cursor.getDate()+1);
+    }
+  }
+  wrap.appendChild(grid);
+
+  if (state.agendaSelectedDay) {
+    const dayApts = appointmentsForDate(state.agendaSelectedDay);
+    const detail = h("div",{class:"card",style:"padding:16px 18px;margin-top:16px"});
+    detail.appendChild(h("div",{style:"font-weight:700;font-size:13px;color:#2E2A20;margin-bottom:10px"}, state.agendaSelectedDay));
+    if (!dayApts.length) detail.appendChild(h("p",{style:"color:#6B6355;font-size:12.5px"},"Aucun rendez-vous ce jour-là."));
+    dayApts.forEach(a => detail.appendChild(appointmentRow(a)));
+    wrap.appendChild(detail);
+  }
+
+  return wrap;
+}
+
 function buildAgendaForm() {
   const fd = { clientId:"", clientName:"", date:"", heure:"", motif:"", notes:"" };
   const form = h("div",{class:"qform",style:"margin-bottom:20px"});
@@ -1981,10 +3499,7 @@ function buildFiche(c) {
       state.clients = state.clients.filter(x=>x.id!==c.id);
       save(); setState({selClientId:null});
     });
-    const contractBtn = h("button",{class:"btn-g"},`📋 Contrat`);
-    contractBtn.addEventListener("click",()=>{ openContractModal(c.id); });
-    row.appendChild(contractBtn);
-        row.appendChild(editBtn); row.appendChild(delBtn);
+    row.appendChild(editBtn); row.appendChild(delBtn);
     wrap.appendChild(row);
   }
 
