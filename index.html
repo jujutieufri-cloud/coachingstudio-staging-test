@@ -272,6 +272,7 @@ nav{flex:1}
   }
 }
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <button id="mobileMenuBtn" title="Menu">☰</button>
@@ -2378,6 +2379,281 @@ function renderAgendaMois() {
   return wrap;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// 📋 CONTRACT GENERATOR — Intégration CoachingStudio
+// ═══════════════════════════════════════════════════════════════════════════
+
+const CONTRACT_TEMPLATE = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contrat de Coaching Professionnel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: white; padding: 40px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; }
+        .header { text-align: center; border-bottom: 3px solid #2c3e50; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { font-size: 24px; color: #2c3e50; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; font-size: 13px; }
+        .meta-block { background: #f8f9fa; padding: 15px; border-radius: 4px; border-left: 3px solid #3498db; }
+        .section { margin-bottom: 30px; }
+        .section h2 { font-size: 16px; color: #2c3e50; background: #ecf0f1; padding: 12px 15px; margin-bottom: 15px; border-left: 4px solid #3498db; }
+        .section h3 { font-size: 13px; color: #2c3e50; margin: 15px 0 8px 0; font-weight: 700; }
+        .rpbd-box { background: #f0f7ff; border-left: 4px solid #3498db; padding: 12px 15px; margin: 12px 0; font-size: 12px; }
+        .highlight { background: #fffacd; padding: 2px 4px; border-radius: 2px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #ecf0f1; font-weight: 700; }
+        .signature-line { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 50px; }
+        .sig-box { border-top: 1px solid #333; padding-top: 10px; text-align: center; }
+        @media print { body { padding: 0; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Contrat de Coaching Professionnel</h1>
+            <p>{{contractDate}}</p>
+        </div>
+        <div class="meta">
+            <div class="meta-block">
+                <strong>🎯 Coach</strong>
+                <div>Nom: {{coachName}}</div>
+                <div>Email: {{coachEmail}}</div>
+                <div>SIRET: {{coachSiret}}</div>
+                <div>Certification: {{coachCertification}}</div>
+            </div>
+            <div class="meta-block">
+                <strong>👤 Coaché</strong>
+                <div>Nom: {{coacheeName}}</div>
+                <div>Email: {{coachedEmail}}</div>
+                <div>Profil: {{coachedProfile}}</div>
+                <div>Objectif: {{coachedObjective}}</div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>1️⃣ Contexte du Coaching</h2>
+            <h3>Demande du Coaché</h3>
+            <p>{{coachedObjective}}</p>
+        </div>
+        <div class="section">
+            <h2>2️⃣ Modalités</h2>
+            <table>
+                <tr><th>Aspect</th><th>Détail</th></tr>
+                <tr><td>Durée</td><td>{{engagementDuration}}</td></tr>
+                <tr><td>Séances</td><td>{{numberOfSessions}} x {{sessionDuration}}min</td></tr>
+                <tr><td>Fréquence</td><td>{{sessionFrequency}}</td></tr>
+                <tr><td>Format</td><td>{{sessionFormat}}</td></tr>
+            </table>
+        </div>
+        <div class="section">
+            <h2>3️⃣ Tarification</h2>
+            <table>
+                <tr><th>Élément</th><th>Montant</th></tr>
+                <tr><td>Forfait</td><td><strong>{{totalAmount}} € TTC</strong></td></tr>
+                <tr><td>Par séance</td><td>{{pricePerSession}} €</td></tr>
+            </table>
+        </div>
+        <div class="section">
+            <h2>4️⃣ Droits & Responsabilités</h2>
+            <p><strong>Coaching:</strong> Conseil & accompagnement, NON garantie de résultats</p>
+            <p><strong>Confidentialité:</strong> Secret professionnel respecté</p>
+            <p><strong>Droit de rétractation:</strong> 14 jours après signature</p>
+            <p><strong>Rupture:</strong> Préavis 30 jours (client), 7 jours (coach)</p>
+        </div>
+        <div class="section">
+            <h2>5️⃣ Signatures</h2>
+            <div class="signature-line">
+                <div class="sig-box">
+                    <p style="margin-top: 40px;">_________________________</p>
+                    <p>Coach - Date</p>
+                    <p style="font-size: 11px; margin-top: 10px;">{{coachName}}</p>
+                </div>
+                <div class="sig-box">
+                    <p style="margin-top: 40px;">_________________________</p>
+                    <p>Coaché - Date</p>
+                    <p style="font-size: 11px; margin-top: 10px;">{{coacheeName}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+
+class ContractGenerator {
+    constructor(coachSettings, clientData, rpbdData, cadrageData) {
+        this.coach = coachSettings;
+        this.client = clientData;
+        this.rpbd = rpbdData || {};
+        this.cadrage = cadrageData || {};
+    }
+    
+    generateHTML() {
+        let html = CONTRACT_TEMPLATE;
+        const today = new Date();
+        
+        html = html.replace(/{{coachName}}/g, this.coach.name || 'Coach Julien');
+        html = html.replace(/{{coachEmail}}/g, this.coach.email || '');
+        html = html.replace(/{{coachSiret}}/g, this.coach.siret || 'SIRET');
+        html = html.replace(/{{coachCertification}}/g, this.coach.certification || 'Coach RNCP');
+        
+        html = html.replace(/{{coacheeName}}/g, this.client.name || 'Client');
+        html = html.replace(/{{coachedEmail}}/g, this.client.email || '');
+        html = html.replace(/{{coachedProfile}}/g, this.client.profile || 'Profil');
+        html = html.replace(/{{coachedObjective}}/g, this.client.objective || '');
+        
+        html = html.replace(/{{engagementDuration}}/g, this.cadrage.duration || '3 mois');
+        html = html.replace(/{{numberOfSessions}}/g, this.cadrage.sessionCount || 12);
+        html = html.replace(/{{sessionDuration}}/g, this.cadrage.sessionDuration || 60);
+        html = html.replace(/{{sessionFrequency}}/g, this.cadrage.frequency || '1x/semaine');
+        html = html.replace(/{{sessionFormat}}/g, this.cadrage.format || 'Visioconférence');
+        
+        const total = this.cadrage.totalAmount || 1200;
+        html = html.replace(/{{totalAmount}}/g, total);
+        html = html.replace(/{{pricePerSession}}/g, Math.round((total / (this.cadrage.sessionCount || 12)) * 100) / 100);
+        
+        html = html.replace(/{{contractDate}}/g, today.toLocaleDateString('fr-FR'));
+        
+        return html;
+    }
+    
+    getHTMLPreview() {
+        return this.generateHTML();
+    }
+    
+    async generatePDF() {
+        const html = this.generateHTML();
+        return new Promise((resolve, reject) => {
+            const element = document.createElement('div');
+            element.innerHTML = html;
+            
+            const opt = {
+                margin: 10,
+                filename: `Contrat_${this.client.name}_${Date.now()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+            
+            if (typeof html2pdf !== 'undefined') {
+                html2pdf().set(opt).from(element).save();
+                resolve({ success: true });
+            } else {
+                reject(new Error('html2pdf not loaded'));
+            }
+        });
+    }
+}
+
+// Fonction d'ouverture du modal
+async function openContractModal(clientId) {
+    const client = state.clients.find(c => c.id === clientId);
+    if (!client) return notifCoach("❌ Client non trouvé");
+    
+    const coachSettings = {
+        name: "Coach Julien Tieufri",
+        email: "contact@coach-julien.fr",
+        tel: "+33 6 XX XX XX XX",
+        address: "Baron, Oise",
+        statut: "Auto-entrepreneur",
+        siret: "SIRET_À_REMPLIR",
+        city: "Baron",
+        certification: "Coach RNCP",
+        insuranceRC: "RC Pro assurée"
+    };
+    
+    const generator = new ContractGenerator(
+        coachSettings,
+        {
+            name: client.name,
+            email: client.email,
+            tel: client.tel,
+            profile: client.profile || 'Profil neuro-atypique',
+            objective: client.objective || ''
+        },
+        client.rpbd || {},
+        client.cadrage || { duration: '3 mois', sessionCount: 12, totalAmount: 1200 }
+    );
+    
+    const html = generator.getHTMLPreview();
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 10px;`;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `background: white; width: 95%; max-width: 900px; max-height: 85vh; overflow: auto; border-radius: 8px; padding: 20px;`;
+    
+    const header = document.createElement('div');
+    header.style.cssText = `display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #ddd;`;
+    header.innerHTML = `<h2 style="margin: 0;">📋 Aperçu Contrat</h2>`;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕ Fermer';
+    closeBtn.style.cssText = `background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;`;
+    closeBtn.onclick = () => modal.remove();
+    header.appendChild(closeBtn);
+    
+    const preview = document.createElement('iframe');
+    preview.style.cssText = `width: 100%; height: 500px; border: 1px solid #ddd; margin-bottom: 20px; border-radius: 4px;`;
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    preview.src = URL.createObjectURL(blob);
+    
+    const actions = document.createElement('div');
+    actions.style.cssText = `display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;`;
+    
+    const btnDownload = document.createElement('button');
+    btnDownload.textContent = '⬇️ Télécharger PDF';
+    btnDownload.style.cssText = `background: #27ae60; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;`;
+    btnDownload.onclick = async () => {
+        try {
+            await generator.generatePDF();
+            notifCoach("✅ PDF téléchargé");
+            modal.remove();
+        } catch(e) {
+            notifCoach("❌ Erreur: " + e.message);
+        }
+    };
+    
+    const btnEmail = document.createElement('button');
+    btnEmail.textContent = '📧 Envoyer par Email';
+    btnEmail.style.cssText = `background: #f39c12; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;`;
+    btnEmail.onclick = () => {
+        notifCoach("📧 À implémenter: envoi email + e-signature Yousign");
+    };
+    
+    const btnArchive = document.createElement('button');
+    btnArchive.textContent = '💾 Archiver & Signer';
+    btnArchive.style.cssText = `background: #9b59b6; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;`;
+    btnArchive.onclick = async () => {
+        try {
+            const db = firebase.firestore();
+            await db.collection('clients').doc(clientId).collection('contracts').add({
+                type: 'coaching_contract',
+                createdAt: new Date(),
+                status: 'draft',
+                htmlContent: html,
+                clientName: client.name,
+                coachName: coachSettings.name
+            });
+            notifCoach("✅ Contrat archivé");
+            modal.remove();
+        } catch(e) {
+            notifCoach("❌ Erreur archivage: " + e.message);
+        }
+    };
+    
+    actions.appendChild(btnDownload);
+    actions.appendChild(btnEmail);
+    actions.appendChild(btnArchive);
+    
+    content.appendChild(header);
+    content.appendChild(preview);
+    content.appendChild(actions);
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+}
 function buildAgendaForm() {
   const fd = { clientId:"", clientName:"", date:"", heure:"", motif:"", notes:"" };
   const form = h("div",{class:"qform",style:"margin-bottom:20px"});
@@ -3499,7 +3775,10 @@ function buildFiche(c) {
       state.clients = state.clients.filter(x=>x.id!==c.id);
       save(); setState({selClientId:null});
     });
-    row.appendChild(editBtn); row.appendChild(delBtn);
+    const contractBtn = h("button",{class:"btn-g"},`📋 Contrat`);
+    contractBtn.addEventListener("click",()=>{ openContractModal(c.id); });
+    row.appendChild(contractBtn);
+        row.appendChild(editBtn); row.appendChild(delBtn);
     wrap.appendChild(row);
   }
 
