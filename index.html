@@ -272,6 +272,7 @@ nav{flex:1}
   }
 }
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <button id="mobileMenuBtn" title="Menu">☰</button>
@@ -3499,7 +3500,9 @@ function buildFiche(c) {
       state.clients = state.clients.filter(x=>x.id!==c.id);
       save(); setState({selClientId:null});
     });
-    row.appendChild(editBtn); row.appendChild(delBtn);
+    const contractBtn = h("button",{class:"btn",style:"border-color:#9C7A2E44;color:#9C7A2E"},"📋 Contrat");
+    contractBtn.addEventListener("click",()=>{ openContractModal(c.id); });
+    row.appendChild(editBtn); row.appendChild(contractBtn); row.appendChild(delBtn);
     wrap.appendChild(row);
   }
 
@@ -4468,6 +4471,281 @@ function saveLiveSession() {
 // .selected { background: #9C7A2E; color: white; }
 // .asrs-btn.selected { background: #9C7A2E; color: white; }
 
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📋 CONTRACT GENERATOR — Modèle MHD Formation
+// ═══════════════════════════════════════════════════════════════════════════
+
+const CONTRACT_TEMPLATE_SIMPLE = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contrat de Coaching</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            line-height: 1.5; 
+            color: #333; 
+            padding: 40px; 
+            background: white;
+        }
+        .container { max-width: 850px; margin: 0 auto; }
+        
+        h1 { font-size: 18px; text-align: center; margin-bottom: 30px; font-weight: 700; }
+        h2 { font-size: 14px; color: #2c3e50; background: #ecf0f1; padding: 10px; margin: 20px 0 10px 0; font-weight: 700; }
+        
+        .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; font-size: 12px; }
+        .meta-block { background: #f8f9fa; padding: 12px; border-radius: 4px; }
+        .meta-label { font-weight: 700; margin-bottom: 4px; }
+        .meta-text { font-size: 11px; color: #555; margin: 2px 0; }
+        
+        p { margin: 8px 0; font-size: 12px; line-height: 1.6; }
+        ol, ul { margin: 10px 0 10px 20px; font-size: 12px; }
+        li { margin: 5px 0; }
+        
+        .signature-line { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px; }
+        .sig-box { text-align: center; font-size: 11px; }
+        .sig-line { border-top: 1px solid #333; width: 150px; margin: 30px auto 10px; }
+        
+        @media print {
+            body { padding: 20px; }
+            .container { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CONTRAT DE COACHING PROFESSIONNEL</h1>
+        
+        <div class="meta">
+            <div class="meta-block">
+                <div class="meta-label">LE CLIENT :</div>
+                <div class="meta-text">Nom : {{coacheeName}}</div>
+                <div class="meta-text">Email : {{coachedEmail}}</div>
+                <div class="meta-text">Tél : {{coachedTel}}</div>
+            </div>
+            <div class="meta-block">
+                <div class="meta-label">LE COACH :</div>
+                <div class="meta-text">Nom : {{coachName}}</div>
+                <div class="meta-text">Email : {{coachEmail}}</div>
+                <div class="meta-text">SIRET : {{coachSiret}}</div>
+            </div>
+        </div>
+
+        <h2>OBJET DE LA CONVENTION</h2>
+        <p>Par la présente convention, il est prévu l'organisation d'un accompagnement individuel de coaching professionnel.</p>
+        
+        <p><strong>Objectif du coaching :</strong> {{coachedObjective}}</p>
+
+        <h2>MODALITÉS PRATIQUES</h2>
+        <ol>
+            <li>Séances de {{sessionDuration}} minutes par entretien</li>
+            <li>Fréquence : {{sessionFrequency}}</li>
+            <li>Format : {{sessionFormat}}</li>
+            <li>Les séances doivent avoir lieu à un rythme d'au minimum deux fois par mois</li>
+        </ol>
+
+        <h2>DURÉE DE LA CONVENTION</h2>
+        <ol>
+            <li>Période initiale : {{engagementDuration}}</li>
+            <li>À tout moment, le client pourra mettre fin à cette convention à condition d'en avertir le coach avec un préavis de 30 jours</li>
+            <li>Le coach peut résilier le contrat avec un préavis de 7 jours</li>
+        </ol>
+
+        <h2>MODALITÉS FINANCIÈRES</h2>
+        <ol>
+            <li>Coût total : {{totalAmount}} €</li>
+            <li>Prix par séance : {{pricePerSession}} €</li>
+            <li>Modalités de paiement : {{paymentTerms}}</li>
+        </ol>
+
+        <h2>DEVOIRS DU COACH</h2>
+        <ol>
+            <li>Intervient avec formation et expérience dans ses domaines de compétence</li>
+            <li>Respecte le secret professionnel et la confidentialité</li>
+            <li>Ne abuse pas d'influence pour ses propres intérêts</li>
+            <li>Fournit les moyens pour favoriser l'évolution du client</li>
+            <li>Synthétise les intérêts du client et son contexte</li>
+            <li>Le client reste responsable de ses décisions et actions</li>
+        </ol>
+
+        <h2>DEVOIRS DU CLIENT</h2>
+        <ol>
+            <li>Reste responsable de ses décisions et actions</li>
+            <li>Ponctualité : au-delà de 15 min de retard, la séance sera considérée comme annulée</li>
+            <li>Respecte un délai d'annulation de 48 heures avant la séance</li>
+        </ol>
+
+        <h2>SIGNATURES</h2>
+        <div class="signature-line">
+            <div class="sig-box">
+                <div>Fait à _____________</div>
+                <div>Le {{contractDate}}</div>
+                <div class="sig-line"></div>
+                <div>Signature du Coach</div>
+                <div style="margin-top: 20px;">{{coachName}}</div>
+            </div>
+            <div class="sig-box">
+                <div>Fait à _____________</div>
+                <div>Le {{contractDate}}</div>
+                <div class="sig-line"></div>
+                <div>Signature du Client</div>
+                <div style="margin-top: 20px;">{{coacheeName}}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>\`;
+
+class ContractGenerator {
+  constructor(coachSettings, clientData, cadrageData) {
+    this.coach = coachSettings;
+    this.client = clientData;
+    this.cadrage = cadrageData || {};
+  }
+
+  generateHTML() {
+    let html = CONTRACT_TEMPLATE_SIMPLE;
+    
+    // Coach
+    html = html.replace("{{coachName}}", this.coach.name || "Coach Julien Tieufri");
+    html = html.replace("{{coachEmail}}", this.coach.email || "email@example.fr");
+    html = html.replace("{{coachSiret}}", this.coach.siret || "À REMPLIR");
+    
+    // Client
+    html = html.replace("{{coacheeName}}", this.client.name || "Nom Client");
+    html = html.replace("{{coachedEmail}}", this.client.email || "");
+    html = html.replace("{{coachedTel}}", this.client.tel || "");
+    html = html.replace("{{coachedObjective}}", this.client.objective || "");
+    
+    // Cadrage
+    const duration = this.cadrage.duration || "3 mois";
+    const sessionDuration = this.cadrage.sessionDuration || 60;
+    const frequency = this.cadrage.frequency || "1x/semaine";
+    const format = this.cadrage.format || "Visioconférence";
+    const totalAmount = this.cadrage.totalAmount || 1200;
+    const pricePerSession = totalAmount / 12;
+    
+    html = html.replace("{{engagementDuration}}", duration);
+    html = html.replace("{{sessionDuration}}", sessionDuration);
+    html = html.replace("{{sessionFrequency}}", frequency);
+    html = html.replace("{{sessionFormat}}", format);
+    html = html.replace("{{totalAmount}}", totalAmount);
+    html = html.replace("{{pricePerSession}}", pricePerSession.toFixed(2));
+    html = html.replace("{{paymentTerms}}", this.cadrage.paymentTerms || "À la signature");
+    
+    // Date
+    const today = new Date().toLocaleDateString("fr-FR");
+    html = html.replace(/{{contractDate}}/g, today);
+    
+    return html;
+  }
+
+  getHTMLPreview() {
+    return this.generateHTML();
+  }
+
+  generatePDF() {
+    const html = this.generateHTML();
+    const opt = {
+      margin: 5,
+      filename: \`Contrat_\${this.client.name || "Client"}_\${Date.now()}.pdf\`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { orientation: "portrait", unit: "mm", format: "a4" }
+    };
+    html2pdf().set(opt).from(html).save();
+  }
+}
+
+function openContractModal(clientId) {
+  const client = state.clients.find(c => c.id === clientId);
+  if (!client) return notifCoach("❌ Client non trouvé");
+
+  const coachSettings = {
+    name: "Coach Julien Tieufri",
+    email: "julien.coaching@example.fr",
+    tel: "+33 6 XX XX XX XX",
+    siret: "SIRET_À_REMPLIR",
+    certification: "Coach RNCP"
+  };
+
+  const cadrageData = {
+    duration: client.cadrage?.duration || "3 mois",
+    sessionDuration: client.cadrage?.sessionDuration || 60,
+    frequency: client.cadrage?.frequency || "1x/semaine",
+    format: client.cadrage?.format || "Visioconférence",
+    totalAmount: client.cadrage?.totalAmount || 1200,
+    paymentTerms: client.cadrage?.paymentTerms || "À la signature"
+  };
+
+  const gen = new ContractGenerator(coachSettings, client, cadrageData);
+
+  // Modal HTML
+  const modalBg = document.createElement("div");
+  modalBg.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999";
+
+  const modal = document.createElement("div");
+  modal.style.cssText = "background:white;border-radius:12px;width:90vw;height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.3)";
+
+  const header = document.createElement("div");
+  header.style.cssText = "padding:20px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center";
+  header.innerHTML = "<h2 style='margin:0;font-size:18px;color:#2c3e50'>📋 Aperçu du Contrat</h2>";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.innerHTML = "✕";
+  closeBtn.style.cssText = "background:none;border:none;font-size:24px;cursor:pointer;color:#999";
+  closeBtn.onclick = () => document.body.removeChild(modalBg);
+  header.appendChild(closeBtn);
+
+  const iframeContainer = document.createElement("div");
+  iframeContainer.style.cssText = "flex:1;overflow:auto;padding:20px";
+  
+  const iframe = document.createElement("iframe");
+  iframe.style.cssText = "width:100%;height:100%;border:1px solid #e0e0e0;border-radius:8px";
+  iframeContainer.appendChild(iframe);
+  iframe.srcDoc = gen.getHTMLPreview();
+
+  const footer = document.createElement("div");
+  footer.style.cssText = "padding:16px;border-top:1px solid #e0e0e0;display:flex;gap:10px;justify-content:flex-end";
+
+  const btnDownload = document.createElement("button");
+  btnDownload.innerHTML = "⬇️ Télécharger PDF";
+  btnDownload.className = "btn";
+  btnDownload.onclick = () => gen.generatePDF();
+  
+  const btnArchive = document.createElement("button");
+  btnArchive.innerHTML = "💾 Archiver";
+  btnArchive.className = "btn";
+  btnArchive.onclick = () => {
+    const db = firebase.firestore();
+    db.collection("clients").doc(clientId).collection("contracts").doc(Date.now() + "").set({
+      type: "coaching_contract",
+      createdAt: new Date(),
+      status: "draft",
+      htmlContent: gen.generateHTML(),
+      clientName: client.name,
+      coachName: coachSettings.name
+    }).then(() => {
+      notifCoach("✅ Contrat archivé !");
+    }).catch(e => {
+      console.error("Erreur archivage:", e);
+      notifCoach("❌ Erreur lors de l'archivage");
+    });
+  };
+
+  footer.appendChild(btnDownload);
+  footer.appendChild(btnArchive);
+
+  modal.appendChild(header);
+  modal.appendChild(iframeContainer);
+  modal.appendChild(footer);
+  modalBg.appendChild(modal);
+  document.body.appendChild(modalBg);
+}
 
 </script>
 </body>
